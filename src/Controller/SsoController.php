@@ -5,8 +5,12 @@ namespace SingleSignOn\Controller;
 use Doctrine\ORM\EntityManager;
 use Laminas\Authentication\AuthenticationService;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Mvc\Exception;
+use Laminas\Session\Container;
+use Omeka\Entity\User;
 use Omeka\Mvc\Exception\RuntimeException;
 use Omeka\Stdlib\Message;
+use OneLogin\Saml2\Auth as SamlAuth;
 use OneLogin\Saml2\Error as SamlError;
 use OneLogin\Saml2\Settings as SamlSettings;
 
@@ -32,25 +36,9 @@ class SsoController extends AbstractActionController
 
     public function metadataAction()
     {
-        $configSso = $this->configSso();
-
-        try {
-            $samlSettings = new SamlSettings($configSso, true);
-            $metadata = $samlSettings->getSPMetadata();
-        } catch (SamlError $e) {
-            $message = new Message('SSO service has an error in configuration: %s', $e); // @translate
-            $this->logger()->err($message);
-            $message = new Message(
-                'SSO service is not available. Ask admin to config it.' // @translate
-            );
-            throw new RuntimeException((string) $message);
-        } catch (\Exception $e) {
-            $this->logger()->err('SSO service is unavailable.'); // @translate
-            $message = new Message(
-                'SSO service is unavailable. Ask admin to config it.' // @translate
-            );
-            throw new \Omeka\Mvc\Exception\RuntimeException((string) $message);
-        }
+        $configSso = $this->validConfigSso(true);
+        $samlSettings = new SamlSettings($configSso, true);
+        $metadata = $samlSettings->getSPMetadata();
 
         /** @var \Laminas\Http\Response $response */
         $response = $this->getResponse();
@@ -59,6 +47,221 @@ class SsoController extends AbstractActionController
             ->getHeaders()
             ->addHeaderLine('Content-Type', 'text/xml');
         return $response;
+    }
+
+    /**
+     * @see \Omeka\Controller\LoginController::login()
+     */
+    public function loginAction()
+    {
+        $user = $this->authentication->getIdentity();
+        $redirectUrl = $this->redirectUrl();
+        if ($user) {
+            return $this->redirect()->toUrl($redirectUrl);
+        }
+
+        $configSso = $this->validConfigSso(true);
+        $samlAuth = new SamlAuth($configSso);
+
+        // Redirect to external IdP.
+        return $samlAuth->login($redirectUrl);
+    }
+
+    /**
+     * Log in on the IdP via the ACS (assertion consumer service).
+     */
+    public function acsAction()
+    {
+        $redirectUrl = $this->redirectUrl();
+
+        $user = $this->authentication->getIdentity();
+        if ($user) {
+            return $this->redirect()->toUrl($redirectUrl);
+        }
+
+        $configSso = $this->validConfigSso(true);
+        $samlAuth = new SamlAuth($configSso);
+
+        $samlAuth->processResponse();
+        $errors = $samlAuth->getErrors();
+        if ($errors) {
+            $lastErrorReason = $samlAuth->getLastErrorReason();
+            if ($lastErrorReason) {
+                $message = new Message(
+                    'Single sign-on failed: %1$s. %2$s', // @translate
+                    implode(', ', $errors),
+                    $lastErrorReason
+                );
+            } else {
+                $message = new Message(
+                    'Single sign-on failed: %s', // @translate
+                    implode(', ', $errors)
+                );
+            }
+            $this->messenger()->addError($message);
+            $this->logger()->err($message);
+            // Since this is a config or idp error, redirect to local login.
+            return $this->redirect()->toRoute('login');
+        }
+
+        $nameId = $samlAuth->getNameId();
+        $samlAttributes = $samlAuth->getAttributes();
+
+        // The map is already checked.
+        $attributesMap = $this->settings()->get('singlesignon_attributes_map', []);
+        $email = $samlAttributes[array_search('email', $attributesMap)][0] ?? null;
+        if (!$email && strpos($nameId, '@')) {
+            $email = $nameId;
+        }
+
+        if (!$email) {
+            $message = new Message('No email provided to log in or register.'); // @translate
+            $this->messenger()->addError($message);
+            $message = new Message('No email provided or mapped. Available attributes for this IdP: %s', // @translate
+                implode(', ', array_keys($samlAttributes))
+            );
+            $this->logger()->err($message);
+            // Since this is a config or idp error, redirect to local login.
+            return $this->redirect()->toRoute('login');
+        }
+
+        $name = $samlAttributes[array_search('name', $attributesMap)][0] ?? null;
+        $role = $samlAttributes[array_search('role', $attributesMap)][0] ?? 'guest';
+
+        $user = $this->entityManager
+            ->getRepository(\Omeka\Entity\User::class)
+            ->findOneBy(['email' => $email]);
+
+        if (empty($user)) {
+            if (!$name) {
+                $message = new Message('No name provided to register a new user.'); // @translate
+                $this->messenger()->addError($message);
+                $message = new Message('No name provided or mapped. Available attributes for this IdP: %s', // @translate
+                    implode(', ', array_keys($samlAttributes))
+                );
+                $this->logger()->err($message);
+                // Since this is a config or idp error, redirect to local login.
+                return $this->redirect()->toRoute('login');
+            }
+
+            $user = new User();
+            $user->setEmail($email);
+            $user->setName($name);
+            $user->setRole($role);
+            $user->setIsActive(true);
+
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        } elseif (!$user->isActive()) {
+            $message = new Message('User "%s" is inactive.', $email); // @translate
+            $this->messenger()->addError($message);
+            $this->logger()->warn($message);
+            // Since this is a non-authorized user, return to redirect url.
+            return $this->redirect()->toUrl($redirectUrl);
+        } else {
+            $update = false;
+            if ($name && $name !== $user->getName()) {
+                $update = true;
+                $user->setName($name);
+            }
+            /* Update role via admin interface only for now.
+            if ($role && $role !== $user->getRole) {
+                $update = true;
+                $user->setRole($role);
+            }
+            */
+            if ($update) {
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
+            }
+        }
+
+        $sessionManager = Container::getDefaultManager();
+        $sessionManager->regenerateId();
+
+        $adapter = $this->authentication->getAdapter();
+        $adapter->setIdentity($user->getEmail());
+
+        // Unlike module Shibboleth, the AuthenticationService isn't overridden,
+        // so the authentication cannot be check directly in the laminas way.
+        // So write it directly.
+        $this->authentication->getStorage()->write($user);
+        // A useless check.
+        $user = $this->authentication->getIdentity();
+
+        $this->messenger()->addSuccess('Successfully logged in.'); // @translate
+
+        $eventManager = $this->getEventManager();
+        $eventManager->trigger('user.login', $user);
+
+        // The redirect url is refreshed because user is authenticated.
+        $redirectUrl = $this->redirectUrl();
+        return $this->redirect()->toUrl($redirectUrl);
+    }
+
+    protected function redirectUrl(): string
+    {
+        $redirectUrl = $this->params()->fromQuery('redirect_url') ?: null;
+        if ($redirectUrl) {
+            return $redirectUrl;
+        }
+
+        $session = Container::getDefaultManager()->getStorage();
+        $redirectUrl = $session->offsetGet('redirect_url');
+        if ($redirectUrl) {
+            return $redirectUrl;
+        }
+
+        $user = $this->authentication->getIdentity();
+        return $user && $this->userIsAllowed('Omeka\Controller\Admin\Index', 'index')
+            ? $this->url()->fromRoute('admin')
+            :  $this->url()->fromRoute('top');
+    }
+
+    protected function validConfigSso(bool $throw = false): ?array
+    {
+        try {
+            $configSso = $this->configSso();
+            new SamlSettings($configSso);
+        } catch (SamlError $e) {
+            $message = new Message('SSO service has an error in configuration: %s', $e); // @translate
+            $this->logger()->err($message);
+            if (!$throw) {
+                return null;
+            }
+            $message = new Message(
+                'SSO service is not available. Ask admin to config it.' // @translate
+            );
+            throw new RuntimeException((string) $message);
+        } catch (\Exception $e) {
+            $this->logger()->err('SSO service is unavailable.'); // @translate
+            if (!$throw) {
+                return null;
+            }
+            $message = new Message(
+                'SSO service is unavailable. Ask admin to config it.' // @translate
+            );
+            throw new \Omeka\Mvc\Exception\RuntimeException((string) $message);
+        }
+
+        // Check the config for the mapping too here to avoid next checks.
+        $attributesMap = $this->settings()->get('singlesignon_attributes_map', []);
+        if (!in_array('email', $attributesMap)
+            || !in_array('name', $attributesMap)
+        ) {
+            $message = new \Omeka\Stdlib\Message(
+                'The mapping must define at least the two keys from IdP to Omeka "email" and "name".' // @translate
+            );
+            $this->logger()->err($message); // @translate
+            if (!$throw) {
+                return null;
+            }
+            throw new \Omeka\Mvc\Exception\RuntimeException((string) $message);
+        }
+
+        unset($configSso['sp']['singleLogoutService']);
+
+        return $configSso;
     }
 
     protected function configSso(): array

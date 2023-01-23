@@ -9,6 +9,7 @@ use Laminas\Mvc\Exception;
 use Laminas\Session\Container;
 use Omeka\Entity\User;
 use Omeka\Mvc\Exception\RuntimeException;
+use Omeka\Permissions\Acl;
 use Omeka\Stdlib\Message;
 use OneLogin\Saml2\Auth as SamlAuth;
 use OneLogin\Saml2\Error as SamlError;
@@ -27,6 +28,11 @@ class SsoController extends AbstractActionController
     protected $authentication;
 
     /**
+     * @var Acl
+     */
+    protected $acl;
+
+    /**
      * @var array
      */
     protected $attributesMapCanonical = [
@@ -37,10 +43,12 @@ class SsoController extends AbstractActionController
 
     public function __construct(
         EntityManager $entityManager,
-        AuthenticationService $authenticationService
+        AuthenticationService $authenticationService,
+        Acl $acl
     ) {
         $this->entityManager = $entityManager;
         $this->authentication = $authenticationService;
+        $this->acl = $acl;
     }
 
     public function metadataAction()
@@ -177,9 +185,14 @@ class SsoController extends AbstractActionController
         $name = $samlAttributesFriendly[array_search('name', $attributesMap)][0]
             ?? $samlAttributesCanonical[array_search('name', $this->attributesMapCanonical)][0]
             ?? null;
+
+        $roles = $this->acl->getRoles();
         $role = $samlAttributesFriendly[array_search('role', $attributesMap)][0]
             ?? $samlAttributesCanonical[array_search('role', $this->attributesMapCanonical)][0]
             ?? 'guest';
+        if (!in_array($role, $roles)) {
+            $role = in_array('guest', $roles) ? 'guest' : Acl::ROLE_RESEARCHER;
+        }
 
         $user = $this->entityManager
             ->getRepository(\Omeka\Entity\User::class)

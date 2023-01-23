@@ -20,7 +20,7 @@ return [
                 'options' => [
                     'route' => '/sso[/:action]',
                     'constraints' => [
-                        'action' => 'login|acs|metadata',
+                        'action' => 'metadata|login|acs|logout|sls',
                     ],
                     'defaults' => [
                         '__NAMESPACE__' => 'SingleSignOn\Controller',

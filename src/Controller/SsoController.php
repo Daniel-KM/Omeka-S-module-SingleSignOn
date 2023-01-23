@@ -76,6 +76,42 @@ class SsoController extends AbstractActionController
         return $samlAuth->login($redirectUrl);
     }
 
+    public function logoutAction()
+    {
+        $user = $this->authentication->getIdentity();
+        if (!$user) {
+            return $this->redirect()->toRoute('top');
+        }
+
+        $redirectUrl = $this->params()->fromQuery('redirect_url')
+            ?: $this->redirect()->toRoute('top');
+
+        $this->authentication->clearIdentity();
+
+        $configSso = $this->validConfigSso(true);
+        $samlAuth = new SamlAuth($configSso);
+
+        $sessionManager = Container::getDefaultManager();
+
+        $eventManager = $this->getEventManager();
+        $eventManager->trigger('user.logout');
+
+        $session = $sessionManager->getStorage();
+
+        $result = $samlAuth->logout(
+            $redirectUrl,
+            [],
+            $session->offsetGet('saml_name_id'),
+            $session->offsetGet('saml_session_index'),
+            false,
+            $session->offsetGet('saml_name_id_format'),
+            $session->offsetGet('saml_name_id_name_qualifier')
+        );
+
+        $sessionManager->destroy();
+        return $result;
+    }
+
     /**
      * Log in on the IdP via the ACS (assertion consumer service).
      */
@@ -212,8 +248,67 @@ class SsoController extends AbstractActionController
         $eventManager = $this->getEventManager();
         $eventManager->trigger('user.login', $user);
 
+        // Prepare logout service.
+        $session = $sessionManager->getStorage();
+        $session->offsetSet('saml_name_id', $samlAuth->getNameId());
+        $session->offsetSet('saml_name_id_format', $samlAuth->getNameIdFormat());
+        $session->offsetSet('saml_name_id_name_qualifier', $samlAuth->getNameIdNameQualifier());
+        $session->offsetSet('saml_session_index', $samlAuth->getSessionIndex());
+
         // The redirect url is refreshed because user is authenticated.
+        // $redirectUrl = $this->getRequest()->getPost('RelayState');
         $redirectUrl = $this->redirectUrl();
+        return $this->redirect()->toUrl($redirectUrl);
+    }
+
+    /**
+     * Log out on the IdP via the SLS (single logout service).
+     */
+    public function slsAction()
+    {
+        // The redirect url can be bypassed by IdP when logout is successful.
+        $redirectUrl = $this->params()->fromQuery('redirect_url')
+            ?: $this->url()->fromRoute('top');
+
+        $configSso = $this->validConfigSso(true);
+        if (empty($configSso['sp']['singleLogoutService'])) {
+            $this->messenger()->addSuccess('Successfully logged out'); // @translate
+            return $this->redirect()->toUrl($redirectUrl);
+        }
+
+        $this->authentication->clearIdentity();
+
+        $samlAuth = new SamlAuth($configSso);
+        $sloUrl = $samlAuth->processSLO();
+
+        $sessionManager = Container::getDefaultManager();
+        $sessionManager->destroy();
+
+        $errors = $samlAuth->getErrors();
+        if ($errors) {
+            $lastErrorReason = $samlAuth->getLastErrorReason();
+            if ($lastErrorReason) {
+                $message = new Message(
+                    'Single logout service failed: %1$s. %2$s', // @translate
+                    implode(', ', $errors),
+                    $lastErrorReason
+                );
+            } else {
+                $message = new Message(
+                    'Single logout service failed: %s', // @translate
+                    implode(', ', $errors)
+                );
+            }
+            $this->messenger()->addError($message);
+            $this->logger()->err($message);
+            return $this->redirect()->toUrl($redirectUrl);
+        }
+
+        if ($sloUrl) {
+            return $this->redirect()->toUrl($sloUrl);
+        }
+
+        $this->messenger()->addSuccess('Successfully logged out.'); // @translate
         return $this->redirect()->toUrl($redirectUrl);
     }
 
@@ -262,7 +357,9 @@ class SsoController extends AbstractActionController
             throw new \Omeka\Mvc\Exception\RuntimeException((string) $message);
         }
 
-        unset($configSso['sp']['singleLogoutService']);
+        if (empty($configSso['sp']['singleLogoutService']['url'])) {
+            unset($configSso['sp']['singleLogoutService']);
+        }
 
         return $configSso;
     }

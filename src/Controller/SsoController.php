@@ -26,6 +26,15 @@ class SsoController extends AbstractActionController
      */
     protected $authentication;
 
+    /**
+     * @var array
+     */
+    protected $attributesMapCanonical = [
+        'urn:oid:0.9.2342.19200300.100.1.3' => 'email',
+        'urn:oid:2.16.840.1.113730.3.1.241' => 'name',
+        'https://samltest.id/attributes/role' => 'role',
+    ];
+
     public function __construct(
         EntityManager $entityManager,
         AuthenticationService $authenticationService
@@ -105,11 +114,14 @@ class SsoController extends AbstractActionController
         }
 
         $nameId = $samlAuth->getNameId();
-        $samlAttributes = $samlAuth->getAttributes();
+        $samlAttributesFriendly = $samlAuth->getAttributesWithFriendlyName();
+        $samlAttributesCanonical = $samlAuth->getAttributes();
 
         // The map is already checked.
         $attributesMap = $this->settings()->get('singlesignon_attributes_map', []);
-        $email = $samlAttributes[array_search('email', $attributesMap)][0] ?? null;
+        $email = $samlAttributesFriendly[array_search('email', $attributesMap)][0]
+            ?? $samlAttributesCanonical[array_search('email', $this->attributesMapCanonical)][0]
+            ?? null;
         if (!$email && strpos($nameId, '@')) {
             $email = $nameId;
         }
@@ -117,16 +129,21 @@ class SsoController extends AbstractActionController
         if (!$email) {
             $message = new Message('No email provided to log in or register.'); // @translate
             $this->messenger()->addError($message);
-            $message = new Message('No email provided or mapped. Available attributes for this IdP: %s', // @translate
-                implode(', ', array_keys($samlAttributes))
+            $message = new Message('No email provided or mapped. Available canonical attributes for this IdP: %1$s. Available friendly attributes for this IdP: %2$s.', // @translate
+                implode(', ', array_keys($samlAttributesCanonical)),
+                implode(', ', array_keys($samlAttributesFriendly))
             );
             $this->logger()->err($message);
             // Since this is a config or idp error, redirect to local login.
             return $this->redirect()->toRoute('login');
         }
 
-        $name = $samlAttributes[array_search('name', $attributesMap)][0] ?? null;
-        $role = $samlAttributes[array_search('role', $attributesMap)][0] ?? 'guest';
+        $name = $samlAttributesFriendly[array_search('name', $attributesMap)][0]
+            ?? $samlAttributesCanonical[array_search('name', $this->attributesMapCanonical)][0]
+            ?? null;
+        $role = $samlAttributesFriendly[array_search('role', $attributesMap)][0]
+            ?? $samlAttributesCanonical[array_search('role', $this->attributesMapCanonical)][0]
+            ?? 'guest';
 
         $user = $this->entityManager
             ->getRepository(\Omeka\Entity\User::class)
@@ -136,8 +153,9 @@ class SsoController extends AbstractActionController
             if (!$name) {
                 $message = new Message('No name provided to register a new user.'); // @translate
                 $this->messenger()->addError($message);
-                $message = new Message('No name provided or mapped. Available attributes for this IdP: %s', // @translate
-                    implode(', ', array_keys($samlAttributes))
+                $message = new Message('No name provided or mapped. Available canonical attributes for this IdP: %1$s. Available friendly attributes for this IdP: %2$s.', // @translate
+                    implode(', ', array_keys($samlAttributesCanonical)),
+                    implode(', ', array_keys($samlAttributesFriendly))
                 );
                 $this->logger()->err($message);
                 // Since this is a config or idp error, redirect to local login.
@@ -241,21 +259,6 @@ class SsoController extends AbstractActionController
             $message = new Message(
                 'SSO service is unavailable. Ask admin to config it.' // @translate
             );
-            throw new \Omeka\Mvc\Exception\RuntimeException((string) $message);
-        }
-
-        // Check the config for the mapping too here to avoid next checks.
-        $attributesMap = $this->settings()->get('singlesignon_attributes_map', []);
-        if (!in_array('email', $attributesMap)
-            || !in_array('name', $attributesMap)
-        ) {
-            $message = new \Omeka\Stdlib\Message(
-                'The mapping must define at least the two keys from IdP to Omeka "email" and "name".' // @translate
-            );
-            $this->logger()->err($message); // @translate
-            if (!$throw) {
-                return null;
-            }
             throw new \Omeka\Mvc\Exception\RuntimeException((string) $message);
         }
 

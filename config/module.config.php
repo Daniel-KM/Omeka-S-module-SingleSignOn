@@ -38,8 +38,12 @@ return [
             'singlesignon_idp_slo_url' => '',
             'singlesignon_idp_x509_certificate' => '',
             'singlesignon_attributes_map' => [
+                /*
+                // Friendly
                 'mail' => 'email',
-                'fullname' =>'name',
+                'displayName' =>'name',
+                'role' => 'role',
+                */
             ],
         ],
     ],

@@ -59,15 +59,15 @@ class ConfigForm extends Form
                 'name' => 'singlesignon_attributes_map',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
-                    'label' => 'Attribute map between IdP and Omeka', // @translate
-                    'info' => 'List of IdP and Omeka keys separated by "=". Required Omeka keys are "email" and "name".', // @translate
+                    'label' => 'Optional attributes map between IdP and Omeka', // @translate
+                    'info' => 'List of IdP and Omeka keys separated by "=". IdP keys can be canonical or friendly ones. Managed Omeka keys are "email", "name" and "role".', // @translate
                     'as_key_value' => true,
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_attributes_map',
-                    'required' => true,
                     'placeholder' => 'mail = email
-fullname = name',
+displayName = name
+role = role',
                 ],
             ]);
     }

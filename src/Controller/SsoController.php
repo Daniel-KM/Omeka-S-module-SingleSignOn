@@ -211,6 +211,11 @@ class SsoController extends AbstractActionController
                 return $this->redirect()->toRoute('login');
             }
 
+            // For security, a new user cannot be an admin.
+            if ($this->acl->isAdminRole($role)) {
+                $role = in_array('guest', $roles) ? 'guest' : Acl::ROLE_RESEARCHER;
+            }
+
             $user = new User();
             $user->setEmail($email);
             $user->setName($name);

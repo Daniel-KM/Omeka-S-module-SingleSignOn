@@ -13,6 +13,22 @@ class ConfigForm extends Form
         $this
             ->setAttribute('id', 'singlesignon')
             ->add([
+                'name' => 'singlesignon_services',
+                'type' => Element\MultiCheckbox::class,
+                'options' => [
+                    'label' => 'Active services', // @translate
+                    'info' => 'Urls for SSO and SLS should be provided if enabled.', // @translate
+                    'value_options' => [
+                        'sso' => 'Log in (SSO)', // @translate
+                        'sls' => 'Log out (SLS)', // @translate
+                        'jit' => 'Register (JIT)', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_services',
+                ],
+            ])
+            ->add([
                 'name' => 'singlesignon_idp_entity_id',
                 'type' => Element\Url::class,
                 'options' => [
@@ -31,12 +47,11 @@ class ConfigForm extends Form
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_idp_sso_url',
-                    'required' => true,
                 ],
             ])
             ->add([
                 'name' => 'singlesignon_idp_slo_url',
-                'type' => Element\Text::class,
+                'type' => Element\Url::class,
                 'options' => [
                     'label' => 'Url of the IdP single log out (SLO) service endpoint', // @translate
                 ],
@@ -69,6 +84,12 @@ class ConfigForm extends Form
 displayName = name
 role = role',
                 ],
+            ]);
+
+        $this->getInputFilter()
+            ->add([
+                'name' => 'singlesignon_services',
+                'required' => false,
             ]);
     }
 }

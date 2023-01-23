@@ -78,6 +78,11 @@ class SsoController extends AbstractActionController
         }
 
         $configSso = $this->validConfigSso(true);
+        if (empty($configSso['sp']['assertionConsumerService'])) {
+            $this->messenger()->addWarning(new Message('SIngle sign-on is disabled.')); // @translate
+            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+        }
+
         $samlAuth = new SamlAuth($configSso);
 
         // Redirect to external IdP.
@@ -86,18 +91,21 @@ class SsoController extends AbstractActionController
 
     public function logoutAction()
     {
-        $user = $this->authentication->getIdentity();
-        if (!$user) {
-            return $this->redirect()->toRoute('top');
-        }
-
         $redirectUrl = $this->params()->fromQuery('redirect_url')
             ?: $this->redirect()->toRoute('top');
+
+        $user = $this->authentication->getIdentity();
+        if (!$user) {
+            return $this->redirect()->toUrl($redirectUrl);
+        }
 
         $this->authentication->clearIdentity();
 
         $configSso = $this->validConfigSso(true);
-        $samlAuth = new SamlAuth($configSso);
+        $isSlsAvailable = !empty($configSso['sp']['singleLogoutService']);
+        if ($isSlsAvailable) {
+            $samlAuth = new SamlAuth($configSso);
+        }
 
         $sessionManager = Container::getDefaultManager();
 
@@ -105,6 +113,11 @@ class SsoController extends AbstractActionController
         $eventManager->trigger('user.logout');
 
         $session = $sessionManager->getStorage();
+
+        if (!$isSlsAvailable) {
+            $sessionManager->destroy();
+            return $this->redirect()->toUrl($redirectUrl);
+        }
 
         $result = $samlAuth->logout(
             $redirectUrl,
@@ -133,6 +146,11 @@ class SsoController extends AbstractActionController
         }
 
         $configSso = $this->validConfigSso(true);
+        if (empty($configSso['sp']['assertionConsumerService'])) {
+            $this->messenger()->addWarning(new Message('SIngle sign-on is disabled.')); // @translate
+            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+        }
+
         $samlAuth = new SamlAuth($configSso);
 
         $samlAuth->processResponse();
@@ -199,6 +217,13 @@ class SsoController extends AbstractActionController
             ->findOneBy(['email' => $email]);
 
         if (empty($user)) {
+            $activeSsoServices = $this->settings()->get('singlesignon_services', ['sso']);
+            if (!in_array('jit', $activeSsoServices)) {
+                $message = new Message('Automatic registering is disabled.'); // @translate
+                $this->messenger()->addError($message);
+                return $this->redirect()->toUrl($redirectUrl);
+            }
+
             if (!$name) {
                 $message = new Message('No name provided to register a new user.'); // @translate
                 $this->messenger()->addError($message);
@@ -291,7 +316,8 @@ class SsoController extends AbstractActionController
         $configSso = $this->validConfigSso(true);
         if (empty($configSso['sp']['singleLogoutService'])) {
             $this->messenger()->addSuccess('Successfully logged out'); // @translate
-            return $this->redirect()->toUrl($redirectUrl);
+            // Allows to process core log out.
+            return $this->redirect()->toUrl('logout');
         }
 
         $this->authentication->clearIdentity();
@@ -375,7 +401,17 @@ class SsoController extends AbstractActionController
             throw new \Omeka\Mvc\Exception\RuntimeException((string) $message);
         }
 
-        if (empty($configSso['sp']['singleLogoutService']['url'])) {
+        $activeSsoServices = $this->settings()->get('singlesignon_services', ['sso']);
+
+        if (!in_array('sso', $activeSsoServices)
+            || empty($configSso['sp']['assertionConsumerService']['url'])
+        ) {
+            unset($configSso['sp']['assertionConsumerService']);
+        }
+
+        if (!in_array('sls', $activeSsoServices)
+            || empty($configSso['sp']['singleLogoutService']['url'])
+        ) {
             unset($configSso['sp']['singleLogoutService']);
         }
 

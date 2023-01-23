@@ -33,6 +33,14 @@ return [
     ],
     'singlesignon' => [
         'config' => [
+            'singlesignon_services' => [
+                // login.
+                'sso',
+                // logout.
+                // 'sls',
+                // register.
+                // 'jit',
+            ],
             'singlesignon_idp_entity_id' => '',
             'singlesignon_idp_sso_url' => '',
             'singlesignon_idp_slo_url' => '',

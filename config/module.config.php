@@ -8,6 +8,29 @@ return [
             Form\ConfigForm::class => Form\ConfigForm::class,
         ],
     ],
+    'controllers' => [
+        'factories' => [
+            'SingleSignOn\Controller\Sso' => Service\Controller\SsoControllerFactory::class,
+        ],
+    ],
+    'router' => [
+        'routes' => [
+            'sso' => [
+                'type' => \Laminas\Router\Http\Segment::class,
+                'options' => [
+                    'route' => '/sso[/:action]',
+                    'constraints' => [
+                        'action' => 'metadata',
+                    ],
+                    'defaults' => [
+                        '__NAMESPACE__' => 'SingleSignOn\Controller',
+                        'controller' => 'Sso',
+                        'action' => 'metadata',
+                    ],
+                ],
+            ],
+        ],
+    ],
     'singlesignon' => [
         'config' => [
             'singlesignon_idp_entity_id' => '',

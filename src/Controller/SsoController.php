@@ -216,8 +216,9 @@ class SsoController extends AbstractActionController
             ->getRepository(\Omeka\Entity\User::class)
             ->findOneBy(['email' => $email]);
 
+        $activeSsoServices = $this->settings()->get('singlesignon_services', ['sso']);
+
         if (empty($user)) {
-            $activeSsoServices = $this->settings()->get('singlesignon_services', ['sso']);
             if (!in_array('jit', $activeSsoServices)) {
                 $message = new Message('Automatic registering is disabled.'); // @translate
                 $this->messenger()->addError($message);
@@ -255,7 +256,7 @@ class SsoController extends AbstractActionController
             $this->logger()->warn($message);
             // Since this is a non-authorized user, return to redirect url.
             return $this->redirect()->toUrl($redirectUrl);
-        } else {
+        } elseif (in_array('update', $activeSsoServices)) {
             $update = false;
             if ($name && $name !== $user->getName()) {
                 $update = true;

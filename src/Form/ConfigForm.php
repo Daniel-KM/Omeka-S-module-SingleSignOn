@@ -22,6 +22,7 @@ class ConfigForm extends Form
                         'sso' => 'Log in (SSO)', // @translate
                         'sls' => 'Log out (SLS)', // @translate
                         'jit' => 'Register (JIT)', // @translate
+                        'update' => 'Update user name', // @translate
                     ],
                 ],
                 'attributes' => [

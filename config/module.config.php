@@ -40,6 +40,8 @@ return [
                 // 'sls',
                 // register.
                 // 'jit',
+                // update user name.
+                // 'update',
             ],
             'singlesignon_idp_entity_id' => '',
             'singlesignon_idp_sso_url' => '',

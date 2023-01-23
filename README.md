@@ -6,7 +6,7 @@ Single Sign-On (module for Omeka S)
 > than the previous repository.__
 
 [Single Sign-On] is a module for [Omeka S] that allows users to authenticate
-automatically through single sign-on (SSO) via ([SAML]) and the identity provider
+automatically through single sign-on (SSO) via [SAML] and the identity provider
 (IdP) of your institution or any external service.
 
 Local users can still connect via the local passwords if they have one.
@@ -17,6 +17,9 @@ Installation
 
 The module uses an external library, [onelogin/php-saml], so use the release zip to
 install it, or use and init the source.
+
+You may install the module [Guest] or [Guest Role] to give a non-admin role to
+new users.
 
 See general end user documentation for [installing a module].
 
@@ -39,14 +42,45 @@ composer install --no-dev
 Quick start
 -----------
 
-The service must be configured on the Omeka part and the identity provider (IdP)
-part.
+For security, the service must be configured on the Omeka part and the identity
+provider (IdP): Omeka needs to know the IdP and, the IdP requires to allow
+Omeka as a SAML service provider (SP).
 
-- For Omeka, go to the config form and fill the params of the IdP.
-- For the IdP, register Omeka as a service provider (SP) with the metadata
-  provided at https://example.org/sso/metadata.
+- For Omeka, go to the config form and fill the params of your IdP.
+- For the IdP, register Omeka as a service provider with the metadata provided
+  at https://example.org/sso/metadata.
 
 Then, users will be able to log in at https://example.org/sso/login.
+
+For the role, it is recommended to use "guest" or "researcher", then to update
+it manually in admin board. "guest" is used only when module [Guest] or [Guest Role]
+is active, or another module creates this role.
+
+### Testing on SamlTest.id
+
+For testing, you can use a free service like [SamlTest.id], that avoids to
+config the IdP. Fill these params https://samltest.id/download (IdP part) in
+config form; then register your server in https://samltest.id/upload.php,
+setting the url https://example.org/sso/metadata or, if not loaded, send the
+output of the url as an xml file and upload it, then try to login with one of
+the specified users.
+
+**WARNING** SamlTest.id keeps the last config of each service provider. So once
+tests are finished, you should disable all features of the module, then upload
+the new config to SamlTest.id, then reenable your features. Anyway, the validity
+of the service provider metadata is 48 hours, so the IdP will be disabled after
+that. And if the IdP is no more registered in Omeka, it won't be able to log in.
+
+
+TODO
+----
+
+- [ ] Autoconfig SP via xml file.
+- [ ] Multiple IdP.
+- [ ] Mapping roles (see module Shibboleth).
+- [ ] Extra settings, in particular locale (see module Shibboleth).
+- [ ] Add logo and site name (see onelogin config and https://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-metadata-ui/v1.0/os/sstc-saml-metadata-ui-v1.0-os.html).
+- [ ] Force sso login (with dynamic check of config first).
 
 
 Warning
@@ -112,7 +146,10 @@ Copyright
 [onelogin/php-saml]: https://github.com/SAML-Toolkits/php-saml
 [Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [SingleSignOn.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/releases
+[Guest]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest
+[Guest Role]: https://github.com/biblibre/omeka-s-module-GuestRole
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/issues
+[SamlTest.id]: https://samltest.id
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org

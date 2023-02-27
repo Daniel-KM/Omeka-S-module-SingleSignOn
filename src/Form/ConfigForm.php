@@ -85,6 +85,21 @@ class ConfigForm extends Form
 displayName = name
 role = role',
                 ],
+            ])
+            ->add([
+                'name' => 'singlesignon_metadata_mode',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Metadata mode', // @translate
+                    'info' => 'Some idp don’t manage xml prefixes in metadata, so they may be removed.', // @translate
+                    'value_options' => [
+                        'basic' => 'Basic (xml metadata without prefixes)', // @translate
+                        'standard' => 'Standard', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_metadata_mode',
+                ],
             ]);
 
         $this->getInputFilter()

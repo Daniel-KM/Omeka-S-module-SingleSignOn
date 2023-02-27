@@ -55,6 +55,7 @@ return [
                 'role' => 'role',
                 */
             ],
+            'singlesignon_metadata_mode' => 'basic',
         ],
     ],
 ];

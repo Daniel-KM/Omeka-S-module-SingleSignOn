@@ -57,6 +57,19 @@ class SsoController extends AbstractActionController
         $samlSettings = new SamlSettings($configSso, true);
         $metadata = $samlSettings->getSPMetadata();
 
+        // Some idp don't manage namespaces, so remove them in basic mode.
+        $xmlMode = $this->settings()->get('singlesignon_metadata_mode', 'basic');
+        if ($xmlMode === 'basic') {
+            // To remove namespaces is pretty complex in php, so use a quick
+            // hack for now.
+            $replace = [
+                'xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"' => '',
+                '<md:' => '<',
+                '</md:' => '</',
+            ];
+            $metadata = str_replace(array_keys($replace), array_values($replace), $metadata);
+        }
+
         /**
          * @var \Laminas\Http\Response $response
          * @see \Laminas\Http\Headers

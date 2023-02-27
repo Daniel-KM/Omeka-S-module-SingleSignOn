@@ -57,12 +57,18 @@ class SsoController extends AbstractActionController
         $samlSettings = new SamlSettings($configSso, true);
         $metadata = $samlSettings->getSPMetadata();
 
-        /** @var \Laminas\Http\Response $response */
+        /**
+         * @var \Laminas\Http\Response $response
+         * @see \Laminas\Http\Headers
+         */
         $response = $this->getResponse();
         $response
             ->setContent($metadata)
             ->getHeaders()
-            ->addHeaderLine('Content-Type', 'text/xml');
+            ->addHeaderLine('Content-Type', 'application/samlmetadata+xml')
+            // Don't use mb_strlen() here.
+            ->addHeaderLine('Content-Length', strlen($metadata))
+        ;
         return $response;
     }
 

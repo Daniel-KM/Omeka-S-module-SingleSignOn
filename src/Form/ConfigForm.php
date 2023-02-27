@@ -34,6 +34,7 @@ class ConfigForm extends Form
                 'type' => Element\Url::class,
                 'options' => [
                     'label' => 'IdP Entity Id', // @translate
+                    'info' => 'Full url set in attribute `entityID` of xml element `<md:EntityDescriptor>`, for example "https://idp.example.org".', // @translate
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_idp_entity_id',
@@ -45,6 +46,7 @@ class ConfigForm extends Form
                 'type' => Element\Url::class,
                 'options' => [
                     'label' => 'Url of the IdP single sign-on (SSO) service endpoint', // @translate
+                    'info' => 'Full url set in attribute `Location` of xml element `<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`, for example "https://idp.example.org/idp/profile/SAML2/Redirect/SSO".', // @translate
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_idp_sso_url',
@@ -55,6 +57,7 @@ class ConfigForm extends Form
                 'type' => Element\Url::class,
                 'options' => [
                     'label' => 'Url of the IdP single log out (SLO) service endpoint', // @translate
+                    'info' => 'Full url set in attribute `Location` of xml element `<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`, for example "https://idp.example.org/idp/profile/SAML2/Redirect/SLO".', // @translate
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_idp_slo_url',

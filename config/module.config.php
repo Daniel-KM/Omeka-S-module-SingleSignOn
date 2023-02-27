@@ -34,13 +34,13 @@ return [
     'singlesignon' => [
         'config' => [
             'singlesignon_services' => [
-                // login.
+                // Login.
                 'sso',
-                // logout.
+                // Logout.
                 // 'sls',
-                // register.
+                // Register.
                 // 'jit',
-                // update user name.
+                // Update user name.
                 // 'update',
             ],
             'singlesignon_idp_entity_id' => '',

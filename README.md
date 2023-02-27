@@ -11,6 +11,10 @@ automatically through single sign-on (SSO) via [SAML] and the identity provider
 
 Local users can still connect via the local passwords if they have one.
 
+Note that [Shibboleth] is a derivative of Saml, so the [module Shibboleth] will
+be deprecated soon, once some missing features will be implemented in this
+module.
+
 
 Installation
 ------------
@@ -19,7 +23,9 @@ The module uses an external library, [onelogin/php-saml], so use the release zip
 install it, or use and init the source.
 
 You may install the module [Guest] or [Guest Role] to give a non-admin role to
-new users.
+new users. This is important for security, else the default role will be
+"researcher", who can access admin board. Of course, once authenticated, an
+admin can set the right role.
 
 See general end user documentation for [installing a module].
 
@@ -54,7 +60,9 @@ Then, users will be able to log in at https://example.org/sso/login.
 
 For the role, it is recommended to use "guest" or "researcher", then to update
 it manually in admin board. "guest" is used only when module [Guest] or [Guest Role]
-is active, or another module creates this role.
+is active, or another module that creates this role. For security, don't set an
+admin role. Of course, an admin can update the role after the first
+authentication.
 
 ### Testing on SamlTest.id
 
@@ -143,6 +151,8 @@ Copyright
 [Single Sign-On]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn
 [Omeka S]: https://omeka.org/s
 [SAML]: https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language
+[Shibboleth]: https://www.shibboleth.net
+[module Shibboleth]: https://gitlab.com/Daniel-KM/Omeka-S-module-Shibboleth
 [onelogin/php-saml]: https://github.com/SAML-Toolkits/php-saml
 [Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [SingleSignOn.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/releases

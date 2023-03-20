@@ -58,6 +58,28 @@ Omeka as a SAML service provider (SP).
 
 Then, users will be able to log in at https://example.org/sso/login.
 
+Params available to config SP and IdP in Omeka, and that should be updated when
+the IdP is updated:
+
+- services: log in (sso), log out (sls), jit (register). Log out is not
+  recommended, because it can have bad side effects when deconnecting from
+  other services.
+- Service provider:
+  - Name ID format of the service provider: If the default config does not work,
+    try to change  the format of the name to set in element `<md:NameIDFormat>`,
+    for example "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified".
+- Identity Provider:
+  - Identity provider id: this is the url set in attribute `entityID` of xml
+    element `<md:EntityDescriptor>`, for example `https://idp.example.org`.
+    Important: for some IDP, the scheme must not be set, so try `idp.example.org` too.
+  - IdP single sign-on (SSO) endpoint: Full url set in attribute `Location` of xml
+    element `<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`, for example "https://idp.example.org/idp/profile/SAML2/Redirect/SSO".
+  - IdP single log out (SLO)  endpoint: Full url set in attribute `Location` of xml
+    element `<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`,
+    for example "https://idp.example.org/idp/profile/SAML2/Redirect/SLO".
+  - Public X.509 certificate of the IdP: it is required.
+- Map between IdP and Omeka keys: used to create new user, with a specific role.
+
 For the role, it is recommended to use "guest" or "researcher", then to update
 it manually in admin board. "guest" is used only when module [Guest] or [Guest Role]
 is active, or another module that creates this role. For security, don't set an

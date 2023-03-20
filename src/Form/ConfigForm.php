@@ -13,6 +13,7 @@ class ConfigForm extends Form
     {
         $this
             ->setAttribute('id', 'singlesignon')
+
             ->add([
                 'name' => 'singlesignon_services',
                 'type' => Element\MultiCheckbox::class,
@@ -30,6 +31,9 @@ class ConfigForm extends Form
                     'id' => 'singlesignon_services',
                 ],
             ])
+
+            // Service Provider (SP).
+
             ->add([
                 'name' => 'singlesignon_sp_name_id_format',
                 'type' => Element\Select::class,
@@ -53,6 +57,24 @@ class ConfigForm extends Form
                     'id' => 'singlesignon_sp_name_id_format',
                 ],
             ])
+            ->add([
+                'name' => 'singlesignon_sp_metadata_mode',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Metadata mode', // @translate
+                    'info' => 'Some IdP don’t manage xml prefixes in metadata, so they may be removed.', // @translate
+                    'value_options' => [
+                        'basic' => 'Basic (xml metadata without prefixes)', // @translate
+                        'standard' => 'Standard', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_metadata_mode',
+                ],
+            ])
+
+            // Identity Provider (IdP).
+
             ->add([
                 'name' => 'singlesignon_idp_entity_id',
                 'type' => Element\Text::class,
@@ -99,7 +121,7 @@ class ConfigForm extends Form
                 ],
             ])
             ->add([
-                'name' => 'singlesignon_attributes_map',
+                'name' => 'singlesignon_idp_attributes_map',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Optional attributes map between IdP and Omeka', // @translate
@@ -107,27 +129,13 @@ class ConfigForm extends Form
                     'as_key_value' => true,
                 ],
                 'attributes' => [
-                    'id' => 'singlesignon_attributes_map',
+                    'id' => 'singlesignon_idp_attributes_map',
                     'placeholder' => 'mail = email
 displayName = name
 role = role',
                 ],
             ])
-            ->add([
-                'name' => 'singlesignon_metadata_mode',
-                'type' => Element\Radio::class,
-                'options' => [
-                    'label' => 'Metadata mode', // @translate
-                    'info' => 'Some idp don’t manage xml prefixes in metadata, so they may be removed.', // @translate
-                    'value_options' => [
-                        'basic' => 'Basic (xml metadata without prefixes)', // @translate
-                        'standard' => 'Standard', // @translate
-                    ],
-                ],
-                'attributes' => [
-                    'id' => 'singlesignon_metadata_mode',
-                ],
-            ]);
+        ;
 
         $this->getInputFilter()
             ->add([
@@ -137,6 +145,11 @@ role = role',
             ->add([
                 'name' => 'singlesignon_sp_name_id_format',
                 'required' => false,
-            ]);
+            ])
+            ->add([
+                'name' => 'singlesignon_sp_metadata_mode',
+                'required' => false,
+            ])
+        ;
     }
 }

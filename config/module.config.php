@@ -43,12 +43,15 @@ return [
                 // Update user name.
                 // 'update',
             ],
+
             'singlesignon_sp_name_id_format' => '',
+            'singlesignon_sp_metadata_mode' => 'basic',
+
             'singlesignon_idp_entity_id' => '',
             'singlesignon_idp_sso_url' => '',
             'singlesignon_idp_slo_url' => '',
             'singlesignon_idp_x509_certificate' => '',
-            'singlesignon_attributes_map' => [
+            'singlesignon_idp_attributes_map' => [
                 /*
                 // Friendly
                 'mail' => 'email',
@@ -56,7 +59,6 @@ return [
                 'role' => 'role',
                 */
             ],
-            'singlesignon_metadata_mode' => 'basic',
         ],
     ],
 ];

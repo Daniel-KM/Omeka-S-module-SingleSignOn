@@ -58,7 +58,7 @@ class SsoController extends AbstractActionController
         $metadata = $samlSettings->getSPMetadata();
 
         // Some idp don't manage namespaces, so remove them in basic mode.
-        $xmlMode = $this->settings()->get('singlesignon_metadata_mode', 'basic');
+        $xmlMode = $this->settings()->get('singlesignon_sp_metadata_mode', 'basic');
         if ($xmlMode === 'basic') {
             // To remove namespaces is pretty complex in php, so use a quick
             // hack for now.
@@ -199,7 +199,7 @@ class SsoController extends AbstractActionController
         $samlAttributesCanonical = $samlAuth->getAttributes();
 
         // The map is already checked.
-        $attributesMap = $this->settings()->get('singlesignon_attributes_map', []);
+        $attributesMap = $this->settings()->get('singlesignon_idp_attributes_map', []);
         $email = $samlAttributesFriendly[array_search('email', $attributesMap)][0]
             ?? $samlAttributesCanonical[array_search('email', $this->attributesMapCanonical)][0]
             ?? null;

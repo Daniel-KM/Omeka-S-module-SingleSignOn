@@ -31,10 +31,10 @@ class ConfigForm extends Form
             ])
             ->add([
                 'name' => 'singlesignon_idp_entity_id',
-                'type' => Element\Url::class,
+                'type' => Element\Text::class,
                 'options' => [
                     'label' => 'IdP Entity Id', // @translate
-                    'info' => 'Full url set in attribute `entityID` of xml element `<md:EntityDescriptor>`, for example "https://idp.example.org".', // @translate
+                    'info' => 'Full url set in attribute `entityID` of xml element `<md:EntityDescriptor>`, for example "https://idp.example.org". For some IdP, the scheme must not be set, so try "idp.example.org" too.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_idp_entity_id',

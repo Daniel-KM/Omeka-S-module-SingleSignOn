@@ -43,6 +43,7 @@ return [
                 // Update user name.
                 // 'update',
             ],
+            'singlesignon_sp_name_id_format' => '',
             'singlesignon_idp_entity_id' => '',
             'singlesignon_idp_sso_url' => '',
             'singlesignon_idp_slo_url' => '',

@@ -467,7 +467,6 @@ class SsoController extends AbstractActionController
 
             // Service Provider Data that we are deploying
             'sp' => [
-
                 // Identifier of the SP entity  (must be a URI)
                 'entityId' => $baseUrlSso,
 
@@ -515,7 +514,8 @@ class SsoController extends AbstractActionController
                 // Specifies constraints on the name identifier to be used to
                 // represent the requested subject.
                 // Take a look on lib/Saml2/Constants.php to see the NameIdFormat supported
-                'NameIDFormat' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+                // 'NameIDFormat' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+                'NameIDFormat' => $settings->get('singlesignon_sp_name_id_format', \OneLogin\Saml2\Constants::NAMEID_PERSISTENT),
 
                 // Usually x509cert and privateKey of the SP are provided by files placed at
                 // the certs folder. But we can also provide them with the following parameters
@@ -534,7 +534,6 @@ class SsoController extends AbstractActionController
 
             // Identity Provider Data that we want connect with our SP
             'idp' => [
-
                 // Identifier of the IdP entity  (must be a URI)
                 'entityId' => $settings->get('singlesignon_idp_entity_id', ''),
 
@@ -599,7 +598,6 @@ class SsoController extends AbstractActionController
             // Advanced settings.
 
             [
-
                 // Compression settings
                 // Handle if the getRequest/getResponse methods will return the Request/Response deflated.
                 // But if we provide a $deflate boolean parameter to the getRequest or getResponse

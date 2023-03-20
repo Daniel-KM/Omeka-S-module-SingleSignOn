@@ -5,6 +5,7 @@ namespace SingleSignOn\Form;
 use Laminas\Form\Element;
 use Laminas\Form\Form;
 use Omeka\Form\Element as OmekaElement;
+use OneLogin\Saml2\Constants as SamlConstants;
 
 class ConfigForm extends Form
 {
@@ -27,6 +28,29 @@ class ConfigForm extends Form
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_services',
+                ],
+            ])
+            ->add([
+                'name' => 'singlesignon_sp_name_id_format',
+                'type' => Element\Select::class,
+                'options' => [
+                    'label' => 'SP name id format', // @translate
+                    'info' => 'Value to set in xml element `<md:NameIDFormat>`. Let empty to use the default value (persistent).', // @translate
+                    'value_options' => [
+                        SamlConstants::NAMEID_PERSISTENT => 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+                        SamlConstants::NAMEID_TRANSIENT  => 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+                        SamlConstants::NAMEID_ENCRYPTED => 'urn:oasis:names:tc:SAML:2.0:nameid-format:encrypted',
+                        SamlConstants::NAMEID_ENTITY => 'urn:oasis:names:tc:SAML:2.0:nameid-format:entity',
+                        SamlConstants::NAMEID_KERBEROS => 'urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos',
+                        SamlConstants::NAMEID_UNSPECIFIED => 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+                        SamlConstants::NAMEID_EMAIL_ADDRESS => 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+                        SamlConstants::NAMEID_X509_SUBJECT_NAME => 'urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName',
+                        SamlConstants::NAMEID_WINDOWS_DOMAIN_QUALIFIED_NAME => 'urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName',
+                    ],
+                    'empty_option' => '',
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_name_id_format',
                 ],
             ])
             ->add([
@@ -108,6 +132,10 @@ role = role',
         $this->getInputFilter()
             ->add([
                 'name' => 'singlesignon_services',
+                'required' => false,
+            ])
+            ->add([
+                'name' => 'singlesignon_sp_name_id_format',
                 'required' => false,
             ]);
     }

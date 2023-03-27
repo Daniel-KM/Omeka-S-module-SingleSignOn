@@ -147,6 +147,14 @@ role = role',
                 'required' => false,
             ])
             ->add([
+                'name' => 'singlesignon_idp_sso_url',
+                'required' => false,
+            ])
+            ->add([
+                'name' => 'singlesignon_idp_slo_url',
+                'required' => false,
+            ])
+            ->add([
                 'name' => 'singlesignon_sp_metadata_mode',
                 'required' => false,
             ])

@@ -53,7 +53,7 @@ class SsoController extends AbstractActionController
 
     public function metadataAction()
     {
-        $configSso = $this->validConfigSso(true);
+        $configSso = $this->validConfigSso(false) ?: [];
         $samlSettings = new SamlSettings($configSso, true);
         $metadata = $samlSettings->getSPMetadata();
 

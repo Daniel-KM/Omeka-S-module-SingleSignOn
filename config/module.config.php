@@ -46,6 +46,7 @@ return [
 
             'singlesignon_sp_name_id_format' => '',
             'singlesignon_sp_metadata_mode' => 'basic',
+            'singlesignon_sp_cert_path' => '',
 
             'singlesignon_idp_entity_id' => '',
             'singlesignon_idp_sso_url' => '',

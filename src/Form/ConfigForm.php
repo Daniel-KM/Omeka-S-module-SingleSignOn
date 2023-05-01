@@ -55,8 +55,11 @@ class ConfigForm extends Form
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_sp_name_id_format',
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select name id format if needed', // @translate
                 ],
             ])
+
             ->add([
                 'name' => 'singlesignon_sp_metadata_mode',
                 'type' => Element\Radio::class,
@@ -70,6 +73,19 @@ class ConfigForm extends Form
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_sp_metadata_mode',
+                ],
+            ])
+
+            ->add([
+                'name' => 'singlesignon_sp_cert_path',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Path for SP certificates (outside of webserver or protected)', // @translate
+                    'info' => 'Some idp require certificates. If needed, set the path to it. It should contains a directory "certs/" with at least "sp.crt" and "sp.key". It must be protected, for example with a .htaccess. Take care to renew them when needed.', // @translate
+                    'documentation' => 'https://github.com/SAML-Toolkits/php-saml/tree/master/certs',
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_cert_path',
                 ],
             ])
 

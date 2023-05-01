@@ -66,6 +66,8 @@ class SsoController extends AbstractActionController
                 'xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"' => '',
                 '<md:' => '<',
                 '</md:' => '</',
+                '<ds:' => '<',
+                '</ds:' => '</',
             ];
             $metadata = str_replace(array_keys($replace), array_values($replace), $metadata);
         }
@@ -442,6 +444,11 @@ class SsoController extends AbstractActionController
     {
         $url = $this->url();
         $settings = $this->settings();
+
+        $basePath = $settings->get('singlesignon_sp_cert_path');
+        if ($basePath) {
+            defined('ONELOGIN_CUSTOMPATH') || define('ONELOGIN_CUSTOMPATH', rtrim($basePath, '/') . '/');
+        }
 
         $baseUrlSso = rtrim($url->fromRoute('sso', [], ['force_canonical' => true]), '/');
 

@@ -80,9 +80,21 @@ class SsoController extends AbstractActionController
         $headers = $response->getHeaders();
 
         $headers
-            ->addHeaderLine('Content-Type', 'application/samlmetadata+xml')
             // Don't use mb_strlen() here.
             ->addHeaderLine('Content-Length', strlen($metadata));
+
+        $contentType = $this->settings()->get('singlesignon_sp_metadata_content_type', 'application/samlmetadata+xml');
+        switch ($contentType) {
+            default:
+            case 'saml':
+                $headers
+                    ->addHeaderLine('Content-Type', 'application/samlmetadata+xml');
+                break;
+            case 'xml':
+                $headers
+                    ->addHeaderLine('Content-Type', 'application/xml');
+                break;
+        }
 
         $contentDisposition = $this->settings()->get('singlesignon_sp_metadata_disposition', 'inline');
         switch ($contentDisposition) {

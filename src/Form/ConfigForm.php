@@ -35,6 +35,22 @@ class ConfigForm extends Form
             // Service Provider (SP).
 
             ->add([
+                'name' => 'singlesignon_sp_metadata_content_type',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Metadata content type', // @translate
+                    'info' => 'Some IdP require response header content type to be simple xml.', // @translate
+                    'value_options' => [
+                        'saml' => 'application/samlmetadata+xml', // @translate
+                        'xml' => 'application/xml', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_metadata_disposition',
+                ],
+            ])
+
+            ->add([
                 'name' => 'singlesignon_sp_metadata_disposition',
                 'type' => Element\Radio::class,
                 'options' => [

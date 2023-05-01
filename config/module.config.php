@@ -44,6 +44,7 @@ return [
                 // 'update',
             ],
 
+            'singlesignon_sp_metadata_content_type' => 'saml',
             'singlesignon_sp_metadata_disposition' => 'inline',
             'singlesignon_sp_metadata_mode' => 'basic',
             'singlesignon_sp_name_id_format' => '',

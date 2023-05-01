@@ -526,8 +526,8 @@ class SsoController extends AbstractActionController
 
                 // Usually x509cert and privateKey of the SP are provided by files placed at
                 // the certs folder. But we can also provide them with the following parameters
-                'x509cert' => '',
-                'privateKey' => '',
+                'x509cert' => $settings->get('singlesignon_sp_x509_certificate') ?: '',
+                'privateKey' => $settings->get('singlesignon_sp_x509_private_key') ?: '',
 
                 /*
                  * Key rollover

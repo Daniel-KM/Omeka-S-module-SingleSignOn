@@ -89,6 +89,30 @@ class ConfigForm extends Form
                 ],
             ])
 
+            ->add([
+                'name' => 'singlesignon_sp_x509_certificate',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'SP public certificate (x509)', // @translate
+                    'info' => 'Some idp require certificates. If needed and if you cannot use a path, paste public certificate here. Take care to renew them when needed.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_x509_certificate',
+                ],
+            ])
+
+            ->add([
+                'name' => 'singlesignon_sp_x509_private_key',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'SP private key (x509)', // @translate
+                    'info' => 'Some idp require certificates. If needed and if you cannot use a path, paste private key here. Take care to renew them when needed.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_x509_private_key',
+                ],
+            ])
+
             // Identity Provider (IdP).
 
             ->add([

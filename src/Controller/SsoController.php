@@ -74,15 +74,33 @@ class SsoController extends AbstractActionController
 
         /**
          * @var \Laminas\Http\Response $response
-         * @see \Laminas\Http\Headers
+         * @var \Laminas\Http\Headers $headers
          */
         $response = $this->getResponse();
-        $response
-            ->setContent($metadata)
-            ->getHeaders()
+        $headers = $response->getHeaders();
+
+        $headers
             ->addHeaderLine('Content-Type', 'application/samlmetadata+xml')
             // Don't use mb_strlen() here.
-            ->addHeaderLine('Content-Length', strlen($metadata))
+            ->addHeaderLine('Content-Length', strlen($metadata));
+
+        $contentDisposition = $this->settings()->get('singlesignon_sp_metadata_disposition', 'inline');
+        switch ($contentDisposition) {
+            default:
+            case 'inline':
+                $headers
+                    ->addHeaderLine('Content-Disposition', 'inline');
+                break;
+            case 'attachment':
+                $headers
+                    ->addHeaderLine('Content-Disposition', 'attachment; filename="metadata.xml');
+                break;
+            case 'undefined':
+                break;
+        }
+
+        $response
+            ->setContent($metadata)
         ;
         return $response;
     }

@@ -44,8 +44,9 @@ return [
                 // 'update',
             ],
 
-            'singlesignon_sp_name_id_format' => '',
+            'singlesignon_sp_metadata_disposition' => 'inline',
             'singlesignon_sp_metadata_mode' => 'basic',
+            'singlesignon_sp_name_id_format' => '',
             'singlesignon_sp_cert_path' => '',
             'singlesignon_sp_x509_certificate' => '',
             'singlesignon_sp_x509_private_key' => '',

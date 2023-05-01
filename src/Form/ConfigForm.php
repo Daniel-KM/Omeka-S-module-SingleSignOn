@@ -35,6 +35,39 @@ class ConfigForm extends Form
             // Service Provider (SP).
 
             ->add([
+                'name' => 'singlesignon_sp_metadata_disposition',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Metadata content disposition', // @translate
+                    'info' => 'Some IdP require metadata to be downloadable, not inline.', // @translate
+                    'value_options' => [
+                        'inline' => 'Inline (display in browser)', // @translate
+                        'attachment' => 'Attachment (download in browser)', // @translate
+                        'undefined' => 'Undefined', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_metadata_disposition',
+                ],
+            ])
+
+            ->add([
+                'name' => 'singlesignon_sp_metadata_mode',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Metadata mode', // @translate
+                    'info' => 'Some IdP don’t manage xml prefixes in metadata, so they may be removed.', // @translate
+                    'value_options' => [
+                        'basic' => 'Basic (xml metadata without prefixes)', // @translate
+                        'standard' => 'Standard', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_metadata_mode',
+                ],
+            ])
+
+            ->add([
                 'name' => 'singlesignon_sp_name_id_format',
                 'type' => Element\Select::class,
                 'options' => [
@@ -57,22 +90,6 @@ class ConfigForm extends Form
                     'id' => 'singlesignon_sp_name_id_format',
                     'class' => 'chosen-select',
                     'data-placeholder' => 'Select name id format if needed', // @translate
-                ],
-            ])
-
-            ->add([
-                'name' => 'singlesignon_sp_metadata_mode',
-                'type' => Element\Radio::class,
-                'options' => [
-                    'label' => 'Metadata mode', // @translate
-                    'info' => 'Some IdP don’t manage xml prefixes in metadata, so they may be removed.', // @translate
-                    'value_options' => [
-                        'basic' => 'Basic (xml metadata without prefixes)', // @translate
-                        'standard' => 'Standard', // @translate
-                    ],
-                ],
-                'attributes' => [
-                    'id' => 'singlesignon_sp_metadata_mode',
                 ],
             ])
 
@@ -180,6 +197,10 @@ role = role',
         $this->getInputFilter()
             ->add([
                 'name' => 'singlesignon_services',
+                'required' => false,
+            ])
+            ->add([
+                'name' => 'singlesignon_sp_metadata_disposition',
                 'required' => false,
             ])
             ->add([

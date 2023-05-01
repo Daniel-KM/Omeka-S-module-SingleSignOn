@@ -74,8 +74,8 @@ class ConfigForm extends Form
                     'label' => 'Metadata mode', // @translate
                     'info' => 'Some IdP don’t manage xml prefixes in metadata, so they may be removed.', // @translate
                     'value_options' => [
-                        'basic' => 'Basic (xml metadata without prefixes)', // @translate
                         'standard' => 'Standard', // @translate
+                        'basic' => 'Basic (xml metadata without prefixes)', // @translate
                     ],
                 ],
                 'attributes' => [

@@ -58,7 +58,7 @@ class SsoController extends AbstractActionController
         $metadata = $samlSettings->getSPMetadata();
 
         // Some idp don't manage namespaces, so remove them in basic mode.
-        $xmlMode = $this->settings()->get('singlesignon_sp_metadata_mode', 'basic');
+        $xmlMode = $this->settings()->get('singlesignon_sp_metadata_mode', 'standard');
         if ($xmlMode === 'basic') {
             // To remove namespaces is pretty complex in php, so use a quick
             // hack for now.

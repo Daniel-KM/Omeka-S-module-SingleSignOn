@@ -46,7 +46,7 @@ return [
 
             'singlesignon_sp_metadata_content_type' => 'saml',
             'singlesignon_sp_metadata_disposition' => 'inline',
-            'singlesignon_sp_metadata_mode' => 'basic',
+            'singlesignon_sp_metadata_mode' => 'standard',
             'singlesignon_sp_name_id_format' => '',
             'singlesignon_sp_cert_path' => '',
             'singlesignon_sp_x509_certificate' => '',

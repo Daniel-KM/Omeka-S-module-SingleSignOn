@@ -203,6 +203,7 @@ class ConfigForm extends Form
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_idp_attributes_map',
+                    'rows' => 5,
                     'placeholder' => 'mail = email
 displayName = name
 role = role',

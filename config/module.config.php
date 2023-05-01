@@ -57,10 +57,9 @@ return [
             'singlesignon_idp_slo_url' => '',
             'singlesignon_idp_x509_certificate' => '',
             'singlesignon_idp_attributes_map' => [
-                /*
-                // Friendly
                 'mail' => 'email',
                 'displayName' =>'name',
+                /*
                 'role' => 'role',
                 */
             ],

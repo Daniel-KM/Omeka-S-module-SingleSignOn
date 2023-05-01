@@ -52,6 +52,7 @@ class Module extends AbstractModule
 
         // Messages are displayed, but data are stored in all cases.
         $this->checkSPConfig();
+        $this->checkIdPConfig();
 
         return true;
     }
@@ -157,6 +158,66 @@ class Module extends AbstractModule
 
         $message = new \Omeka\Stdlib\Message(
             'No issue found on SP public certificate and private key.' // @translate
+        );
+        $messenger->addSuccess($message);
+
+        return true;
+    }
+
+    protected function checkIdPConfig(): bool
+    {
+        /**
+         * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
+         * @var \Omeka\Settings\Settings $settings
+         * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
+         */
+        $services = $this->getServiceLocator();
+        $plugins = $services->get('ControllerPluginManager');
+        $settings = $services->get('Omeka\Settings');
+        $messenger = $plugins->get('messenger');
+
+        $x509cert = trim($settings->get('singlesignon_idp_x509_certificate') ?: '');
+
+        if (!$x509cert) {
+            return true;
+        }
+
+        // Remove windows and apple issues.
+        $spaces = [
+            "\r\n" => "\n",
+            "\n\r" => "\n",
+            "\r" => "\n",
+        ];
+        $x509cert = str_replace(array_keys($spaces), array_values($spaces), $x509cert);
+
+        // Clean keys.
+        $x509cert = Utils::formatCert($x509cert, true);
+        $settings->set('singlesignon_idp_x509_certificate', $x509cert);
+
+        $x509cert = Utils::formatCert($x509cert);
+
+        $sslX509cert = openssl_pkey_get_public($x509cert);
+        if (!$sslX509cert) {
+            $message = new \Omeka\Stdlib\Message(
+                'The IdP public certificate is not valid.' // @translate
+            );
+            $messenger->addError($message);
+            return false;
+        }
+
+        $plain = 'Test clés SingleSignOn.';
+        $encrypted = '';
+
+        if (!openssl_public_encrypt($plain, $encrypted, $sslX509cert)) {
+            $message = new \Omeka\Stdlib\Message(
+                'Unable to encrypt message with IdP public certificate.' // @translate
+            );
+            $messenger->addError($message);
+            return false;
+        }
+
+        $message = new \Omeka\Stdlib\Message(
+            'No issue found on IdP public certificate.' // @translate
         );
         $messenger->addSuccess($message);
 

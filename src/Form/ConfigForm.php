@@ -193,6 +193,7 @@ class ConfigForm extends Form
                 'attributes' => [
                     'id' => 'singlesignon_idp_x509_certificate',
                     'required' => true,
+                    'rows' => 5,
                 ],
             ])
             ->add([

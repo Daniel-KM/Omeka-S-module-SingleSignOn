@@ -131,6 +131,7 @@ class ConfigForm extends Form
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_sp_x509_certificate',
+                    'rows' => 5,
                 ],
             ])
 
@@ -143,6 +144,7 @@ class ConfigForm extends Form
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_sp_x509_private_key',
+                    'rows' => 5,
                 ],
             ])
 

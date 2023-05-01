@@ -59,32 +59,66 @@ Omeka as a SAML service provider (SP).
 Then, users will be able to log in at https://example.org/sso/login.
 
 Params available to config SP and IdP in Omeka, and that should be updated when
-the IdP is updated:
+the IdP is updated. To get the metadata from the saml idp server, just go to its
+url, for example https://idp.example.org/idp/shibboleth.
 
-- services: log in (sso), log out (sls), jit (register). Log out is not
-  recommended, because it can have bad side effects when deconnecting from
-  other services.
+- services:
+  - log in (sso): required.
+  - log out (sls): Log out is not recommended, because it can have bad side
+    effects when deconnecting from other services.
+  - jit: register new users just in time, so create account inside Omeka
+    automatically, else the users should be created by an administrator first
+    inside Omeka.
+  - Update user name: Update the name in Omeka when it is updated in IdP.
+
 - Service provider:
-  - Name ID format of the service provider: If the default config does not work,
-    try to change  the format of the name to set in element `<md:NameIDFormat>`,
+  - Metadata content type
+  - Metadata content disposition: these two options allow to fix some badly
+    configured IdP. To display the metadata directly in a browser, use "application/xml"
+    and "inline".
+  - Metadata mode: some IdP don't manage xml fully, so a basic mode is provided
+    that removes the prefixes of the xml metadata.
+  - Name ID format of the service provider: If the default config (persistent)
+    does not work, try to change  the format of the name to set in element `<md:NameIDFormat>`,
     for example "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified".
+  - SP certificate path: Some IdP require certificates. If needed, set the path
+    to it. It should contains a directory "certs/" with at least `sp.crt` and
+    `sp.key`. It must be outside of the web server or protected, for example
+    with a .htaccess.
+  - SP public certificate
+  - SP private key: if the IdP requires a certificate and you cannot use the
+    path above, you can fill the public certificate and the private key. The
+    format should be x509. You can use the ssl keys of your website.
+    **Warning**: All keys have an expiration date, so add them into your
+    planning (anyway your users will warn you).
+
 - Identity Provider:
   - Identity provider id: this is the url set in attribute `entityID` of xml
     element `<md:EntityDescriptor>`, for example `https://idp.example.org`.
-    Important: for some IDP, the scheme must not be set, so try `idp.example.org` too.
+    Important: for some IDP, the scheme must not be set, so try `idp.example.org`
+    too. Just fill the content of the attribute.
   - IdP single sign-on (SSO) endpoint: Full url set in attribute `Location` of xml
-    element `<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`, for example "https://idp.example.org/idp/profile/SAML2/Redirect/SSO".
+    element `<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`,
+    for example "https://idp.example.org/idp/profile/SAML2/Redirect/SSO".
   - IdP single log out (SLO)  endpoint: Full url set in attribute `Location` of xml
     element `<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`,
     for example "https://idp.example.org/idp/profile/SAML2/Redirect/SLO".
   - Public X.509 certificate of the IdP: it is required.
-- Map between IdP and Omeka keys: used to create new user, with a specific role.
+  - Map between IdP and Omeka keys: used to indicate the keys to use to create
+    and authenticate the good user with a specific role.
 
-For the role, it is recommended to use "guest" or "researcher", then to update
-it manually in admin board. "guest" is used only when module [Guest] or [Guest Role]
-is active, or another module that creates this role. For security, don't set an
-admin role. Of course, an admin can update the role after the first
-authentication.
+For the map, in most of the cases, use:
+```
+mail = email
+displayName = name
+```
+
+The role can be added: `role = role`. If not set, new users will be "researcher" or "guest".
+Anyway, for the role, if a map is done, it is recommended to use "guest" or
+"researcher", then to update it manually in admin board. "guest" is used only
+when module [Guest] or [Guest Role] is active, or another module that creates
+this role. For security, don't set an admin role. Of course, an admin can update
+the role after the first authentication.
 
 ### Testing on SamlTest.id
 

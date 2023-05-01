@@ -482,6 +482,19 @@ class SsoController extends AbstractActionController
 
         $baseUrlSso = rtrim($url->fromRoute('sso', [], ['force_canonical' => true]), '/');
 
+        $spX509cert = trim($settings->get('singlesignon_sp_x509_certificate') ?: '');
+        $spPrivateKey = trim($settings->get('singlesignon_sp_x509_private_key') ?: '');
+        if ($spX509cert && $spPrivateKey) {
+            // Remove windows and apple issues (managed later anyway.
+            $spaces = [
+                "\r\n" => "\n",
+                "\n\r" => "\n",
+                "\r" => "\n",
+            ];
+            $spX509cert = str_replace(array_keys($spaces), array_values($spaces), $spX509cert);
+            $spPrivateKey = str_replace(array_keys($spaces), array_values($spaces), $spPrivateKey);
+        }
+
         /**
          * @see vendor/onelogin/php-saml/settings_example.php
          * @see vendor/onelogin/php-saml/advanced_settings_example.php
@@ -556,8 +569,8 @@ class SsoController extends AbstractActionController
 
                 // Usually x509cert and privateKey of the SP are provided by files placed at
                 // the certs folder. But we can also provide them with the following parameters
-                'x509cert' => $settings->get('singlesignon_sp_x509_certificate') ?: '',
-                'privateKey' => $settings->get('singlesignon_sp_x509_private_key') ?: '',
+                'x509cert' => $spX509cert,
+                'privateKey' => $spPrivateKey,
 
                 /*
                  * Key rollover

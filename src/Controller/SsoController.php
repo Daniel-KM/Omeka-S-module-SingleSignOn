@@ -53,7 +53,7 @@ class SsoController extends AbstractActionController
 
     public function metadataAction()
     {
-        $configSso = $this->validConfigSso(false) ?: [];
+        $configSso = $this->validConfigSso(null, false) ?: [];
         $samlSettings = new SamlSettings($configSso, true);
         $metadata = $samlSettings->getSPMetadata();
 
@@ -128,7 +128,15 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toUrl($redirectUrl);
         }
 
-        $configSso = $this->validConfigSso(true);
+        $idpName = $this->params()->fromRoute('idp');
+        $idp = $this->idpData($idpName);
+        if (!$idp['idp_entity_id']) {
+            $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
+            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+        }
+
+        $configSso = $this->validConfigSso($idpName, true);
+
         if (empty($configSso['sp']['assertionConsumerService'])) {
             $this->messenger()->addWarning(new Message('SIngle sign-on is disabled.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
@@ -152,7 +160,10 @@ class SsoController extends AbstractActionController
 
         $this->authentication->clearIdentity();
 
-        $configSso = $this->validConfigSso(true);
+        // Don't check for a valid idp: logout in all cases.
+        $idpName = $this->params()->fromRoute('idp');
+
+        $configSso = $this->validConfigSso($idpName, true);
         $isSlsAvailable = !empty($configSso['sp']['singleLogoutService']);
         if ($isSlsAvailable) {
             $samlAuth = new SamlAuth($configSso);
@@ -196,7 +207,14 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toUrl($redirectUrl);
         }
 
-        $configSso = $this->validConfigSso(true);
+        $idpName = $this->params()->fromRoute('idp');
+        $idp = $this->idpData($idpName);
+        if (!$idp['idp_entity_id']) {
+            $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
+            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+        }
+
+        $configSso = $this->validConfigSso($idpName, true);
         if (empty($configSso['sp']['assertionConsumerService'])) {
             $this->messenger()->addWarning(new Message('SIngle sign-on is disabled.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
@@ -231,7 +249,7 @@ class SsoController extends AbstractActionController
         $samlAttributesCanonical = $samlAuth->getAttributes();
 
         // The map is already checked.
-        $attributesMap = $this->settings()->get('singlesignon_idp_attributes_map', []);
+        $attributesMap = $idp['idp_attributes_map'];
         $email = $samlAttributesFriendly[array_search('email', $attributesMap)][0]
             ?? $samlAttributesCanonical[array_search('email', $this->attributesMapCanonical)][0]
             ?? null;
@@ -365,7 +383,14 @@ class SsoController extends AbstractActionController
         $redirectUrl = $this->params()->fromQuery('redirect_url')
             ?: $this->url()->fromRoute('top');
 
-        $configSso = $this->validConfigSso(true);
+        $idpName = $this->params()->fromRoute('idp');
+        $idp = $this->idpData($idpName);
+        if (!$idp['idp_entity_id']) {
+            $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
+            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+        }
+
+        $configSso = $this->validConfigSso($idpName, true);
         if (empty($configSso['sp']['singleLogoutService'])) {
             $this->messenger()->addSuccess('Successfully logged out'); // @translate
             // Allows to process core log out.
@@ -408,6 +433,22 @@ class SsoController extends AbstractActionController
         return $this->redirect()->toUrl($redirectUrl);
     }
 
+    protected function idpData(?string $idpName): array
+    {
+        $idps = $this->settings()->get('singlesignon_idps', []);
+        $idp = $idpName
+            ? $idps[$idpName] ?? []
+            : (reset($idps) ?: []);
+        $idp += [
+            'idp_entity_id' => '',
+            'idp_sso_url' => '',
+            'idp_slo_url' => '',
+            'idp_x509_certificate' => '',
+            'idp_attributes_map' => [],
+        ];
+        return $idp;
+    }
+
     protected function redirectUrl(): string
     {
         $redirectUrl = $this->params()->fromQuery('redirect_url') ?: null;
@@ -427,10 +468,10 @@ class SsoController extends AbstractActionController
             :  $this->url()->fromRoute('top');
     }
 
-    protected function validConfigSso(bool $throw = false): ?array
+    protected function validConfigSso(?string $idpName, bool $throw = false): ?array
     {
         try {
-            $configSso = $this->configSso();
+            $configSso = $this->configSso($idpName);
             new SamlSettings($configSso);
         } catch (SamlError $e) {
             $message = new Message('SSO service has an error in configuration: %s', $e); // @translate
@@ -470,7 +511,7 @@ class SsoController extends AbstractActionController
         return $configSso;
     }
 
-    protected function configSso(): array
+    protected function configSso(?string $idpName): array
     {
         $url = $this->url();
         $settings = $this->settings();
@@ -494,6 +535,8 @@ class SsoController extends AbstractActionController
             $spX509cert = str_replace(array_keys($spaces), array_values($spaces), $spX509cert);
             $spPrivateKey = str_replace(array_keys($spaces), array_values($spaces), $spPrivateKey);
         }
+
+        $idp = $this->idpData($idpName);
 
         /**
          * @see vendor/onelogin/php-saml/settings_example.php
@@ -585,12 +628,12 @@ class SsoController extends AbstractActionController
             // Identity Provider Data that we want connect with our SP
             'idp' => [
                 // Identifier of the IdP entity  (must be a URI)
-                'entityId' => $settings->get('singlesignon_idp_entity_id', ''),
+                'entityId' => $idp['idp_entity_id'],
 
                 // SSO endpoint info of the IdP. (Authentication Request protocol)
                 'singleSignOnService' => [
                     // URL Target of the IdP where the SP will send the Authentication Request Message
-                    'url' => $settings->get('singlesignon_idp_sso_url', ''),
+                    'url' => $idp['idp_sso_url'],
                     // SAML protocol binding to be used when returning the <Response>
                     // message.  Onelogin Toolkit supports for this endpoint the
                     // HTTP-Redirect binding only
@@ -600,7 +643,7 @@ class SsoController extends AbstractActionController
                 // SLO endpoint info of the IdP.
                 'singleLogoutService' => [
                     // URL Location of the IdP where the SP will send the SLO Request
-                    'url' => $settings->get('singlesignon_idp_slo_url', ''),
+                    'url' => $idp['idp_slo_url'],
                     // URL location of the IdP where the SP SLO Response will be sent (ResponseLocation)
                     // if not set, url for the SLO Request will be used
                     'responseUrl' => '',
@@ -611,7 +654,7 @@ class SsoController extends AbstractActionController
                 ],
 
                 // Public x509 certificate of the IdP
-                'x509cert' => $settings->get('singlesignon_idp_x509_certificate', ''),
+                'x509cert' => $idp['idp_x509_certificate'],
 
                 /*
                  *  Instead of use the whole x509cert you can use a fingerprint in

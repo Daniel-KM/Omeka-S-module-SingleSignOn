@@ -11,7 +11,7 @@ return [
     ],
     'controllers' => [
         'factories' => [
-            'SingleSignOn\Controller\Sso' => Service\Controller\SsoControllerFactory::class,
+            Controller\SsoController::class => Service\Controller\SsoControllerFactory::class,
         ],
     ],
     'router' => [
@@ -25,8 +25,23 @@ return [
                     ],
                     'defaults' => [
                         '__NAMESPACE__' => 'SingleSignOn\Controller',
-                        'controller' => 'Sso',
+                        'controller' => Controller\SsoController::class,
                         'action' => 'metadata',
+                    ],
+                ],
+            ],
+            'sso-id' => [
+                'type' => \Laminas\Router\Http\Segment::class,
+                'options' => [
+                    'route' => '/sso/:idp[/:action]',
+                    'constraints' => [
+                        'idp' => '[a-zA-Z0-9_.-]+',
+                        'action' => 'login|acs|logout|sls',
+                    ],
+                    'defaults' => [
+                        '__NAMESPACE__' => 'SingleSignOn\Controller',
+                        'controller' => Controller\SsoController::class,
+                        'action' => 'login',
                     ],
                 ],
             ],

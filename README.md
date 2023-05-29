@@ -7,7 +7,8 @@ Single Sign-On (module for Omeka S)
 
 [Single Sign-On] is a module for [Omeka S] that allows users to authenticate
 automatically through single sign-on (SSO) via [SAML] and the identity provider
-(IdP) of your institution or any external service.
+(IdP) of your institution or any external service. Multiple IdP are managed, so
+users can login through multiple services.
 
 Local users can still connect via the local passwords if they have one.
 
@@ -48,9 +49,9 @@ composer install --no-dev
 Quick start
 -----------
 
-For security, the service must be configured on the Omeka part and the identity
-provider (IdP): Omeka needs to know the IdP and, the IdP requires to allow
-Omeka as a SAML service provider (SP).
+For security, each service must be configured on the Omeka part and the identity
+provider (IdP) part: Omeka needs to know each IdP and, each IdP requires to
+allow Omeka as a SAML service provider (SP).
 
 - For Omeka, go to the config form and fill the params of your IdP.
 - For the IdP, register Omeka as a service provider with the metadata provided
@@ -140,11 +141,13 @@ TODO
 ----
 
 - [ ] Autoconfig SP via xml file.
-- [ ] Multiple IdP.
+- [ ] Autoconfig IdP via xml file or url.
+- [x] Multiple IdP.
 - [ ] Mapping roles (see module Shibboleth).
 - [ ] Extra settings, in particular locale (see module Shibboleth).
 - [ ] Add logo and site name (see onelogin config and https://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-metadata-ui/v1.0/os/sstc-saml-metadata-ui-v1.0-os.html).
 - [ ] Force sso login (with dynamic check of config first).
+- [ ] Allow to log in without registering SP in the IdP (Unsolicited Login Initiator), but may be a security issue.
 
 
 Warning

@@ -12,6 +12,7 @@ use Generic\AbstractModule;
 use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\Controller\AbstractController;
 use Laminas\Mvc\MvcEvent;
+use Laminas\View\Renderer\PhpRenderer;
 use OneLogin\Saml2\Utils;
 
 /**
@@ -39,8 +40,60 @@ class Module extends AbstractModule
             // Anybody can log in.
             ->allow(
                 null,
-                'SingleSignOn\Controller\Sso'
+                [\SingleSignOn\Controller\SsoController::class],
             );
+    }
+
+    public function getConfigForm(PhpRenderer $view)
+    {
+        $services = $this->getServiceLocator();
+
+        $settings = $services->get('Omeka\Settings');
+        $config = $this->getConfig();
+        $defaultSettings = $config['singlesignon']['config'];
+
+        $data = [];
+        foreach ($defaultSettings as $name => $value) {
+            $val = $settings->get($name, is_array($value) ? [] : null);
+            $data[$name] = $val;
+        }
+
+        // At least one fieldset.
+        // The list should be zero based to simplify js.
+        $data['singlesignon_idps'] = $data['singlesignon_idps'] ?: $config['singlesignon']['config']['singlesignon_idps'];
+
+        /** @var \SingleSignOn\Form\ConfigForm $form */
+        $form = $services->get('FormElementManager')->get(\SingleSignOn\Form\ConfigForm::class);
+        $form->init();
+        $form->setData($data);
+
+        $plugins = $view->getHelperPluginManager();
+        $assetUrl = $plugins->get('assetUrl');
+        $formRow = $plugins->get('formRow');
+
+        $view->headScript()
+            ->appendFile($assetUrl('js/single-sign-on-admin.js', 'SingleSignOn'), 'text/javascript', ['defer' => 'defer']);
+
+        $form->prepare();
+
+        // The rendering of Collection is not automatic, but required to set the
+        // good name of elements of the fieldset.
+        /** @see https://docs.laminas.dev/laminas-form/v3/collections/ */
+        // return $renderer->formCollection($form, true);
+
+        // The form is already open in page actions, but without id or name.
+        // $html .= $view->form()->openTag($form);
+        $html = '';
+        foreach ($form->getElements() as $element) {
+            $html .= $formRow($element);
+        }
+
+        // IdP are rendered as collection.
+        $html .= $view->formCollection($form->get('singlesignon_idps'), true);
+        // The form is closed in parent, so don't close it here, else the csrf
+        // will be outside.
+        // $html .= $view->form()->closeTag();
+        return $html;
     }
 
     public function handleConfigForm(AbstractController $controller)
@@ -50,9 +103,29 @@ class Module extends AbstractModule
             return false;
         }
 
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+
+        $idps = $settings->get('singlesignon_idps');
+
         // Messages are displayed, but data are stored in all cases.
         $this->checkSPConfig();
-        $this->checkIdPConfig();
+
+        $cleanIdps = [];
+        foreach ($idps as $key => $idp) {
+            $result = $this->checkX509Certificate($idp['idp_x509_certificate'] ?? null);
+            if ($result) {
+                $idp['idp_x509_certificate'] = $result;
+            }
+            $entityId = $idp['idp_entity_id'] ?? '';
+            if (substr($entityId, 0, 4) !== 'http') {
+                $entityId = 'http://' . $entityId;
+            }
+            $idpName = parse_url($entityId, PHP_URL_HOST) ?: $key;
+            $cleanIdps[$idpName] = $idp;
+        }
+
+        $settings->set('singlesignon_idps', $cleanIdps);
 
         return true;
     }
@@ -164,23 +237,20 @@ class Module extends AbstractModule
         return true;
     }
 
-    protected function checkIdPConfig(): bool
+    protected function checkX509Certificate(?string $x509Certificate): ?string
     {
-        /**
-         * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
-         * @var \Omeka\Settings\Settings $settings
-         * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
-         */
-        $services = $this->getServiceLocator();
-        $plugins = $services->get('ControllerPluginManager');
-        $settings = $services->get('Omeka\Settings');
-        $messenger = $plugins->get('messenger');
+        if (!$x509Certificate) {
+            return null;
+        }
 
-        $x509cert = trim($settings->get('singlesignon_idp_x509_certificate') ?: '');
-
+        $x509cert = trim($x509Certificate);
         if (!$x509cert) {
             return true;
         }
+
+        /** @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger */
+        $services = $this->getServiceLocator();
+        $messenger = $services->get('ControllerPluginManager')->get('messenger');
 
         // Remove windows and apple issues.
         $spaces = [
@@ -190,10 +260,6 @@ class Module extends AbstractModule
         ];
         $x509cert = str_replace(array_keys($spaces), array_values($spaces), $x509cert);
 
-        // Clean keys.
-        $x509cert = Utils::formatCert($x509cert, true);
-        $settings->set('singlesignon_idp_x509_certificate', $x509cert);
-
         $x509cert = Utils::formatCert($x509cert);
 
         $sslX509cert = openssl_pkey_get_public($x509cert);
@@ -202,7 +268,7 @@ class Module extends AbstractModule
                 'The IdP public certificate is not valid.' // @translate
             );
             $messenger->addError($message);
-            return false;
+            return null;
         }
 
         $plain = 'Test clés SingleSignOn.';
@@ -213,7 +279,7 @@ class Module extends AbstractModule
                 'Unable to encrypt message with IdP public certificate.' // @translate
             );
             $messenger->addError($message);
-            return false;
+            return null;
         }
 
         $message = new \Omeka\Stdlib\Message(
@@ -221,6 +287,6 @@ class Module extends AbstractModule
         );
         $messenger->addSuccess($message);
 
-        return true;
+        return Utils::formatCert($x509cert, true);
     }
 }

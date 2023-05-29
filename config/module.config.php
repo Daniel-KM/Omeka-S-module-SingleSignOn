@@ -6,6 +6,7 @@ return [
     'form_elements' => [
         'invokables' => [
             Form\ConfigForm::class => Form\ConfigForm::class,
+            Form\IdpFieldset::class => Form\IdpFieldset::class,
         ],
     ],
     'controllers' => [
@@ -52,16 +53,22 @@ return [
             'singlesignon_sp_x509_certificate' => '',
             'singlesignon_sp_x509_private_key' => '',
 
-            'singlesignon_idp_entity_id' => '',
-            'singlesignon_idp_sso_url' => '',
-            'singlesignon_idp_slo_url' => '',
-            'singlesignon_idp_x509_certificate' => '',
-            'singlesignon_idp_attributes_map' => [
-                'mail' => 'email',
-                'displayName' =>'name',
-                /*
-                'role' => 'role',
-                */
+            // The config manages multiple idp services.
+            // In Omeka, they are all stored in one setting for now.
+            'singlesignon_idps' => [
+                [
+                    'idp_entity_id' => '',
+                    'idp_sso_url' => '',
+                    'idp_slo_url' => '',
+                    'idp_x509_certificate' => '',
+                    'idp_attributes_map' => [
+                        'mail' => 'email',
+                        'displayName' =>'name',
+                        /*
+                        'role' => 'role',
+                        */
+                    ],
+                ],
             ],
         ],
     ],

@@ -54,10 +54,10 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Public X.509 certificate of the IdP', // @translate
+                    'info' => 'If not set, it will be fetched from the IdP url, if available.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'idp_x509_certificate',
-                    'required' => true,
                     'rows' => 5,
                 ],
             ])

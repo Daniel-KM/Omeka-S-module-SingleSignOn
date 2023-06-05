@@ -59,7 +59,13 @@ class SsoController extends AbstractActionController
 
         $idpName = $this->idpNameFromRoute();
         if ($idpName) {
-            throw new \Laminas\Mvc\Exception\InvalidArgumentException('Metadata of the idp are not available currently.');
+            $idpMetadata = $this->idpMetadata($idpName);
+            if (!$idpMetadata) {
+                throw new \Laminas\Mvc\Exception\InvalidArgumentException(new Message(
+                    'Metadata of the IdP "%s" are not available currently.', // @translate
+                    $idpName
+                ));
+            }
         }
 
         // Some idp don't manage namespaces, so remove them in basic mode.
@@ -437,6 +443,45 @@ class SsoController extends AbstractActionController
 
         $this->messenger()->addSuccess('Successfully logged out.'); // @translate
         return $this->redirect()->toUrl($redirectUrl);
+    }
+
+    protected function idpMetadata(string $idpName)
+    {
+        $redirectUrl = $this->redirectUrl();
+
+        $idp = $this->idpData($idpName);
+        if (!$idp['idp_entity_id']) {
+            $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
+            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+        }
+        if (!$idp['idp_metadata_url']) {
+            $this->messenger()->addError(new Message(
+                'The IdP "%s" has no available metadata.', // @translate
+                $idpName
+            ));
+            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+        }
+
+        $idpString = @file_get_contents($idp['idp_metadata_url']);
+        if (!$idpString) {
+            $this->messenger()->addError(new Message(
+                'The IdP "%s" has no available metadata.', // @translate
+                $idpName
+            ));
+            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+        }
+
+        /** @var \SimpleXMLElement $idpXml */
+        $idpXml = @simplexml_load_string($idpString);
+        if (!$idpXml) {
+            $this->messenger()->addError(new Message(
+                'The IdP "%s" has no valid xml metadata.', // @translate
+                $idpName
+            ));
+            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+        }
+
+        return $idpString;
     }
 
     protected function idpNameFromRoute()

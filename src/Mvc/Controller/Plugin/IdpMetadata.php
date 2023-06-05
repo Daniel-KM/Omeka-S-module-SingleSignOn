@@ -13,6 +13,7 @@ class IdpMetadata extends AbstractPlugin
      */
     public function __invoke(?string $idpUrl, bool $useMessenger = false): ?array
     {
+        $idpUrl = trim((string) $idpUrl);
         if (!$idpUrl) {
             return null;
         }
@@ -58,7 +59,7 @@ class IdpMetadata extends AbstractPlugin
             return null;
         }
 
-        $entityId = (string) ($idpXml['entityID'] ?? parse_url($idpUrl, PHP_URL_HOST));
+        $entityId = (string) ($idpXml['entityID'] ?? (string) parse_url($idpUrl, PHP_URL_HOST));
 
         $entityName = (string) ($idpXml->xpath('//Organization/OrganizationName[1]')[0] ?? '')
             ?: (string) ($idpXml->xpath('//IDPSSODescriptor/Extensions/UIInfo/DisplayName[1]')[0] ?? '');
@@ -75,11 +76,11 @@ class IdpMetadata extends AbstractPlugin
 
         return [
             'idp_metadata_url' => $idpUrl,
-            'idp_entity_id' => $entityId,
-            'idp_entity_name' => $entityName,
-            'idp_sso_url' => $ssoUrl,
-            'idp_slo_url' => $sloUrl,
-            'idp_x509_certificate' => $x509Certificate,
+            'idp_entity_id' => trim($entityId),
+            'idp_entity_name' => trim($entityName),
+            'idp_sso_url' => trim($ssoUrl),
+            'idp_slo_url' => trim($sloUrl),
+            'idp_x509_certificate' => trim($x509Certificate),
             'idp_date' => (new \DateTime('now'))->format(\DateTime::ISO8601),
         ];
     }

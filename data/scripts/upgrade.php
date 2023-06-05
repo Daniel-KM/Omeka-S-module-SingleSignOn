@@ -52,7 +52,14 @@ if (version_compare($oldVersion, '3.4.5', '<')) {
     $settings->delete('singlesignon_idp_attributes_map');
 
     $message = new Message(
-        'It is possible now to manage multipe IdPs.' // @translate
+        'It is now possible to manage multiple IdPs.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
+
+if (version_compare($oldVersion, '3.4.6', '<')) {
+    $message = new Message(
+        'It is now possible to config and update IdPs automatically with IdP metadata url.' // @translate
     );
     $messenger->addSuccess($message);
 }

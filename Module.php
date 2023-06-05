@@ -100,12 +100,18 @@ class Module extends AbstractModule
             $html .= $formRow($element);
         }
 
-        $html .= '<p>'
+        // Append a message inside the main fieldset.
+        /** @var \Laminas\Form\Element\Collection $collection */
+        $collection = $form->get('singlesignon_idps')
+            ->setLabelOption('disable_html_escape', true);
+        $collectionNote = '<p>'
             . $view->translate('When the metadata url of an IdP is set, its form will be automatically filled and updated each day.') // @translate
             . '</p>';
 
         // IdP are rendered as collection.
-        $html .= $view->formCollection($form->get('singlesignon_idps'), true);
+        $html .= $view->formCollection()
+            ->setLabelWrapper('<legend>%s</legend>' . $collectionNote)
+            ->render($collection);
         // The form is closed in parent, so don't close it here, else the csrf
         // will be outside.
         // $html .= $view->form()->closeTag();

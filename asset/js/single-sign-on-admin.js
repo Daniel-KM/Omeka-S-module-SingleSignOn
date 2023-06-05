@@ -3,13 +3,13 @@ $(document).ready(function() {
     /**
      * Add buttons "add" at the end of fhe form.
      */
-    const buttonAdd = '<button type="button" class="add-idp" style="float: right;">+ IdP</button>';
+    const buttonAdd = '<button type="button" class="add-idp">+ IdP</button>';
     $('#singlesignon_idps').append(buttonAdd);
 
     /**
      * Add buttons "remove" to each fieldset.
      */
-    const buttonRemove = '<button type="button" class="remove-idp" style="float: right;">- IdP</button>';
+    const buttonRemove = '<button type="button" class="remove-idp">- IdP</button>';
     $('#singlesignon_idps fieldset.singlesignon-idp').append(buttonRemove);
     if ($('#singlesignon_idps fieldset.singlesignon-idp').length <= 1) {
         $('.remove-idp').hide();

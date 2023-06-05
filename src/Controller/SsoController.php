@@ -307,15 +307,12 @@ class SsoController extends AbstractActionController
             }
 
             if (!$name) {
-                $message = new Message('No name provided to register a new user.'); // @translate
-                $this->messenger()->addError($message);
-                $message = new Message('No name provided or mapped. Available canonical attributes for this IdP: %1$s. Available friendly attributes for this IdP: %2$s.', // @translate
-                    implode(', ', array_keys($samlAttributesCanonical)),
-                    implode(', ', array_keys($samlAttributesFriendly))
+                $message = new Message('No name provided or mapped. Available canonical attributes for this IdP: "%1$s". Available friendly attributes for this IdP: "%2$s".', // @translate
+                    implode('", "', array_keys($samlAttributesCanonical)),
+                    implode('", "', array_keys($samlAttributesFriendly))
                 );
-                $this->logger()->err($message);
-                // Since this is a config or idp error, redirect to local login.
-                return $this->redirect()->toRoute('login');
+                $this->logger()->warn($message);
+                $name = $email;
             }
 
             // For security, a new user cannot be an admin.
@@ -523,9 +520,11 @@ class SsoController extends AbstractActionController
                     ->format('%a') >= 1
             )
         ) {
-            $idpMetadata = $this->idpMetadata($idpName);
-            if ($idpMetadata) {
-                $idp = $idpMetadata;
+            $idpMeta = $this->idpMetadata($idpName);
+            if ($idpMeta) {
+                $idpMeta['idp_entity_name'] = $idpMeta['idp_entity_name'] ?: $idp['idp_entity_name'];
+                $idpMeta['idp_attributes_map'] = $idp['idp_attributes_map'];
+                $idp = $idpMeta;
                 $idps[$idpName] = $idp;
                 $settings->set('singlesignon_idps', $idps);
             }

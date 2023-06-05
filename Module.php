@@ -109,6 +109,8 @@ class Module extends AbstractModule
             . '</p>';
         $collectionNote .= '<p>'
             . $view->translate('Warning: some IdPs hide the name, so you may fill it yourself.') // @translate
+            . ' '
+            . $view->translate('Furthermore, IdP keys still need to be mapped, at least for name.') // @translate
             . '</p>';
 
         // IdP are rendered as collection.
@@ -166,9 +168,8 @@ class Module extends AbstractModule
                     $cleanIdps[$key] = $idp;
                     continue;
                 }
-                if (empty($idpMeta['idp_entity_name'])) {
-                    $idpMeta['idp_entity_name'] = $idp['idp_entity_name'];
-                }
+                $idpMeta['idp_entity_name'] = $idpMeta['idp_entity_name'] ?: $idp['idp_entity_name'];
+                $idpMeta['idp_attributes_map'] = $idp['idp_attributes_map'];
                 $idp = $idpMeta;
                 $entityId = $idp['idp_entity_id'];
             }

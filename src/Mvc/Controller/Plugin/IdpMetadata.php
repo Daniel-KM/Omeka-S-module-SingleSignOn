@@ -3,6 +3,7 @@
 namespace SingleSignOn\Mvc\Controller\Plugin;
 
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
+use SimpleXMLElement;
 
 class IdpMetadata extends AbstractPlugin
 {
@@ -46,9 +47,9 @@ class IdpMetadata extends AbstractPlugin
             return null;
         }
 
-        /** @var \SimpleXMLElement $idpXml */
-        $idpXml = @simplexml_load_string($idpString);
-        if (!$idpXml) {
+        /** @var \SimpleXMLElement $xml */
+        $xml = @simplexml_load_string($idpString);
+        if (!$xml) {
             if ($useMessenger) {
                 $message = new \Omeka\Stdlib\Message(
                     'The IdP url "%s" does not return valid xml metadata.', // @translate
@@ -59,20 +60,47 @@ class IdpMetadata extends AbstractPlugin
             return null;
         }
 
-        $entityId = (string) ($idpXml['entityID'] ?? (string) parse_url($idpUrl, PHP_URL_HOST));
+        $namespaces = $xml->getDocNamespaces();
 
-        $entityName = (string) ($idpXml->xpath('//Organization/OrganizationName[1]')[0] ?? '')
-            ?: (string) ($idpXml->xpath('//IDPSSODescriptor/Extensions/UIInfo/DisplayName[1]')[0] ?? '');
+        // Register xpath should be done for each call. So not very usable.
+        $registerXpathNamespaces = function (SimpleXMLElement $xml): SimpleXMLElement {
+            $xml->registerXPathNamespace('', 'urn:oasis:names:tc:SAML:2.0:metadata');
+            $xml->registerXPathNamespace('samlmetadata', 'urn:oasis:names:tc:SAML:2.0:metadata');
+            $xml->registerXPathNamespace('samlassertion', 'urn:oasis:names:tc:SAML:2.0:assertion');
+            $xml->registerXPathNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
+            $xml->registerXPathNamespace('req-attr', 'urn:oasis:names:tc:SAML:protocol:ext:req-attr');
+            $xml->registerXPathNamespace('ds', 'http://www.w3.org/2000/09/xmldsig#');
+            $xml->registerXPathNamespace('shibmd', 'urn:mace:shibboleth:metadata:1.0');
+            $xml->registerXPathNamespace('xml', 'http://www.w3.org/XML/1998/namespace');
+            $xml->registerXPathNamespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+            return $xml;
+        };
 
-        // The One-Login library supports "Redirect" only.
-        $ssoUrl = (string) ($idpXml->xpath('//IDPSSODescriptor/SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
-        $sloUrl = (string) ($idpXml->xpath('//IDPSSODescriptor/SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
+        $entityId = (string) ($xml['samlmetadata:entityID'] ?? $xml['entityID'] ?? parse_url($idpUrl, PHP_URL_HOST));
 
-        // Prefer the certificate used for encryption, not signing.
-        $x509Certificate = (string) ($idpXml->xpath('//IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '')
-            ?: (string) ($idpXml->xpath('//IDPSSODescriptor/KeyDescriptor/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '');
-        // The xml may add tabulations and spaces, to be removed.
-        $x509Certificate = str_replace(["\t", ' '], '', $x509Certificate);
+        if ($namespaces) {
+            $entityName = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:Organization/samlmetadata:OrganizationName[1]')[0] ?? '')
+                ?: (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:Extensions/mdui:UIInfo/mdui:DisplayName[1]')[0] ?? '');
+
+            // The One-Login library supports "Redirect" only.
+            $ssoUrl = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
+            $sloUrl = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
+
+            // Prefer the certificate used for encryption, not signing.
+            $x509Certificate = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
+                ?: (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
+        } else {
+            $entityName = (string) ($xml->xpath('//Organization/OrganizationName[1]')[0] ?? '')
+                ?: (string) ($xml->xpath('//IDPSSODescriptor/Extensions/UIInfo/DisplayName[1]')[0] ?? '');
+
+            // The One-Login library supports "Redirect" only.
+            $ssoUrl = (string) ($xml->xpath('//IDPSSODescriptor/SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
+            $sloUrl = (string) ($xml->xpath('//IDPSSODescriptor/SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
+
+            // Prefer the certificate used for encryption, not signing.
+            $x509Certificate = (string) ($xml->xpath('//IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '')
+                ?: (string) ($xml->xpath('//IDPSSODescriptor/KeyDescriptor/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '');
+        }
 
         return [
             'idp_metadata_url' => $idpUrl,
@@ -80,7 +108,8 @@ class IdpMetadata extends AbstractPlugin
             'idp_entity_name' => trim($entityName),
             'idp_sso_url' => trim($ssoUrl),
             'idp_slo_url' => trim($sloUrl),
-            'idp_x509_certificate' => trim($x509Certificate),
+            // The xml may add tabulations and spaces, to be removed.
+            'idp_x509_certificate' => trim(str_replace(["\t", ' '], '', $x509Certificate)),
             'idp_date' => (new \DateTime('now'))->format(\DateTime::ISO8601),
         ];
     }

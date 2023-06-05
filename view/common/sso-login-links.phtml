@@ -1,0 +1,37 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var array $idps
+ * @var bool $internal
+ *
+ * And options passed to the helper.
+ */
+
+$plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$escape = $plugins->get('escapeHtml');
+$translate = $plugins->get('translate');
+$escapeAttr = $plugins->get('escapeHtmlAttr');
+$currentSite = $plugins->get('currentSite');
+
+if ($internal) {
+    $urlLogin = $plugins->has('guestWidget') && $site = $currentSite() ? $url('site/guest/anonymous', ['action' => 'login', 'site-slug' => $site->slug()], true) : $url('login');
+    $idps['default-login'] = [
+        'url' => $urlLogin,
+        'idp_entity_name' => $translate('Direct login'),
+    ];
+}
+?>
+
+<div class="single-sign-on-login">
+    <h4><?= $translate('Login with your identity provider') ?></h4>
+    <ul class="single-sign-on-links">
+        <?php foreach($idps as $idpSlug => $idp):
+        $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], true);
+        ?>
+        <li>
+            <a class="single-sign-on-idp <?= $escapeAttr(str_replace('.', '-', $idpSlug)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idp['idp_entity_name'] ?: $idp['idp_entity_id']) ?></a>
+        </li>
+        <?php endforeach; ?>
+    </ul>
+</div>

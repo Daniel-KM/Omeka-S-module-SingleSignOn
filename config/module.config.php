@@ -3,6 +3,16 @@
 namespace SingleSignOn;
 
 return [
+    'view_manager' => [
+        'template_path_stack' => [
+            dirname(__DIR__) . '/view',
+        ],
+    ],
+    'view_helpers' => [
+        'invokables' => [
+            'ssoLoginLinks' => View\Helper\SsoLoginLinks::class,
+        ],
+    ],
     'form_elements' => [
         'invokables' => [
             Form\ConfigForm::class => Form\ConfigForm::class,

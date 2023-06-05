@@ -9,6 +9,8 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 }
 
 use Generic\AbstractModule;
+use Laminas\EventManager\Event;
+use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\Controller\AbstractController;
 use Laminas\Mvc\MvcEvent;
@@ -42,6 +44,16 @@ class Module extends AbstractModule
                 null,
                 [\SingleSignOn\Controller\SsoController::class],
             );
+    }
+
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
+    {
+        $sharedEventManager->attach(
+            // Many controller can call this trigger, so use the joker.
+            '*',
+            'view.login.after',
+            [$this, 'handleViewLogin']
+        );
     }
 
     public function getConfigForm(PhpRenderer $view)
@@ -162,6 +174,15 @@ class Module extends AbstractModule
         $settings->set('singlesignon_idps', $cleanIdps);
 
         return !$hasError;
+    }
+
+    /**
+     * Display the SSO login links on the login page.
+     */
+    public function handleViewLogin(Event $event): void
+    {
+        $view = $event->getTarget();
+        echo $view->ssoLoginLinks();
     }
 
     protected function checkSPConfig(): bool

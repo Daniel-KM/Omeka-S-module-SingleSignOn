@@ -1,0 +1,21 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Form\LoginForm $form
+ *
+ * Copy of omeka view template, but with event "view.login.after" triggered.
+ */
+
+$plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
+
+$this->htmlElement('body')->appendAttribute('class', 'login');
+?>
+
+<h1><?= $translate('Log in') ?></h1>
+<?= $this->form($form) ?>
+<p class="forgot-password"><?= $hyperlink($translate('Forgot password?'), $url('forgot-password')) ?></p>
+
+<?php $this->trigger('view.login.after'); ?>

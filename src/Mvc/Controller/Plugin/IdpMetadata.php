@@ -13,6 +13,10 @@ class IdpMetadata extends AbstractPlugin
      */
     public function __invoke(?string $idpUrl, bool $useMessenger = false): ?array
     {
+        if (!$idpUrl) {
+            return null;
+        }
+
         if ($useMessenger) {
             /** @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger */
             $messenger = $this->getController()->messenger();
@@ -76,6 +80,7 @@ class IdpMetadata extends AbstractPlugin
             'idp_sso_url' => $ssoUrl,
             'idp_slo_url' => $sloUrl,
             'idp_x509_certificate' => $x509Certificate,
+            'idp_date' => (new \DateTime('now'))->format(\DateTime::ISO8601),
         ];
     }
 }

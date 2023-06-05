@@ -19,7 +19,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'name' => 'idp_metadata_url',
                 'type' => Element\Url::class,
                 'options' => [
-                    'label' => 'IdP metadata url (allow to get all settings automatically)', // @translate
+                    'label' => 'IdP metadata url (allow to get and update settings automatically)', // @translate
                     'info' => 'For Shibboleth, it may be "https://idp.example.org/idp/shibboleth".', // @translate
                 ],
                 'attributes' => [

@@ -493,10 +493,14 @@ class SsoController extends AbstractActionController
 
     protected function idpData(?string $idpName): array
     {
-        $idps = $this->settings()->get('singlesignon_idps', []);
-        $idp = $idpName
-            ? $idps[$idpName] ?? []
-            : (reset($idps) ?: []);
+        $settings = $this->settings();
+        $idps = $settings->get('singlesignon_idps', []);
+
+        if (empty($idpName)) {
+            $idpName = key($idps);
+        }
+
+        $idp = $idps[$idpName] ?? [];
         $idp += [
             'idp_metadata_url' => '',
             'idp_entity_id' => '',
@@ -504,8 +508,29 @@ class SsoController extends AbstractActionController
             'idp_sso_url' => '',
             'idp_slo_url' => '',
             'idp_x509_certificate' => '',
+            'idp_date' => '',
             'idp_attributes_map' => [],
         ];
+
+        // Update idp data when possible.
+        if ($idp['idp_metadata_url']
+            && (
+                // Init and store if missing.
+                empty($idp['idp_date'])
+                // Update once a day.
+                || (new \DateTimeImmutable($idp['idp_date']))->setTime(0, 0, 0)
+                    ->diff((new \DateTimeImmutable('now'))->setTime(0, 0, 0), true)
+                    ->format('%a') >= 1
+            )
+        ) {
+            $idpMetadata = $this->idpMetadata($idpName);
+            if ($idpMetadata) {
+                $idp = $idpMetadata;
+                $idps[$idpName] = $idp;
+                $settings->set('singlesignon_idps', $idps);
+            }
+        }
+
         return $idp;
     }
 

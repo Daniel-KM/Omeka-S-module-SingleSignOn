@@ -101,7 +101,7 @@ class Module extends AbstractModule
         }
 
         $html .= '<p>'
-            . $view->translate('If the metadata url of an IdP is set, its form will be automatically filled.') // @translate
+            . $view->translate('When the metadata url of an IdP is set, its form will be automatically filled and updated each day.') // @translate
             . '</p>';
 
         // IdP are rendered as collection.

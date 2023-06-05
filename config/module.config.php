@@ -14,6 +14,11 @@ return [
             Controller\SsoController::class => Service\Controller\SsoControllerFactory::class,
         ],
     ],
+    'controller_plugins' => [
+        'invokables' => [
+            'idpMetadata' => Mvc\Controller\Plugin\IdpMetadata::class,
+        ],
+    ],
     'router' => [
         'routes' => [
             'sso' => [
@@ -58,6 +63,7 @@ return [
             // In Omeka, they are all stored in one setting for now.
             'singlesignon_idps' => [
                 [
+                    'idp_metadata_url' => '',
                     'idp_entity_id' => '',
                     'idp_sso_url' => '',
                     'idp_slo_url' => '',

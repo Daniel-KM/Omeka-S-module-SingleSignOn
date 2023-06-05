@@ -16,6 +16,18 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
             ->setAttribute('class', 'singlesignon-idp idp')
             ->setName('idp')
             ->add([
+                'name' => 'idp_metadata_url',
+                'type' => Element\Url::class,
+                'options' => [
+                    'label' => 'IdP metadata url (allow to get all settings automatically)', // @translate
+                    'info' => 'For Shibboleth, it may be "https://idp.example.org/idp/shibboleth".', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'idp_metadata_url',
+                    'required' => false,
+                ],
+            ])
+            ->add([
                 'name' => 'idp_entity_id',
                 'type' => Element\Text::class,
                 'options' => [
@@ -24,7 +36,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 ],
                 'attributes' => [
                     'id' => 'idp_entity_id',
-                    'required' => true,
+                    'required' => false,
                 ],
             ])
             ->add([
@@ -90,6 +102,9 @@ role = role',
     public function getInputFilterSpecification()
     {
         $spec = [
+            'idp_metadata_url' => [
+                'required' => false,
+            ],
             'idp_sso_url' => [
                 'required' => false,
             ],

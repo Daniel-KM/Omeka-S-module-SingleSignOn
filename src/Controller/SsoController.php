@@ -453,6 +453,7 @@ class SsoController extends AbstractActionController
             ? $idps[$idpName] ?? []
             : (reset($idps) ?: []);
         $idp += [
+            'idp_metadata_url' => '',
             'idp_entity_id' => '',
             'idp_sso_url' => '',
             'idp_slo_url' => '',

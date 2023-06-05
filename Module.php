@@ -88,6 +88,10 @@ class Module extends AbstractModule
             $html .= $formRow($element);
         }
 
+        $html .= '<p>'
+            . $view->translate('If the metadata url of an IdP is set, its form will be automatically filled.') // @translate
+            . '</p>';
+
         // IdP are rendered as collection.
         $html .= $view->formCollection($form->get('singlesignon_idps'), true);
         // The form is closed in parent, so don't close it here, else the csrf
@@ -103,17 +107,47 @@ class Module extends AbstractModule
             return false;
         }
 
+        /**
+         * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
+         * @var \Omeka\Settings\Settings $settings
+         * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
+         * @var \SingleSignOn\Mvc\Controller\Plugin\IdpMetadata $idpMetadata
+         */
         $services = $this->getServiceLocator();
+        $plugins = $services->get('ControllerPluginManager');
         $settings = $services->get('Omeka\Settings');
+        $messenger = $plugins->get('messenger');
+        $idpMetadata = $plugins->get('idpMetadata');
 
         $idps = $settings->get('singlesignon_idps');
 
         // Messages are displayed, but data are stored in all cases.
         $this->checkSPConfig();
 
+        $hasError = false;
         $cleanIdps = [];
-        foreach ($idps as $key => $idp) {
+        foreach (array_values($idps) as $key => $idp) {
+            ++$key;
+            $entityUrl = $idp['idp_metadata_url'] ?? '';
             $entityId = $idp['idp_entity_id'] ?? '';
+            if (!$entityUrl && !$entityId) {
+                $hasError = true;
+                $message = new \Omeka\Stdlib\Message(
+                    'The IdP #%s has no url and no id and is not valid.', // @translate
+                    $key
+                );
+                $messenger->addError($message);
+                continue;
+            }
+            if ($entityUrl) {
+                $idpMeta = $idpMetadata($entityUrl, true);
+                if (!$idpMeta) {
+                    $cleanIdps[$key] = $idp;
+                    continue;
+                }
+                $idp = $idpMeta;
+                $entityId = $idp['idp_entity_id'];
+            }
             if (substr($entityId, 0, 4) !== 'http') {
                 $entityId = 'http://' . $entityId;
             }
@@ -127,7 +161,7 @@ class Module extends AbstractModule
 
         $settings->set('singlesignon_idps', $cleanIdps);
 
-        return true;
+        return !$hasError;
     }
 
     protected function checkSPConfig(): bool

@@ -57,6 +57,11 @@ class SsoController extends AbstractActionController
         $samlSettings = new SamlSettings($configSso, true);
         $metadata = $samlSettings->getSPMetadata();
 
+        $idpName = $this->idpNameFromRoute();
+        if ($idpName) {
+            throw new \Laminas\Mvc\Exception\InvalidArgumentException('Metadata of the idp are not available currently.');
+        }
+
         // Some idp don't manage namespaces, so remove them in basic mode.
         $xmlMode = $this->settings()->get('singlesignon_sp_metadata_mode', 'standard');
         if ($xmlMode === 'basic') {
@@ -128,7 +133,8 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toUrl($redirectUrl);
         }
 
-        $idpName = $this->params()->fromRoute('idp');
+        $idpName = $this->idpNameFromRoute();
+
         $idp = $this->idpData($idpName);
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
@@ -138,7 +144,7 @@ class SsoController extends AbstractActionController
         $configSso = $this->validConfigSso($idpName, true);
 
         if (empty($configSso['sp']['assertionConsumerService'])) {
-            $this->messenger()->addWarning(new Message('SIngle sign-on is disabled.')); // @translate
+            $this->messenger()->addWarning(new Message('Single sign-on is disabled.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
         }
 
@@ -161,7 +167,7 @@ class SsoController extends AbstractActionController
         $this->authentication->clearIdentity();
 
         // Don't check for a valid idp: logout in all cases.
-        $idpName = $this->params()->fromRoute('idp');
+        $idpName = $this->idpNameFromRoute();
 
         $configSso = $this->validConfigSso($idpName, true);
         $isSlsAvailable = !empty($configSso['sp']['singleLogoutService']);
@@ -207,7 +213,7 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toUrl($redirectUrl);
         }
 
-        $idpName = $this->params()->fromRoute('idp');
+        $idpName = $this->idpNameFromRoute();
         $idp = $this->idpData($idpName);
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
@@ -216,7 +222,7 @@ class SsoController extends AbstractActionController
 
         $configSso = $this->validConfigSso($idpName, true);
         if (empty($configSso['sp']['assertionConsumerService'])) {
-            $this->messenger()->addWarning(new Message('SIngle sign-on is disabled.')); // @translate
+            $this->messenger()->addWarning(new Message('Single sign-on is disabled.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
         }
 
@@ -383,7 +389,7 @@ class SsoController extends AbstractActionController
         $redirectUrl = $this->params()->fromQuery('redirect_url')
             ?: $this->url()->fromRoute('top');
 
-        $idpName = $this->params()->fromRoute('idp');
+        $idpName = $this->idpNameFromRoute();
         $idp = $this->idpData($idpName);
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
@@ -431,6 +437,13 @@ class SsoController extends AbstractActionController
 
         $this->messenger()->addSuccess('Successfully logged out.'); // @translate
         return $this->redirect()->toUrl($redirectUrl);
+    }
+
+    protected function idpNameFromRoute()
+    {
+        $params = $this->params()->fromRoute();
+        $idpName = $params['idp'] ?? null;
+        return $idpName;
     }
 
     protected function idpData(?string $idpName): array

@@ -8,11 +8,12 @@ Single Sign-On (module for Omeka S)
 [Single Sign-On] is a module for [Omeka S] that allows users to authenticate
 automatically through single sign-on (SSO) via [SAML] and the identity provider
 (IdP) of your institution or any external service. Multiple IdP are managed, so
-users can login through multiple services.
+users can login through multiple services. The certificates of the IdP can be
+automatically updated each day too.
 
 Local users can still connect via the local passwords if they have one.
 
-Note that [Shibboleth] is a derivative of Saml, so the [module Shibboleth] will
+Note that [Shibboleth] is an extension of Saml, so the [module Shibboleth] will
 be deprecated soon, once some missing features will be implemented in this
 module.
 
@@ -94,10 +95,14 @@ url, for example https://idp.example.org/idp/shibboleth.
     planning (anyway your users will warn you).
 
 - Identity Provider:
+  - Identity provider metadata url: When set, the form will be automatically
+    filled and updated each day, in particular for the certificate. It is
+    recommended to fill it.
   - Identity provider id: this is the url set in attribute `entityID` of xml
     element `<md:EntityDescriptor>`, for example `https://idp.example.org`.
     Important: for some IDP, the scheme must not be set, so try `idp.example.org`
     too. Just fill the content of the attribute.
+  - Identity provider name: the display name of the IdP, used for the links.
   - IdP single sign-on (SSO) endpoint: Full url set in attribute `Location` of xml
     element `<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`,
     for example "https://idp.example.org/idp/profile/SAML2/Redirect/SSO".
@@ -140,8 +145,8 @@ that. And if the IdP is no more registered in Omeka, it won't be able to log in.
 TODO
 ----
 
-- [ ] Autoconfig SP via xml file.
-- [ ] Autoconfig IdP via xml file or url.
+- [x] Autoconfig SP via xml file.
+- [x] Autoconfig IdP via xml file or url.
 - [x] Multiple IdP.
 - [ ] Mapping roles (see module Shibboleth).
 - [ ] Extra settings, in particular locale (see module Shibboleth).
@@ -206,6 +211,10 @@ Copyright
 
 * Copyright Daniel Berthereau, 2023 (see [Daniel-KM] on GitLab)
 
+This module was built for a new section of [Numistral] the digital library of
+the [Bibliothèque nationale et universitaire de Strasbourg] (BNU), the [Université de Haute-Alsace] (UHA).
+and the [Université de Strasbourg] (UNISTRA).
+
 
 [Single Sign-On]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn
 [Omeka S]: https://omeka.org/s
@@ -224,5 +233,9 @@ Copyright
 [FSF]: https://www.fsf.org
 [OSI]: https://opensource.org
 [MIT]: https://github.com/SAML-Toolkits/php-saml/blob/master/LICENSE
+[Numistral]: https://omeka.numistral.fr
+[Bibliothèque nationale et universitaire de Strasbourg]: https://www.bnu.fr
+[Université de Haute-Alsace]: https://www.uha.fr
+[Université de Strasbourg]: https://www.unistra.fr
 [GitLab]: https://gitlab.com/Daniel-KM
 [Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"

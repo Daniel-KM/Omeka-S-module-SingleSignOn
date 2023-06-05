@@ -1,0 +1,469 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-06-05 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: Module.php:108
+msgid ""
+"When the metadata url of an IdP is set, its form will be automatically "
+"filled and updated each day."
+msgstr ""
+
+#: Module.php:111
+msgid "Warning: some IdPs hide the name, so you may fill it yourself."
+msgstr ""
+
+#: Module.php:113
+msgid "Furthermore, IdP keys still need to be mapped, at least for name."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:80 src/Generic/AbstractModule.php:88
+#: src/Generic/AbstractModule.php:890
+#, php-format
+msgid "This module requires the module \"%s\"."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:93
+#, php-format
+msgid "This module requires modules \"%s\"."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:101
+msgid "This module has resources that cannot be installed."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:108
+msgid ""
+"This module cannot install its tables, because they exist already. Try to "
+"remove them first."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:398
+#, php-format
+msgid "The module removed tables \"%s\" from a previous broken install."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:885
+#, php-format
+msgid "This module requires the module \"%1$s\", version %2$s or above."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:982
+#, php-format
+msgid ""
+"The module \"%s\" was automatically deactivated because the dependencies are "
+"unavailable."
+msgstr ""
+
+#: src/View/Helper/SsoLoginLinks.php:30
+msgid "Login with your identity provider"
+msgstr ""
+
+#: view/common/sso-login-links.phtml:22
+msgid "Direct login"
+msgstr ""
+
+#: data/scripts/upgrade.php:55
+msgid "It is now possible to manage multiple IdPs."
+msgstr ""
+
+#: data/scripts/upgrade.php:62
+msgid ""
+"It is now possible to config and update IdPs automatically with IdP metadata "
+"url."
+msgstr ""
+
+#: Module.php:159
+#, php-format
+msgid "The IdP #%s has no url and no id and is not valid."
+msgstr ""
+
+#: Module.php:228
+msgid "The SP public certificate is set, but not the private key."
+msgstr ""
+
+#: Module.php:235
+msgid "The SP private key is set, but not the public certificate."
+msgstr ""
+
+#: Module.php:261
+msgid "The SP public certificate is not valid."
+msgstr ""
+
+#: Module.php:269
+msgid "The SP private key is not valid."
+msgstr ""
+
+#: Module.php:284
+msgid "Unable to encrypt message with SP public certificate."
+msgstr ""
+
+#: Module.php:292
+msgid "Unable to decrypt message with SP private key."
+msgstr ""
+
+#: Module.php:300
+msgid ""
+"An issue occurred during decryption with SP private key. It may not the good "
+"one."
+msgstr ""
+
+#: Module.php:307
+msgid "No issue found on SP public certificate and private key."
+msgstr ""
+
+#: Module.php:342
+#, php-format
+msgid "The IdP public certificate of \"%s\" is not valid."
+msgstr ""
+
+#: Module.php:354
+#, php-format
+msgid "Unable to encrypt message with IdP public certificate of \"%s\"."
+msgstr ""
+
+#: Module.php:362
+#, php-format
+msgid "No issue found on IdP public certificate of \"%s\"."
+msgstr ""
+
+#: src/Mvc/Controller/Plugin/IdpMetadata.php:30
+#, php-format
+msgid "The IdP url \"%s\" is not valid."
+msgstr ""
+
+#: src/Mvc/Controller/Plugin/IdpMetadata.php:42
+#, php-format
+msgid "The IdP url \"%s\" does not return any metadata."
+msgstr ""
+
+#: src/Mvc/Controller/Plugin/IdpMetadata.php:55
+#, php-format
+msgid "The IdP url \"%s\" does not return valid xml metadata."
+msgstr ""
+
+#: src/Form/ConfigForm.php:28
+msgid "Active services"
+msgstr ""
+
+#: src/Form/ConfigForm.php:29
+msgid "Urls for SSO and SLS should be provided if enabled."
+msgstr ""
+
+#: src/Form/ConfigForm.php:31
+msgid "Log in (SSO)"
+msgstr ""
+
+#: src/Form/ConfigForm.php:32
+msgid "Log out (SLS)"
+msgstr ""
+
+#: src/Form/ConfigForm.php:33
+msgid "Register (JIT)"
+msgstr ""
+
+#: src/Form/ConfigForm.php:34
+msgid "Update user name"
+msgstr ""
+
+#: src/Form/ConfigForm.php:48
+msgid "Append idp links to login view"
+msgstr ""
+
+#: src/Form/ConfigForm.php:49
+msgid ""
+"The list of idps can be displayed on any page via the theme block and helper."
+msgstr ""
+
+#: src/Form/ConfigForm.php:62
+msgid "Metadata content type"
+msgstr ""
+
+#: src/Form/ConfigForm.php:63
+msgid "Some IdP require response header content type to be simple xml."
+msgstr ""
+
+#: src/Form/ConfigForm.php:65
+msgid "application/samlmetadata+xml"
+msgstr ""
+
+#: src/Form/ConfigForm.php:66
+msgid "application/xml"
+msgstr ""
+
+#: src/Form/ConfigForm.php:78
+msgid "Metadata content disposition"
+msgstr ""
+
+#: src/Form/ConfigForm.php:79
+msgid "Some IdP require metadata to be downloadable, not inline."
+msgstr ""
+
+#: src/Form/ConfigForm.php:81
+msgid "Inline (display in browser)"
+msgstr ""
+
+#: src/Form/ConfigForm.php:82
+msgid "Attachment (download in browser)"
+msgstr ""
+
+#: src/Form/ConfigForm.php:83
+msgid "Undefined"
+msgstr ""
+
+#: src/Form/ConfigForm.php:95
+msgid "Metadata mode"
+msgstr ""
+
+#: src/Form/ConfigForm.php:96
+msgid "Some IdP don’t manage xml prefixes in metadata, so they may be removed."
+msgstr ""
+
+#: src/Form/ConfigForm.php:99
+msgid "Basic (xml metadata without prefixes)"
+msgstr ""
+
+#: src/Form/ConfigForm.php:111
+msgid "SP name id format"
+msgstr ""
+
+#: src/Form/ConfigForm.php:112
+msgid ""
+"Value to set in xml element `<md:NameIDFormat>`. Let empty to use the "
+"default value (persistent)."
+msgstr ""
+
+#: src/Form/ConfigForm.php:129
+msgid "Select name id format if needed"
+msgstr ""
+
+#: src/Form/ConfigForm.php:137
+msgid "Path for SP certificates (outside of webserver or protected)"
+msgstr ""
+
+#: src/Form/ConfigForm.php:138
+msgid ""
+"Some idp require certificates. If needed, set the path to it. It should "
+"contains a directory \"certs/\" with at least \"sp.crt\" and \"sp.key\". It "
+"must be protected, for example with a .htaccess. Take care to renew them "
+"when needed."
+msgstr ""
+
+#: src/Form/ConfigForm.php:150
+msgid "SP public certificate (x509)"
+msgstr ""
+
+#: src/Form/ConfigForm.php:151
+msgid ""
+"Some idp require certificates. If needed and if you cannot use a path, paste "
+"public certificate here. Take care to renew them when needed."
+msgstr ""
+
+#: src/Form/ConfigForm.php:163
+msgid "SP private key (x509)"
+msgstr ""
+
+#: src/Form/ConfigForm.php:164
+msgid ""
+"Some idp require certificates. If needed and if you cannot use a path, paste "
+"private key here. Take care to renew them when needed."
+msgstr ""
+
+#: src/Form/ConfigForm.php:178
+msgid "Identity providers (IdP)"
+msgstr ""
+
+#: src/Form/SsoLoginLinksFieldset.php:17
+msgid "Block title"
+msgstr ""
+
+#: src/Form/SsoLoginLinksFieldset.php:27
+msgid "Include default login link"
+msgstr ""
+
+#: src/Form/SsoLoginLinksFieldset.php:41
+msgid "Template to display"
+msgstr ""
+
+#: src/Form/SsoLoginLinksFieldset.php:42
+msgid ""
+"Templates are in folder \"common/block-layout\" of the theme and should "
+"start with \"sso-login-links\"."
+msgstr ""
+
+#: src/Form/IdpFieldset.php:22
+msgid "IdP metadata url (allow to get and update settings automatically)"
+msgstr ""
+
+#: src/Form/IdpFieldset.php:23
+msgid "For Shibboleth, it may be \"https://idp.example.org/idp/shibboleth\"."
+msgstr ""
+
+#: src/Form/IdpFieldset.php:34
+msgid "IdP Entity Id"
+msgstr ""
+
+#: src/Form/IdpFieldset.php:35
+msgid ""
+"Full url set in attribute `entityID` of xml element `<md:EntityDescriptor>`, "
+"for example \"https://idp.example.org\". For some IdP, the scheme must not "
+"be set, so try \"idp.example.org\" too."
+msgstr ""
+
+#: src/Form/IdpFieldset.php:46
+msgid "IdP name"
+msgstr ""
+
+#: src/Form/IdpFieldset.php:57
+msgid "Url of the IdP single sign-on (SSO) service endpoint"
+msgstr ""
+
+#: src/Form/IdpFieldset.php:58
+msgid ""
+"Full url set in attribute `Location` of xml element `<SingleSignOnService "
+"Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\">`, for "
+"example \"https://idp.example.org/idp/profile/SAML2/Redirect/SSO\"."
+msgstr ""
+
+#: src/Form/IdpFieldset.php:68
+msgid "Url of the IdP single log out (SLO) service endpoint"
+msgstr ""
+
+#: src/Form/IdpFieldset.php:69
+msgid ""
+"Full url set in attribute `Location` of xml element `<SingleLogoutService "
+"Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\">`, for "
+"example \"https://idp.example.org/idp/profile/SAML2/Redirect/SLO\"."
+msgstr ""
+
+#: src/Form/IdpFieldset.php:79
+msgid "Public X.509 certificate of the IdP"
+msgstr ""
+
+#: src/Form/IdpFieldset.php:80
+msgid "If not set, it will be fetched from the IdP url, if available."
+msgstr ""
+
+#: src/Form/IdpFieldset.php:91
+msgid "Optional attributes map between IdP and Omeka"
+msgstr ""
+
+#: src/Form/IdpFieldset.php:92
+msgid ""
+"List of IdP and Omeka keys separated by \"=\". IdP keys can be canonical or "
+"friendly ones. Managed Omeka keys are \"email\", \"name\" and \"role\"."
+msgstr ""
+
+#: src/Controller/SsoController.php:65
+#, php-format
+msgid "Metadata of the IdP \"%s\" are not available currently."
+msgstr ""
+
+#: src/Controller/SsoController.php:146 src/Controller/SsoController.php:225
+#: src/Controller/SsoController.php:398 src/Controller/SsoController.php:451
+msgid "No IdP with this name."
+msgstr ""
+
+#: src/Controller/SsoController.php:153 src/Controller/SsoController.php:231
+msgid "Single sign-on is disabled."
+msgstr ""
+
+#: src/Controller/SsoController.php:243
+#, php-format
+msgid "Single sign-on failed: %1$s. %2$s"
+msgstr ""
+
+#: src/Controller/SsoController.php:249
+#, php-format
+msgid "Single sign-on failed: %s"
+msgstr ""
+
+#: src/Controller/SsoController.php:273
+msgid "No email provided to log in or register."
+msgstr ""
+
+#: src/Controller/SsoController.php:275
+#, php-format
+msgid ""
+"No email provided or mapped. Available canonical attributes for this IdP: "
+"%1$s. Available friendly attributes for this IdP: %2$s."
+msgstr ""
+
+#: src/Controller/SsoController.php:304
+msgid "Automatic registering is disabled."
+msgstr ""
+
+#: src/Controller/SsoController.php:310
+#, php-format
+msgid ""
+"No name provided or mapped. Available canonical attributes for this IdP: "
+"\"%1$s\". Available friendly attributes for this IdP: \"%2$s\"."
+msgstr ""
+
+#: src/Controller/SsoController.php:332
+#, php-format
+msgid "User \"%s\" is inactive."
+msgstr ""
+
+#: src/Controller/SsoController.php:368
+msgid "Successfully logged in."
+msgstr ""
+
+#: src/Controller/SsoController.php:422
+#, php-format
+msgid "Single logout service failed: %1$s. %2$s"
+msgstr ""
+
+#: src/Controller/SsoController.php:428
+#, php-format
+msgid "Single logout service failed: %s"
+msgstr ""
+
+#: src/Controller/SsoController.php:441
+msgid "Successfully logged out."
+msgstr ""
+
+#: src/Controller/SsoController.php:456 src/Controller/SsoController.php:465
+#, php-format
+msgid "The IdP \"%s\" has no available metadata."
+msgstr ""
+
+#: src/Controller/SsoController.php:475
+#, php-format
+msgid "The IdP \"%s\" has no valid xml metadata."
+msgstr ""
+
+#: src/Controller/SsoController.php:561
+#, php-format
+msgid "SSO service has an error in configuration: %s"
+msgstr ""
+
+#: src/Controller/SsoController.php:567
+msgid "SSO service is not available. Ask admin to config it."
+msgstr ""
+
+#: src/Controller/SsoController.php:571
+msgid "SSO service is unavailable."
+msgstr ""
+
+#: src/Controller/SsoController.php:576
+msgid "SSO service is unavailable. Ask admin to config it."
+msgstr ""
+
+#: src/Site/BlockLayout/SsoLoginLinks.php:20
+msgid "Single sign-on login links"
+msgstr ""

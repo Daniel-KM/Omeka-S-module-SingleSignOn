@@ -113,15 +113,15 @@ class Module extends AbstractModule
 
         $cleanIdps = [];
         foreach ($idps as $key => $idp) {
-            $result = $this->checkX509Certificate($idp['idp_x509_certificate'] ?? null);
-            if ($result) {
-                $idp['idp_x509_certificate'] = $result;
-            }
             $entityId = $idp['idp_entity_id'] ?? '';
             if (substr($entityId, 0, 4) !== 'http') {
                 $entityId = 'http://' . $entityId;
             }
             $idpName = parse_url($entityId, PHP_URL_HOST) ?: $key;
+            $result = $this->checkX509Certificate($idp['idp_x509_certificate'] ?? null, $idpName);
+            if ($result) {
+                $idp['idp_x509_certificate'] = $result;
+            }
             $cleanIdps[$idpName] = $idp;
         }
 
@@ -237,7 +237,7 @@ class Module extends AbstractModule
         return true;
     }
 
-    protected function checkX509Certificate(?string $x509Certificate): ?string
+    protected function checkX509Certificate(?string $x509Certificate, ?string $idpName = null): ?string
     {
         if (!$x509Certificate) {
             return null;
@@ -265,7 +265,8 @@ class Module extends AbstractModule
         $sslX509cert = openssl_pkey_get_public($x509cert);
         if (!$sslX509cert) {
             $message = new \Omeka\Stdlib\Message(
-                'The IdP public certificate is not valid.' // @translate
+                'The IdP public certificate of "%s" is not valid.', // @translate
+                $idpName
             );
             $messenger->addError($message);
             return null;
@@ -276,14 +277,16 @@ class Module extends AbstractModule
 
         if (!openssl_public_encrypt($plain, $encrypted, $sslX509cert)) {
             $message = new \Omeka\Stdlib\Message(
-                'Unable to encrypt message with IdP public certificate.' // @translate
+                'Unable to encrypt message with IdP public certificate of "%s".', // @translate
+                $idpName
             );
             $messenger->addError($message);
             return null;
         }
 
         $message = new \Omeka\Stdlib\Message(
-            'No issue found on IdP public certificate.' // @translate
+            'No issue found on IdP public certificate of "%s".', // @translate
+            $idpName
         );
         $messenger->addSuccess($message);
 

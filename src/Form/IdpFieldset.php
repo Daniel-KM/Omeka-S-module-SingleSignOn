@@ -40,6 +40,17 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 ],
             ])
             ->add([
+                'name' => 'idp_entity_name',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'IdP name', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'idp_entity_name',
+                    'required' => false,
+                ],
+            ])
+            ->add([
                 'name' => 'idp_sso_url',
                 'type' => Element\Url::class,
                 'options' => [

@@ -500,6 +500,7 @@ class SsoController extends AbstractActionController
         $idp += [
             'idp_metadata_url' => '',
             'idp_entity_id' => '',
+            'idp_entity_name' => '',
             'idp_sso_url' => '',
             'idp_slo_url' => '',
             'idp_x509_certificate' => '',

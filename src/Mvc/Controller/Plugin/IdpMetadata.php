@@ -56,6 +56,9 @@ class IdpMetadata extends AbstractPlugin
 
         $entityId = (string) ($idpXml['entityID'] ?? parse_url($idpUrl, PHP_URL_HOST));
 
+        $entityName = (string) ($idpXml->xpath('//Organization/OrganizationName[1]')[0] ?? '')
+            ?: (string) ($idpXml->xpath('//IDPSSODescriptor/Extensions/UIInfo/DisplayName[1]')[0] ?? '');
+
         // The One-Login library supports "Redirect" only.
         $ssoUrl = (string) ($idpXml->xpath('//IDPSSODescriptor/SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
         $sloUrl = (string) ($idpXml->xpath('//IDPSSODescriptor/SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
@@ -69,6 +72,7 @@ class IdpMetadata extends AbstractPlugin
         return [
             'idp_metadata_url' => $idpUrl,
             'idp_entity_id' => $entityId,
+            'idp_entity_name' => $entityName,
             'idp_sso_url' => $ssoUrl,
             'idp_slo_url' => $sloUrl,
             'idp_x509_certificate' => $x509Certificate,

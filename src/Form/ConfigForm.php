@@ -41,6 +41,18 @@ class ConfigForm extends Form
                 ],
             ])
 
+            ->add([
+                'name' => 'singlesignon_append_links_to_login_view',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Append idp links to login view', // @translate
+                    'info' => 'The list of idps can be displayed on any page via the theme block and helper.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_append_links_to_login_view',
+                ],
+            ])
+
             // Service Provider (SP).
 
             ->add([
@@ -186,7 +198,10 @@ class ConfigForm extends Form
                 'name' => 'singlesignon_services',
                 'required' => false,
             ])
-
+            ->add([
+                'name' => 'singlesignon_append_links_to_login_view',
+                'required' => false,
+            ])
             ->add([
                 'name' => 'singlesignon_sp_metadata_content_type',
                 'required' => false,

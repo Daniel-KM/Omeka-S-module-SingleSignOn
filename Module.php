@@ -187,6 +187,12 @@ class Module extends AbstractModule
      */
     public function handleViewLogin(Event $event): void
     {
+        $settings = $this->getServiceLocator()->get('Omeka\Settings');
+        if (!$settings->get('singlesignon_append_links_to_login_view')) {
+            return;
+        }
+
+        /** @var \Laminas\View\Renderer\PhpRenderer $view */
         $view = $event->getTarget();
         echo $view->ssoLoginLinks();
     }

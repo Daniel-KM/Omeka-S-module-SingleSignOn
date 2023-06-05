@@ -61,6 +61,8 @@ return [
                 // 'update',
             ],
 
+            'singlesignon_append_links_to_login_view' => false,
+
             'singlesignon_sp_metadata_content_type' => 'saml',
             'singlesignon_sp_metadata_disposition' => 'inline',
             'singlesignon_sp_metadata_mode' => 'standard',

@@ -4,12 +4,12 @@ namespace SingleSignOn\View\Helper;
 
 use Laminas\View\Helper\AbstractHelper;
 
-class SsoLoginLinksAbstractHelper
+class SsoLoginLinks extends AbstractHelper
 {
     /**
      * The default partial view script.
      */
-    const PARTIAL_NAME = 'common/single-sign-on-login-links';
+    const PARTIAL_NAME = 'common/sso-login-links';
 
     /**
      * Get the links to the idp to be able to log.

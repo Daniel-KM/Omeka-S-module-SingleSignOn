@@ -117,7 +117,7 @@ class Module extends AbstractModule
             if (substr($entityId, 0, 4) !== 'http') {
                 $entityId = 'http://' . $entityId;
             }
-            $idpName = parse_url($entityId, PHP_URL_HOST) ?: $key;
+            $idpName = parse_url($entityId, PHP_URL_HOST) ?: (string) $key;
             $result = $this->checkX509Certificate($idp['idp_x509_certificate'] ?? null, $idpName);
             if ($result) {
                 $idp['idp_x509_certificate'] = $result;

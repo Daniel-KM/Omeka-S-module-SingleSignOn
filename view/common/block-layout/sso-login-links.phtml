@@ -1,0 +1,22 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
+ * @var string $heading
+ * @var bool $internal
+ */
+
+$plugins = $this->getHelperPluginManager();
+$escape = $plugins->get('escapeHtml');
+$ssoLoginLinks = $plugins->get('ssoLoginLinks');
+?>
+
+<div class="block block-sso-login-links">
+    <?php if (!empty($heading)): ?>
+    <h2><?= $escape($heading) ?></h2>
+    <?php endif; ?>
+    <?= $ssoLoginLinks([
+        'heading' => '',
+        'internal' => (bool) $internal,
+    ]) ?>
+</div>

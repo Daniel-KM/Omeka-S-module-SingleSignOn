@@ -13,10 +13,16 @@ return [
             'ssoLoginLinks' => View\Helper\SsoLoginLinks::class,
         ],
     ],
+    'block_layouts' => [
+        'invokables' => [
+            'ssoLoginLinks' => Site\BlockLayout\SsoLoginLinks::class,
+        ],
+    ],
     'form_elements' => [
         'invokables' => [
             Form\ConfigForm::class => Form\ConfigForm::class,
             Form\IdpFieldset::class => Form\IdpFieldset::class,
+            Form\SsoLoginLinksFieldset::class => Form\SsoLoginLinksFieldset::class,
         ],
     ],
     'controllers' => [
@@ -89,6 +95,13 @@ return [
                         */
                     ],
                 ],
+            ],
+        ],
+        'block_settings' => [
+            'ssoLoginLinks' => [
+                'heading' => '',
+                'internal' => false,
+                'template' => '',
             ],
         ],
     ],

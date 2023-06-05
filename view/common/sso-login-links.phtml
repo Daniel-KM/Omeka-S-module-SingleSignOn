@@ -2,6 +2,7 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var array $idps
+ * @var string $heading
  * @var bool $internal
  *
  * And options passed to the helper.
@@ -24,13 +25,16 @@ if ($internal) {
 ?>
 
 <div class="single-sign-on-login">
-    <h4><?= $translate('Login with your identity provider') ?></h4>
+    <?php if ($heading): ?>
+    <h4><?= $escape($heading) ?></h4>
+    <?php endif; ?>
     <ul class="single-sign-on-links">
         <?php foreach($idps as $idpSlug => $idp):
         $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], true);
+        $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
         ?>
         <li>
-            <a class="single-sign-on-idp <?= $escapeAttr(str_replace('.', '-', $idpSlug)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idp['idp_entity_name'] ?: $idp['idp_entity_id']) ?></a>
+            <a class="single-sign-on-idp <?= $escapeAttr(str_replace('.', '-', $idpSlug)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></a>
         </li>
         <?php endforeach; ?>
     </ul>

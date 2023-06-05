@@ -107,6 +107,9 @@ class Module extends AbstractModule
         $collectionNote = '<p>'
             . $view->translate('When the metadata url of an IdP is set, its form will be automatically filled and updated each day.') // @translate
             . '</p>';
+        $collectionNote .= '<p>'
+            . $view->translate('Warning: some IdPs hide the name, so you may fill it yourself.') // @translate
+            . '</p>';
 
         // IdP are rendered as collection.
         $html .= $view->formCollection()
@@ -162,6 +165,9 @@ class Module extends AbstractModule
                 if (!$idpMeta) {
                     $cleanIdps[$key] = $idp;
                     continue;
+                }
+                if (empty($idpMeta['idp_entity_name'])) {
+                    $idpMeta['idp_entity_name'] = $idp['idp_entity_name'];
                 }
                 $idp = $idpMeta;
                 $entityId = $idp['idp_entity_id'];

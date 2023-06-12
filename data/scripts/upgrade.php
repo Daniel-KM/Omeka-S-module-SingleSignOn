@@ -63,3 +63,10 @@ if (version_compare($oldVersion, '3.4.6', '<')) {
     );
     $messenger->addSuccess($message);
 }
+
+if (version_compare($oldVersion, '3.4.7', '<')) {
+    $message = new Message(
+        'It is now possible to map IdP and Omeka roles and settings.' // @translate
+    );
+    $messenger->addSuccess($message);
+}

@@ -331,6 +331,26 @@ class SsoController extends AbstractActionController
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            // Useful?
+            $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+
+            // Other settings.
+            /** @var \Omeka\Settings\UserSettings $userSettings */
+            $userSettings = $this->userSettings();
+            $userSettings->setTargetId($user->getId());
+            foreach ($attributesMap as $idpKey => $key) {
+                if (in_array($key, ['email', 'name', 'role'])) {
+                    continue;
+                }
+                $value = $samlAttributesFriendly[$idpKey][0]
+                    ?? $samlAttributesCanonical[$idpKey][0]
+                    ?? null;
+                if ($value !== null) {
+                    $userSettings->set($key, $value);
+                }
+            }
+
         } elseif (!$user->isActive()) {
             $message = new Message('User "%s" is inactive.', $email); // @translate
             $this->messenger()->addError($message);

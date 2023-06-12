@@ -93,6 +93,9 @@ return [
                         /*
                         'role' => 'role',
                         'memberOf' => 'role',
+                        'language' => 'locale',
+                        'anotherKey' => 'userprofile_param',
+                        'yetAnotherKey' => 'a_user_setting_key',
                         */
                     ],
                     // For security, it is not recommended to map to admin roles,

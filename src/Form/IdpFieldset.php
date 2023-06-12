@@ -89,7 +89,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Attributes map between IdP and Omeka', // @translate
-                    'info' => 'List of IdP and Omeka keys separated by "=". IdP keys can be canonical or friendly ones. Managed Omeka keys are "email", "name" and "role".', // @translate
+                    'info' => 'List of IdP and Omeka keys separated by "=". IdP keys can be canonical or friendly ones. Managed Omeka keys are "email", "name" and "role". Other options, like "locale", "userprofile_param", are stored in user settings.', // @translate
                     'as_key_value' => true,
                 ],
                 'attributes' => [

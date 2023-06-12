@@ -111,6 +111,14 @@ return [
                         // '' => 'guest',
                         // '' => 'annotator',
                     ],
+                    // Keys to store as user setting when the user is created.
+                    // Warning: these values are not updated automatically.
+                    'idp_user_settings' => [
+                        // Static keys.
+                        // 'locale' => 'fr',
+                        // 'guest_agreed_terms' => true,
+                        // 'userprofile_key' => 'value',
+                    ],
                 ],
             ],
         ],

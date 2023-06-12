@@ -115,6 +115,21 @@ role = role',
 librarian = author',
                 ],
             ])
+            ->add([
+                'name' => 'idp_user_settings',
+                'type' => OmekaElement\ArrayTextarea::class,
+                'options' => [
+                    'label' => 'Static user settings for new users', // @translate
+                    'as_key_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'idp_user_settings',
+                    'rows' => 5,
+                    'placeholder' => 'locale = fr
+guest_agreed_terms = 1
+userprofile_key = value',
+                ],
+            ])
         ;
     }
 

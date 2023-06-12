@@ -351,6 +351,11 @@ class SsoController extends AbstractActionController
                 }
             }
 
+            // Static settings.
+            $staticSettings = $idp['idp_user_settings'];
+            foreach ($staticSettings as $key => $value) {
+                $userSettings->set($key, $value);
+            }
         } elseif (!$user->isActive()) {
             $message = new Message('User "%s" is inactive.', $email); // @translate
             $this->messenger()->addError($message);
@@ -531,6 +536,7 @@ class SsoController extends AbstractActionController
             'idp_date' => '',
             'idp_attributes_map' => [],
             'idp_roles_map' => [],
+            'idp_user_settings' => [],
         ];
 
         // Update idp data when possible.
@@ -549,6 +555,7 @@ class SsoController extends AbstractActionController
                 $idpMeta['idp_entity_name'] = $idpMeta['idp_entity_name'] ?: $idp['idp_entity_name'];
                 $idpMeta['idp_attributes_map'] = $idp['idp_attributes_map'];
                 $idpMeta['idp_roles_map'] = $idp['idp_roles_map'];
+                $idpMeta['idp_user_settings'] = $idp['idp_user_settings'];
                 $idp = $idpMeta;
                 $idps[$idpName] = $idp;
                 $settings->set('singlesignon_idps', $idps);

@@ -285,10 +285,13 @@ class SsoController extends AbstractActionController
             ?? $samlAttributesCanonical[array_search('name', $this->attributesMapCanonical)][0]
             ?? null;
 
+        // The map is already checked.
+        $rolesMap = $idp['idp_roles_map'];
         $roles = $this->acl->getRoles();
-        $role = $samlAttributesFriendly[array_search('role', $attributesMap)][0]
+        $idpRole = $samlAttributesFriendly[array_search('role', $attributesMap)][0]
             ?? $samlAttributesCanonical[array_search('role', $this->attributesMapCanonical)][0]
-            ?? 'guest';
+            ?? null;
+        $role = $rolesMap ? $rolesMap[$idpRole] ?? null : $idpRole;
         if (!in_array($role, $roles)) {
             $role = in_array('guest', $roles) ? 'guest' : Acl::ROLE_RESEARCHER;
         }
@@ -507,6 +510,7 @@ class SsoController extends AbstractActionController
             'idp_x509_certificate' => '',
             'idp_date' => '',
             'idp_attributes_map' => [],
+            'idp_roles_map' => [],
         ];
 
         // Update idp data when possible.
@@ -524,6 +528,7 @@ class SsoController extends AbstractActionController
             if ($idpMeta) {
                 $idpMeta['idp_entity_name'] = $idpMeta['idp_entity_name'] ?: $idp['idp_entity_name'];
                 $idpMeta['idp_attributes_map'] = $idp['idp_attributes_map'];
+                $idpMeta['idp_roles_map'] = $idp['idp_roles_map'];
                 $idp = $idpMeta;
                 $idps[$idpName] = $idp;
                 $settings->set('singlesignon_idps', $idps);

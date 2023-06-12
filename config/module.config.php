@@ -92,7 +92,21 @@ return [
                         'displayName' =>'name',
                         /*
                         'role' => 'role',
+                        'memberOf' => 'role',
                         */
+                    ],
+                    // For security, it is not recommended to map to admin roles,
+                    // but to update user manually in admin board.
+                    'idp_roles_map' => [
+                        // '' => 'global_admin',
+                        // '' => 'site_admin',
+                        // '' => 'editor',
+                        // '' => 'reviewer',
+                        // '' => 'author',
+                        // '' => 'researcher',
+                        // These roles require modules.
+                        // '' => 'guest',
+                        // '' => 'annotator',
                     ],
                 ],
             ],

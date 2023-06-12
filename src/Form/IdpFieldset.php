@@ -88,7 +88,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'name' => 'idp_attributes_map',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
-                    'label' => 'Optional attributes map between IdP and Omeka', // @translate
+                    'label' => 'Attributes map between IdP and Omeka', // @translate
                     'info' => 'List of IdP and Omeka keys separated by "=". IdP keys can be canonical or friendly ones. Managed Omeka keys are "email", "name" and "role".', // @translate
                     'as_key_value' => true,
                 ],
@@ -98,6 +98,21 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                     'placeholder' => 'mail = email
 displayName = name
 role = role',
+                ],
+            ])
+            ->add([
+                'name' => 'idp_roles_map',
+                'type' => OmekaElement\ArrayTextarea::class,
+                'options' => [
+                    'label' => 'Roles map between IdP and Omeka', // @translate
+                    'info' => 'Allows to get a more precise role than the default "researcher" or "guest". List of IdP and Omeka roles separated by "=". For security, admin roles are disabled: update the user manually once created.', // @translate
+                    'as_key_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'idp_roles_map',
+                    'rows' => 5,
+                    'placeholder' => 'scholar = guest
+librarian = author',
                 ],
             ])
         ;

@@ -13,9 +13,8 @@ automatically updated each day too.
 
 Local users can still connect via the local passwords if they have one.
 
-Note that [Shibboleth] is an extension of Saml, so the [module Shibboleth] will
-be deprecated soon, once some missing features will be implemented in this
-module.
+Note that [Shibboleth] is an extension of Saml, so the [module Shibboleth] is
+deprecated, since all its features are implemented in this module.
 
 
 Installation
@@ -97,10 +96,11 @@ url, for example https://idp.example.org/idp/shibboleth.
 - Identity Provider:
   - Identity provider metadata url: When set, the form will be automatically
     filled and updated each day, in particular for the certificate. It is
-    recommended to fill it.
+    recommended to fill it. When enable, there is a shortcut to get these public
+    metadata of the IdP: https://example.org/sso/metadata/idp.external.example.org.
   - Identity provider id: this is the url set in attribute `entityID` of xml
     element `<md:EntityDescriptor>`, for example `https://idp.example.org`.
-    Important: for some IDP, the scheme must not be set, so try `idp.example.org`
+    Important: for some IdP, the scheme must not be set, so try `idp.example.org`
     too. Just fill the content of the attribute.
   - Identity provider name: the display name of the IdP, used for the links.
   - IdP single sign-on (SSO) endpoint: Full url set in attribute `Location` of xml
@@ -111,20 +111,27 @@ url, for example https://idp.example.org/idp/shibboleth.
     for example "https://idp.example.org/idp/profile/SAML2/Redirect/SLO".
   - Public X.509 certificate of the IdP: it is required.
   - Map between IdP and Omeka keys: used to indicate the keys to use to create
-    and authenticate the good user with a specific role.
+    and authenticate the good user data (name, email, role). Other keys, for
+    example "locale" or "userprofile_param", will be stored in user settings.
+  - Map between IdP and Omeka roles: List of IdP and Omeka roles separated by "=".
+    It is not recommended to set admin roles in mapping, but to update the role
+    manually in admin part once created. "guest" is used only when module
+    [Guest] or [Guest Role] is active, or another module that creates this role.
+    For security, don't set an admin role. Of course, an admin can update the
+    role after the first authentication. If not set, new users will be "researcher"
+    or "guest", if the role exists.
+  - User settings: list of keys and values that will be stored in user settings
+    when a user is created. Values are not updated next times the user logs in.
 
-For the map, in most of the cases, use:
+For the main map, in most of the cases (Shibboleth), use:
+
 ```
 mail = email
 displayName = name
 ```
 
-The role can be added: `role = role`. If not set, new users will be "researcher" or "guest".
-Anyway, for the role, if a map is done, it is recommended to use "guest" or
-"researcher", then to update it manually in admin board. "guest" is used only
-when module [Guest] or [Guest Role] is active, or another module that creates
-this role. For security, don't set an admin role. Of course, an admin can update
-the role after the first authentication.
+The role can be added, generally: `role = role`.
+
 
 ### Testing on SamlTest.id
 
@@ -148,11 +155,12 @@ TODO
 - [x] Autoconfig SP via xml file.
 - [x] Autoconfig IdP via xml file or url.
 - [x] Multiple IdP.
-- [ ] Mapping roles (see module Shibboleth).
-- [ ] Extra settings, in particular locale (see module Shibboleth).
+- [x] Mapping roles (see module Shibboleth).
+- [x] Extra settings, in particular locale (see module Shibboleth).
 - [ ] Add logo and site name (see onelogin config and https://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-metadata-ui/v1.0/os/sstc-saml-metadata-ui-v1.0-os.html).
+- [ ] Added discovery login (two steps login, to avoid selecting the idp). Store user idp in user settings instead of a new table!
 - [ ] Force sso login (with dynamic check of config first).
-- [ ] Allow to log in without registering SP in the IdP (Unsolicited Login Initiator), but may be a security issue.
+- [-] Allow to log in without registering SP in the IdP (Unsolicited Login Initiator), but may be a security issue.
 
 
 Warning

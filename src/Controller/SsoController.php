@@ -18,9 +18,9 @@ use OneLogin\Saml2\Settings as SamlSettings;
 class SsoController extends AbstractActionController
 {
     /**
-     * @var EntityManager
+     * @var Acl
      */
-    protected $entityManager;
+    protected $acl;
 
     /**
      * @var AuthenticationService
@@ -28,9 +28,9 @@ class SsoController extends AbstractActionController
     protected $authentication;
 
     /**
-     * @var Acl
+     * @var EntityManager
      */
-    protected $acl;
+    protected $entityManager;
 
     /**
      * @var array
@@ -42,15 +42,18 @@ class SsoController extends AbstractActionController
     ];
 
     public function __construct(
-        EntityManager $entityManager,
+        Acl $acl,
         AuthenticationService $authenticationService,
-        Acl $acl
+        EntityManager $entityManager
     ) {
-        $this->entityManager = $entityManager;
-        $this->authentication = $authenticationService;
         $this->acl = $acl;
+        $this->authentication = $authenticationService;
+        $this->entityManager = $entityManager;
     }
 
+    /**
+     * Get the metadata of the sp or any managed idp.
+     */
     public function metadataAction()
     {
         $configSso = $this->validConfigSso(null, false) ?: [];
@@ -59,12 +62,10 @@ class SsoController extends AbstractActionController
 
         $idpName = $this->idpNameFromRoute();
         if ($idpName) {
-            $idpMetadata = $this->idpMetadata($idpName);
+            $idpMetadata = $this->idpMetadataXml($idpName);
             if (!$idpMetadata) {
-                throw new \Laminas\Mvc\Exception\InvalidArgumentException(new Message(
-                    'Metadata of the IdP "%s" are not available currently.', // @translate
-                    $idpName
-                ));
+                $redirectUrl = $this->redirectUrl();
+                return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
             }
         }
 
@@ -141,7 +142,7 @@ class SsoController extends AbstractActionController
 
         $idpName = $this->idpNameFromRoute();
 
-        $idp = $this->idpData($idpName);
+        $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
@@ -220,7 +221,7 @@ class SsoController extends AbstractActionController
         }
 
         $idpName = $this->idpNameFromRoute();
-        $idp = $this->idpData($idpName);
+        $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
@@ -421,7 +422,7 @@ class SsoController extends AbstractActionController
             ?: $this->url()->fromRoute('top');
 
         $idpName = $this->idpNameFromRoute();
-        $idp = $this->idpData($idpName);
+        $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
@@ -470,21 +471,27 @@ class SsoController extends AbstractActionController
         return $this->redirect()->toUrl($redirectUrl);
     }
 
-    protected function idpMetadata(string $idpName)
+    /**
+     * Get xml metadata from the idp.
+     *
+     * A message of error may be prepared for messenger
+     *
+     * @return ?string Checked xml metadata.
+     */
+    protected function idpMetadataXml(string $idpName): ?string
     {
-        $redirectUrl = $this->redirectUrl();
-
-        $idp = $this->idpData($idpName);
+        $idp = $this->idpData($idpName, false);
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
-            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+            return null;
         }
+
         if (!$idp['idp_metadata_url']) {
             $this->messenger()->addError(new Message(
                 'The IdP "%s" has no available metadata.', // @translate
                 $idpName
             ));
-            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+            return null;
         }
 
         $idpString = @file_get_contents($idp['idp_metadata_url']);
@@ -493,7 +500,7 @@ class SsoController extends AbstractActionController
                 'The IdP "%s" has no available metadata.', // @translate
                 $idpName
             ));
-            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+            return null;
         }
 
         /** @var \SimpleXMLElement $idpXml */
@@ -503,20 +510,52 @@ class SsoController extends AbstractActionController
                 'The IdP "%s" has no valid xml metadata.', // @translate
                 $idpName
             ));
-            return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
+            return null;
         }
 
         return $idpString;
     }
 
-    protected function idpNameFromRoute()
+    /**
+     * FIXME Extract certificate from saml metadata xml.
+     */
+    protected function idpMetadataArray(string $idpName): ?array
+    {
+        $xml = $this->idpMetadataXml($idpName);
+        if (!$xml) {
+            return null;
+        }
+
+        $idpMeta = [
+            'idp_metadata_url' => '',
+            'idp_entity_id' => '',
+            'idp_entity_name' => '',
+            'idp_sso_url' => '',
+            'idp_slo_url' => '',
+            'idp_x509_certificate' => '',
+            'idp_date' => (new \DateTimeImmutable('now'))->format(\DATE_ISO8601),
+        ];
+
+        $idpMeta = null;
+        return $idpMeta;
+    }
+
+    /**
+     * Get the idp name from route.
+     */
+    protected function idpNameFromRoute(): ?string
     {
         $params = $this->params()->fromRoute();
         $idpName = $params['idp'] ?? null;
         return $idpName;
     }
 
-    protected function idpData(?string $idpName): array
+    /**
+     * Get idp data as array.
+     *
+     * Idp certificate may be updated when outdated.
+     */
+    protected function idpData(?string $idpName, bool $update = false): array
     {
         $settings = $this->settings();
         $idps = $settings->get('singlesignon_idps', []);
@@ -541,6 +580,7 @@ class SsoController extends AbstractActionController
 
         // Update idp data when possible.
         if ($idp['idp_metadata_url']
+            && $update
             && (
                 // Init and store if missing.
                 empty($idp['idp_date'])
@@ -550,8 +590,9 @@ class SsoController extends AbstractActionController
                     ->format('%a') >= 1
             )
         ) {
-            $idpMeta = $this->idpMetadata($idpName);
+            $idpMeta = $this->idpMetadataArray($idpName);
             if ($idpMeta) {
+                // Keep some data.
                 $idpMeta['idp_entity_name'] = $idpMeta['idp_entity_name'] ?: $idp['idp_entity_name'];
                 $idpMeta['idp_attributes_map'] = $idp['idp_attributes_map'];
                 $idpMeta['idp_roles_map'] = $idp['idp_roles_map'];
@@ -642,7 +683,7 @@ class SsoController extends AbstractActionController
         $spX509cert = trim($settings->get('singlesignon_sp_x509_certificate') ?: '');
         $spPrivateKey = trim($settings->get('singlesignon_sp_x509_private_key') ?: '');
         if ($spX509cert && $spPrivateKey) {
-            // Remove windows and apple issues (managed later anyway.
+            // Remove windows and apple issues (managed later anyway).
             $spaces = [
                 "\r\n" => "\n",
                 "\n\r" => "\n",
@@ -652,7 +693,7 @@ class SsoController extends AbstractActionController
             $spPrivateKey = str_replace(array_keys($spaces), array_values($spaces), $spPrivateKey);
         }
 
-        $idp = $this->idpData($idpName);
+        $idp = $this->idpData($idpName, true);
 
         /**
          * @see vendor/onelogin/php-saml/settings_example.php

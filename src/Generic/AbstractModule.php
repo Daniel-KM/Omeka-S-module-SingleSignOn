@@ -30,7 +30,6 @@ namespace Generic;
 
 use Laminas\EventManager\Event;
 use Laminas\Mvc\Controller\AbstractController;
-use Laminas\Mvc\MvcEvent;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Module\Exception\ModuleCannotInstallException;
@@ -757,9 +756,7 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         // setting currently. So fill them via upgrade in that case or fill the
         // values.
         // TODO Find a way to save empty multi-checkboxes and multi-selects (core fix).
-        $defaultSettings = array_filter($defaultSettings, function ($v) {
-            return !is_array($v);
-        });
+        $defaultSettings = array_filter($defaultSettings, fn ($v) => !is_array($v));
         $missingSettings = array_diff_key($defaultSettings, $currentSettings);
 
         foreach ($missingSettings as $name => $value) {

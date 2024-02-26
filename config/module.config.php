@@ -89,7 +89,7 @@ return [
                     'idp_x509_certificate' => '',
                     'idp_attributes_map' => [
                         'mail' => 'email',
-                        'displayName' =>'name',
+                        'displayName' => 'name',
                         /*
                         'role' => 'role',
                         'memberOf' => 'role',

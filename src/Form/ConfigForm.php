@@ -15,7 +15,7 @@ class ConfigForm extends Form
      * is missing (only index is added), so currently managed in Module.
      * @see https://docs.laminas.dev/laminas-form/v3/collections
      */
-    public function init()
+    public function init(): void
     {
         $this
             ->setAttribute('id', 'singlesignon')
@@ -112,7 +112,7 @@ class ConfigForm extends Form
                     'info' => 'Value to set in xml element `<md:NameIDFormat>`. Let empty to use the default value (persistent).', // @translate
                     'value_options' => [
                         SamlConstants::NAMEID_PERSISTENT => 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
-                        SamlConstants::NAMEID_TRANSIENT  => 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+                        SamlConstants::NAMEID_TRANSIENT => 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
                         SamlConstants::NAMEID_ENCRYPTED => 'urn:oasis:names:tc:SAML:2.0:nameid-format:encrypted',
                         SamlConstants::NAMEID_ENTITY => 'urn:oasis:names:tc:SAML:2.0:nameid-format:entity',
                         SamlConstants::NAMEID_KERBEROS => 'urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos',

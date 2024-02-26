@@ -5,7 +5,6 @@ namespace SingleSignOn\Controller;
 use Doctrine\ORM\EntityManager;
 use Laminas\Authentication\AuthenticationService;
 use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\Mvc\Exception;
 use Laminas\Session\Container;
 use Omeka\Entity\User;
 use Omeka\Mvc\Exception\RuntimeException;
@@ -622,7 +621,7 @@ class SsoController extends AbstractActionController
         $user = $this->authentication->getIdentity();
         return $user && $this->userIsAllowed('Omeka\Controller\Admin\Index', 'index')
             ? $this->url()->fromRoute('admin')
-            :  $this->url()->fromRoute('top');
+            : $this->url()->fromRoute('top');
     }
 
     protected function validConfigSso(?string $idpName, bool $throw = false): ?array
@@ -853,7 +852,7 @@ class SsoController extends AbstractActionController
             // method it will have priority over the compression settings.
             'compress' => [
                 'requests' => true,
-                'responses' => true
+                'responses' => true,
             ],
 
             // Security settings

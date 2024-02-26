@@ -38,5 +38,5 @@ class SsoLoginLinks extends AbstractHelper
         return $template !== self::PARTIAL_NAME && $view->resolver($template)
             ? $view->partial($template, $options)
             : $view->partial(self::PARTIAL_NAME, $options);
-     }
+    }
 }

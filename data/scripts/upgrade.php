@@ -2,6 +2,7 @@
 
 namespace SingleSignOn;
 
+use Common\Stdlib\PsrMessage;
 use Omeka\Stdlib\Message;
 
 /**
@@ -19,9 +20,18 @@ use Omeka\Stdlib\Message;
 $plugins = $services->get('ControllerPluginManager');
 $api = $plugins->get('api');
 $settings = $services->get('Omeka\Settings');
+$translate = $plugins->get('translate');
 $connection = $services->get('Omeka\Connection');
 $messenger = $plugins->get('messenger');
 $entityManager = $services->get('Omeka\EntityManager');
+
+if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.54')) {
+    $message = new Message(
+        $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+        'Common', '3.4.54'
+    );
+    throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+}
 
 if (version_compare($oldVersion, '3.4.3', '<')) {
     $settings->set('singlesignon_sp_metadata_mode', $settings->get('singlesignon_metadata_mode') ?: 'standard');
@@ -51,21 +61,21 @@ if (version_compare($oldVersion, '3.4.5', '<')) {
     $settings->delete('singlesignon_idp_x509_certificate');
     $settings->delete('singlesignon_idp_attributes_map');
 
-    $message = new Message(
+    $message = new PsrMessage(
         'It is now possible to manage multiple IdPs.' // @translate
     );
     $messenger->addSuccess($message);
 }
 
 if (version_compare($oldVersion, '3.4.6', '<')) {
-    $message = new Message(
+    $message = new PsrMessage(
         'It is now possible to config and update IdPs automatically with IdP metadata url.' // @translate
     );
     $messenger->addSuccess($message);
 }
 
 if (version_compare($oldVersion, '3.4.7', '<')) {
-    $message = new Message(
+    $message = new PsrMessage(
         'It is now possible to map IdP and Omeka roles and settings.' // @translate
     );
     $messenger->addSuccess($message);

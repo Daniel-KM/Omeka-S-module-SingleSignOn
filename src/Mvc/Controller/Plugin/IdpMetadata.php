@@ -2,6 +2,7 @@
 
 namespace SingleSignOn\Mvc\Controller\Plugin;
 
+use Common\Stdlib\PsrMessage;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use SimpleXMLElement;
 
@@ -26,9 +27,9 @@ class IdpMetadata extends AbstractPlugin
 
         if (!filter_var($idpUrl, FILTER_VALIDATE_URL)) {
             if ($useMessenger) {
-                $message = new \Omeka\Stdlib\Message(
-                    'The IdP url "%s" is not valid.', // @translate
-                    $idpUrl
+                $message = new PsrMessage(
+                    'The IdP url "{url}" is not valid.', // @translate
+                    ['url' => $idpUrl]
                 );
                 $messenger->addError($message);
             }
@@ -38,9 +39,9 @@ class IdpMetadata extends AbstractPlugin
         $idpString = file_get_contents($idpUrl);
         if (!$idpString) {
             if ($useMessenger) {
-                $message = new \Omeka\Stdlib\Message(
-                    'The IdP url "%s" does not return any metadata.', // @translate
-                    $idpUrl
+                $message = new PsrMessage(
+                    'The IdP url {url} does not return any metadata.', // @translate
+                    ['url' => $idpUrl]
                 );
                 $messenger->addError($message);
             }
@@ -51,9 +52,9 @@ class IdpMetadata extends AbstractPlugin
         $xml = @simplexml_load_string($idpString);
         if (!$xml) {
             if ($useMessenger) {
-                $message = new \Omeka\Stdlib\Message(
-                    'The IdP url "%s" does not return valid xml metadata.', // @translate
-                    $idpUrl
+                $message = new PsrMessage(
+                    'The IdP url {url} does not return valid xml metadata.', // @translate
+                    ['url' => $idpUrl]
                 );
                 $messenger->addError($message);
             }

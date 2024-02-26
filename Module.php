@@ -2,29 +2,31 @@
 
 namespace SingleSignOn;
 
-if (!class_exists(\Generic\AbstractModule::class)) {
-    require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
-        ? dirname(__DIR__) . '/Generic/AbstractModule.php'
-        : __DIR__ . '/src/Generic/AbstractModule.php';
+if (!class_exists(\Common\TraitModule::class)) {
+    require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
-use Generic\AbstractModule;
+use Common\Stdlib\PsrMessage;
+use Common\TraitModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\Controller\AbstractController;
 use Laminas\Mvc\MvcEvent;
 use Laminas\View\Renderer\PhpRenderer;
+use Omeka\Module\AbstractModule;
 use OneLogin\Saml2\Utils;
 
 /**
  * Single Sign-On
  *
- * @copyright Daniel Berthereau, 2023
+ * @copyright Daniel Berthereau, 2023-2024
  * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
  */
 class Module extends AbstractModule
 {
+    use TraitModule;
+
     const NAMESPACE = __NAMESPACE__;
 
     public function init(ModuleManager $moduleManager): void
@@ -61,6 +63,7 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
 
         $settings = $services->get('Omeka\Settings');
+        // TODO getConfigModule
         $config = $this->getConfig();
         $defaultSettings = $config['singlesignon']['config'];
 
@@ -125,7 +128,7 @@ class Module extends AbstractModule
 
     public function handleConfigForm(AbstractController $controller)
     {
-        $result = parent::handleConfigForm($controller);
+        $result = $this->handleConfigFormAuto($controller);
         if (!$result) {
             return false;
         }
@@ -155,9 +158,9 @@ class Module extends AbstractModule
             $entityId = $idp['idp_entity_id'] ?? '';
             if (!$entityUrl && !$entityId) {
                 $hasError = true;
-                $message = new \Omeka\Stdlib\Message(
-                    'The IdP #%s has no url and no id and is not valid.', // @translate
-                    $key
+                $message = new PsrMessage(
+                    'The IdP #{index} has no url and no id and is not valid.', // @translate
+                    ['index' => $key]
                 );
                 $messenger->addError($message);
                 continue;
@@ -226,14 +229,14 @@ class Module extends AbstractModule
         }
 
         if ($x509cert && !$privateKey) {
-            $message = new \Omeka\Stdlib\Message(
+            $message = new PsrMessage(
                 'The SP public certificate is set, but not the private key.' // @translate
             );
             $messenger->addError($message);
         }
 
         if (!$x509cert && $privateKey) {
-            $message = new \Omeka\Stdlib\Message(
+            $message = new PsrMessage(
                 'The SP private key is set, but not the public certificate.' // @translate
             );
             $messenger->addError($message);
@@ -259,7 +262,7 @@ class Module extends AbstractModule
 
         $sslX509cert = openssl_pkey_get_public($x509cert);
         if (!$sslX509cert) {
-            $message = new \Omeka\Stdlib\Message(
+            $message = new PsrMessage(
                 'The SP public certificate is not valid.' // @translate
             );
             $messenger->addError($message);
@@ -267,7 +270,7 @@ class Module extends AbstractModule
 
         $sslPrivateKey = openssl_pkey_get_private($privateKey);
         if (!$sslPrivateKey) {
-            $message = new \Omeka\Stdlib\Message(
+            $message = new PsrMessage(
                 'The SP private key is not valid.' // @translate
             );
             $messenger->addError($message);
@@ -282,7 +285,7 @@ class Module extends AbstractModule
         $decrypted = '';
 
         if (!openssl_public_encrypt($plain, $encrypted, $sslX509cert)) {
-            $message = new \Omeka\Stdlib\Message(
+            $message = new PsrMessage(
                 'Unable to encrypt message with SP public certificate.' // @translate
             );
             $messenger->addError($message);
@@ -290,7 +293,7 @@ class Module extends AbstractModule
         }
 
         if (!openssl_private_decrypt($encrypted, $decrypted, $sslPrivateKey)) {
-            $message = new \Omeka\Stdlib\Message(
+            $message = new PsrMessage(
                 'Unable to decrypt message with SP private key.' // @translate
             );
             $messenger->addError($message);
@@ -298,14 +301,14 @@ class Module extends AbstractModule
         }
 
         if ($decrypted !== $plain) {
-            $message = new \Omeka\Stdlib\Message(
+            $message = new PsrMessage(
                 'An issue occurred during decryption with SP private key. It may not the good one.' // @translate
             );
             $messenger->addError($message);
             return false;
         }
 
-        $message = new \Omeka\Stdlib\Message(
+        $message = new PsrMessage(
             'No issue found on SP public certificate and private key.' // @translate
         );
         $messenger->addSuccess($message);
@@ -340,9 +343,9 @@ class Module extends AbstractModule
 
         $sslX509cert = openssl_pkey_get_public($x509cert);
         if (!$sslX509cert) {
-            $message = new \Omeka\Stdlib\Message(
-                'The IdP public certificate of "%s" is not valid.', // @translate
-                $idpName
+            $message = new PsrMessage(
+                'The IdP public certificate of "{idp}" is not valid.', // @translate
+                ['idp' => $idpName]
             );
             $messenger->addError($message);
             return null;
@@ -352,17 +355,17 @@ class Module extends AbstractModule
         $encrypted = '';
 
         if (!openssl_public_encrypt($plain, $encrypted, $sslX509cert)) {
-            $message = new \Omeka\Stdlib\Message(
-                'Unable to encrypt message with IdP public certificate of "%s".', // @translate
-                $idpName
+            $message = new PsrMessage(
+                'Unable to encrypt message with IdP public certificate of "{idp}".', // @translate
+                ['idp' => $idpName]
             );
             $messenger->addError($message);
             return null;
         }
 
-        $message = new \Omeka\Stdlib\Message(
-            'No issue found on IdP public certificate of "%s".', // @translate
-            $idpName
+        $message = new PsrMessage(
+            'No issue found on IdP public certificate of "{idp}".', // @translate
+            ['idp' => $idpName]
         );
         $messenger->addSuccess($message);
 

@@ -9,10 +9,10 @@ use Laminas\Session\Container;
 use Omeka\Entity\User;
 use Omeka\Mvc\Exception\RuntimeException;
 use Omeka\Permissions\Acl;
-use Omeka\Stdlib\Message;
 use OneLogin\Saml2\Auth as SamlAuth;
 use OneLogin\Saml2\Error as SamlError;
 use OneLogin\Saml2\Settings as SamlSettings;
+use Common\Stdlib\PsrMessage;
 
 class SsoController extends AbstractActionController
 {
@@ -143,14 +143,14 @@ class SsoController extends AbstractActionController
 
         $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
-            $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
+            $this->messenger()->addError(new PsrMessage('No IdP with this name.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
         }
 
         $configSso = $this->validConfigSso($idpName, true);
 
         if (empty($configSso['sp']['assertionConsumerService'])) {
-            $this->messenger()->addWarning(new Message('Single sign-on is disabled.')); // @translate
+            $this->messenger()->addWarning(new PsrMessage('Single sign-on is disabled.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
         }
 
@@ -222,13 +222,13 @@ class SsoController extends AbstractActionController
         $idpName = $this->idpNameFromRoute();
         $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
-            $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
+            $this->messenger()->addError(new PsrMessage('No IdP with this name.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
         }
 
         $configSso = $this->validConfigSso($idpName, true);
         if (empty($configSso['sp']['assertionConsumerService'])) {
-            $this->messenger()->addWarning(new Message('Single sign-on is disabled.')); // @translate
+            $this->messenger()->addWarning(new PsrMessage('Single sign-on is disabled.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
         }
 
@@ -239,15 +239,17 @@ class SsoController extends AbstractActionController
         if ($errors) {
             $lastErrorReason = $samlAuth->getLastErrorReason();
             if ($lastErrorReason) {
-                $message = new Message(
-                    'Single sign-on failed: %1$s. %2$s', // @translate
-                    implode(', ', $errors),
-                    $lastErrorReason
+                $message = new PsrMessage(
+                    'Single sign-on failed: {errors}. {error_last}', // @translate
+                    [
+                        'errors' => implode(', ', $errors),
+                        'error_last' => $lastErrorReason,
+                    ]
                 );
             } else {
-                $message = new Message(
-                    'Single sign-on failed: %s', // @translate
-                    implode(', ', $errors)
+                $message = new PsrMessage(
+                    'Single sign-on failed: {errors}', // @translate
+                    ['errors' => implode(', ', $errors)]
                 );
             }
             $this->messenger()->addError($message);
@@ -270,11 +272,14 @@ class SsoController extends AbstractActionController
         }
 
         if (!$email) {
-            $message = new Message('No email provided to log in or register.'); // @translate
+            $message = new PsrMessage('No email provided to log in or register.'); // @translate
             $this->messenger()->addError($message);
-            $message = new Message('No email provided or mapped. Available canonical attributes for this IdP: %1$s. Available friendly attributes for this IdP: %2$s.', // @translate
-                implode(', ', array_keys($samlAttributesCanonical)),
-                implode(', ', array_keys($samlAttributesFriendly))
+            $message = new PsrMessage(
+                'No email provided or mapped. Available canonical attributes for this IdP: {keys}. Available friendly attributes for this IdP: {keys_2}.', // @translate
+                [
+                    'keys' => implode(', ', array_keys($samlAttributesCanonical)),
+                    'keys_2' => implode(', ', array_keys($samlAttributesFriendly)),
+                ]
             );
             $this->logger()->err($message);
             // Since this is a config or idp error, redirect to local login.
@@ -304,15 +309,18 @@ class SsoController extends AbstractActionController
 
         if (empty($user)) {
             if (!in_array('jit', $activeSsoServices)) {
-                $message = new Message('Automatic registering is disabled.'); // @translate
+                $message = new PsrMessage('Automatic registering is disabled.'); // @translate
                 $this->messenger()->addError($message);
                 return $this->redirect()->toUrl($redirectUrl);
             }
 
             if (!$name) {
-                $message = new Message('No name provided or mapped. Available canonical attributes for this IdP: "%1$s". Available friendly attributes for this IdP: "%2$s".', // @translate
-                    implode('", "', array_keys($samlAttributesCanonical)),
-                    implode('", "', array_keys($samlAttributesFriendly))
+                $message = new PsrMessage(
+                    'No name provided or mapped. Available canonical attributes for this IdP: {keys}. Available friendly attributes for this IdP: {keys_2}.', // @translate
+                    [
+                        'keys' => implode('", "', array_keys($samlAttributesCanonical)),
+                        'keys_2' => implode('", "', array_keys($samlAttributesFriendly))
+                    ]
                 );
                 $this->logger()->warn($message);
                 $name = $email;
@@ -357,7 +365,10 @@ class SsoController extends AbstractActionController
                 $userSettings->set($key, $value);
             }
         } elseif (!$user->isActive()) {
-            $message = new Message('User "%s" is inactive.', $email); // @translate
+            $message = new PsrMessage(
+                'User "{email}" is inactive.', // @translate
+                ['email' => $email]
+            );
             $this->messenger()->addError($message);
             $this->logger()->warn($message);
             // Since this is a non-authorized user, return to redirect url.
@@ -393,7 +404,7 @@ class SsoController extends AbstractActionController
         // A useless check.
         $user = $this->authentication->getIdentity();
 
-        $this->messenger()->addSuccess('Successfully logged in.'); // @translate
+        $this->messenger()->addSuccess(new PsrMessage('Successfully logged in.')); // @translate
 
         $eventManager = $this->getEventManager();
         $eventManager->trigger('user.login', $user);
@@ -423,7 +434,9 @@ class SsoController extends AbstractActionController
         $idpName = $this->idpNameFromRoute();
         $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
-            $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
+            $this->messenger()->addError(new PsrMessage(
+                'No IdP with this name.' // @translate
+            ));
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
         }
 
@@ -446,15 +459,17 @@ class SsoController extends AbstractActionController
         if ($errors) {
             $lastErrorReason = $samlAuth->getLastErrorReason();
             if ($lastErrorReason) {
-                $message = new Message(
-                    'Single logout service failed: %1$s. %2$s', // @translate
-                    implode(', ', $errors),
-                    $lastErrorReason
+                $message = new PsrMessage(
+                    'Single logout service failed: {errors}. {error_last}', // @translate
+                    [
+                        'errors' => implode(', ', $errors),
+                        'error_last' => $lastErrorReason,
+                    ]
                 );
             } else {
-                $message = new Message(
-                    'Single logout service failed: %s', // @translate
-                    implode(', ', $errors)
+                $message = new PsrMessage(
+                    'Single logout service failed: {errors}', // @translate
+                    ['errors' => implode(', ', $errors)]
                 );
             }
             $this->messenger()->addError($message);
@@ -466,7 +481,7 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toUrl($sloUrl);
         }
 
-        $this->messenger()->addSuccess('Successfully logged out.'); // @translate
+        $this->messenger()->addSuccess(new PsrMessage('Successfully logged out.')); // @translate
         return $this->redirect()->toUrl($redirectUrl);
     }
 
@@ -481,23 +496,23 @@ class SsoController extends AbstractActionController
     {
         $idp = $this->idpData($idpName, false);
         if (!$idp['idp_entity_id']) {
-            $this->messenger()->addError(new Message('No IdP with this name.')); // @translate
+            $this->messenger()->addError(new PsrMessage('No IdP with this name.')); // @translate
             return null;
         }
 
         if (!$idp['idp_metadata_url']) {
-            $this->messenger()->addError(new Message(
-                'The IdP "%s" has no available metadata.', // @translate
-                $idpName
+            $this->messenger()->addError(new PsrMessage(
+                'The IdP "{idp}" has no available metadata.', // @translate
+                ['idp' => $idpName]
             ));
             return null;
         }
 
         $idpString = @file_get_contents($idp['idp_metadata_url']);
         if (!$idpString) {
-            $this->messenger()->addError(new Message(
-                'The IdP "%s" has no available metadata.', // @translate
-                $idpName
+            $this->messenger()->addError(new PsrMessage(
+                'The IdP "{idp}" has no available metadata.', // @translate
+                ['idp' => $idpName]
             ));
             return null;
         }
@@ -505,9 +520,9 @@ class SsoController extends AbstractActionController
         /** @var \SimpleXMLElement $idpXml */
         $idpXml = @simplexml_load_string($idpString);
         if (!$idpXml) {
-            $this->messenger()->addError(new Message(
-                'The IdP "%s" has no valid xml metadata.', // @translate
-                $idpName
+            $this->messenger()->addError(new PsrMessage(
+                'The IdP "{idp}" has no valid xml metadata.', // @translate
+                ['idp' => $idpName]
             ));
             return null;
         }
@@ -630,12 +645,15 @@ class SsoController extends AbstractActionController
             $configSso = $this->configSso($idpName);
             new SamlSettings($configSso);
         } catch (SamlError $e) {
-            $message = new Message('SSO service has an error in configuration: %s', $e); // @translate
+            $message = new PsrMessage(
+                'SSO service has an error in configuration: {exception}', // @translate
+                ['exception' => $e]
+            );
             $this->logger()->err($message);
             if (!$throw) {
                 return null;
             }
-            $message = new Message(
+            $message = new PsrMessage(
                 'SSO service is not available. Ask admin to config it.' // @translate
             );
             throw new RuntimeException((string) $message);
@@ -644,7 +662,7 @@ class SsoController extends AbstractActionController
             if (!$throw) {
                 return null;
             }
-            $message = new Message(
+            $message = new PsrMessage(
                 'SSO service is unavailable. Ask admin to config it.' // @translate
             );
             throw new \Omeka\Mvc\Exception\RuntimeException((string) $message);

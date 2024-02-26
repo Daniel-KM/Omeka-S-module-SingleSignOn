@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-05 00:00+0000\n"
+"POT-Creation-Date: 2024-02-26 00:00+0000"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,143 +17,107 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: Module.php:108
+#: data/scripts/upgrade.php:30 Module.php:59
+#, php-format
+msgid "The module %1$s should be upgraded to version %2$s or later."
+msgstr ""
+
+#: Module.php:126
 msgid ""
 "When the metadata url of an IdP is set, its form will be automatically "
 "filled and updated each day."
 msgstr ""
 
-#: Module.php:111
+#: Module.php:129
 msgid "Warning: some IdPs hide the name, so you may fill it yourself."
 msgstr ""
 
-#: Module.php:113
+#: Module.php:131
 msgid "Furthermore, IdP keys still need to be mapped, at least for name."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:80 src/Generic/AbstractModule.php:88
-#: src/Generic/AbstractModule.php:890
-#, php-format
-msgid "This module requires the module \"%s\"."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:93
-#, php-format
-msgid "This module requires modules \"%s\"."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:101
-msgid "This module has resources that cannot be installed."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:108
-msgid ""
-"This module cannot install its tables, because they exist already. Try to "
-"remove them first."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:398
-#, php-format
-msgid "The module removed tables \"%s\" from a previous broken install."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:885
-#, php-format
-msgid "This module requires the module \"%1$s\", version %2$s or above."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:982
-#, php-format
-msgid ""
-"The module \"%s\" was automatically deactivated because the dependencies are "
-"unavailable."
 msgstr ""
 
 #: src/View/Helper/SsoLoginLinks.php:30
 msgid "Login with your identity provider"
 msgstr ""
 
-#: view/common/sso-login-links.phtml:22
+#: view/common/sso-login-links.phtml:25
 msgid "Direct login"
 msgstr ""
 
-#: data/scripts/upgrade.php:55
+#: data/scripts/upgrade.php:65
 msgid "It is now possible to manage multiple IdPs."
 msgstr ""
 
-#: data/scripts/upgrade.php:62
+#: data/scripts/upgrade.php:72
 msgid ""
 "It is now possible to config and update IdPs automatically with IdP metadata "
 "url."
 msgstr ""
 
-#: Module.php:159
-#, php-format
-msgid "The IdP #%s has no url and no id and is not valid."
+#: data/scripts/upgrade.php:79
+msgid "It is now possible to map IdP and Omeka roles and settings."
 msgstr ""
 
-#: Module.php:228
+#: Module.php:177
+msgid "The IdP #{index} has no url and no id and is not valid."
+msgstr ""
+
+#: Module.php:248
 msgid "The SP public certificate is set, but not the private key."
 msgstr ""
 
-#: Module.php:235
+#: Module.php:255
 msgid "The SP private key is set, but not the public certificate."
 msgstr ""
 
-#: Module.php:261
+#: Module.php:281
 msgid "The SP public certificate is not valid."
 msgstr ""
 
-#: Module.php:269
+#: Module.php:289
 msgid "The SP private key is not valid."
 msgstr ""
 
-#: Module.php:284
+#: Module.php:304
 msgid "Unable to encrypt message with SP public certificate."
 msgstr ""
 
-#: Module.php:292
+#: Module.php:312
 msgid "Unable to decrypt message with SP private key."
 msgstr ""
 
-#: Module.php:300
+#: Module.php:320
 msgid ""
 "An issue occurred during decryption with SP private key. It may not the good "
 "one."
 msgstr ""
 
-#: Module.php:307
+#: Module.php:327
 msgid "No issue found on SP public certificate and private key."
 msgstr ""
 
-#: Module.php:342
-#, php-format
-msgid "The IdP public certificate of \"%s\" is not valid."
-msgstr ""
-
-#: Module.php:354
-#, php-format
-msgid "Unable to encrypt message with IdP public certificate of \"%s\"."
-msgstr ""
-
 #: Module.php:362
-#, php-format
-msgid "No issue found on IdP public certificate of \"%s\"."
+msgid "The IdP public certificate of \"{idp}\" is not valid."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/IdpMetadata.php:30
-#, php-format
-msgid "The IdP url \"%s\" is not valid."
+#: Module.php:374
+msgid "Unable to encrypt message with IdP public certificate of \"{idp}\"."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/IdpMetadata.php:42
-#, php-format
-msgid "The IdP url \"%s\" does not return any metadata."
+#: Module.php:382
+msgid "No issue found on IdP public certificate of \"{idp}\"."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/IdpMetadata.php:55
-#, php-format
-msgid "The IdP url \"%s\" does not return valid xml metadata."
+#: src/Mvc/Controller/Plugin/IdpMetadata.php:31
+msgid "The IdP url \"{url}\" is not valid."
+msgstr ""
+
+#: src/Mvc/Controller/Plugin/IdpMetadata.php:43
+msgid "The IdP url {url} does not return any metadata."
+msgstr ""
+
+#: src/Mvc/Controller/Plugin/IdpMetadata.php:56
+msgid "The IdP url {url} does not return valid xml metadata."
 msgstr ""
 
 #: src/Form/ConfigForm.php:28
@@ -359,22 +323,34 @@ msgid "If not set, it will be fetched from the IdP url, if available."
 msgstr ""
 
 #: src/Form/IdpFieldset.php:91
-msgid "Optional attributes map between IdP and Omeka"
+msgid "Attributes map between IdP and Omeka"
 msgstr ""
 
 #: src/Form/IdpFieldset.php:92
 msgid ""
 "List of IdP and Omeka keys separated by \"=\". IdP keys can be canonical or "
-"friendly ones. Managed Omeka keys are \"email\", \"name\" and \"role\"."
+"friendly ones. Managed Omeka keys are \"email\", \"name\" and \"role\". "
+"Other options, like \"locale\", \"userprofile_param\", are stored in user "
+"settings."
 msgstr ""
 
-#: src/Controller/SsoController.php:65
-#, php-format
-msgid "Metadata of the IdP \"%s\" are not available currently."
+#: src/Form/IdpFieldset.php:107
+msgid "Roles map between IdP and Omeka"
+msgstr ""
+
+#: src/Form/IdpFieldset.php:108
+msgid ""
+"Allows to get a more precise role than the default \"researcher\" or "
+"\"guest\". List of IdP and Omeka roles separated by \"=\". For security, "
+"admin roles are disabled: update the user manually once created."
+msgstr ""
+
+#: src/Form/IdpFieldset.php:122
+msgid "Static user settings for new users"
 msgstr ""
 
 #: src/Controller/SsoController.php:146 src/Controller/SsoController.php:225
-#: src/Controller/SsoController.php:398 src/Controller/SsoController.php:451
+#: src/Controller/SsoController.php:438 src/Controller/SsoController.php:499
 msgid "No IdP with this name."
 msgstr ""
 
@@ -383,84 +359,74 @@ msgid "Single sign-on is disabled."
 msgstr ""
 
 #: src/Controller/SsoController.php:243
-#, php-format
-msgid "Single sign-on failed: %1$s. %2$s"
+msgid "Single sign-on failed: {errors}. {error_last}"
 msgstr ""
 
-#: src/Controller/SsoController.php:249
-#, php-format
-msgid "Single sign-on failed: %s"
-msgstr ""
-
-#: src/Controller/SsoController.php:273
-msgid "No email provided to log in or register."
+#: src/Controller/SsoController.php:251
+msgid "Single sign-on failed: {errors}"
 msgstr ""
 
 #: src/Controller/SsoController.php:275
-#, php-format
-msgid ""
-"No email provided or mapped. Available canonical attributes for this IdP: "
-"%1$s. Available friendly attributes for this IdP: %2$s."
+msgid "No email provided to log in or register."
 msgstr ""
 
-#: src/Controller/SsoController.php:304
+#: src/Controller/SsoController.php:278
+msgid ""
+"No email provided or mapped. Available canonical attributes for this IdP: "
+"{keys}. Available friendly attributes for this IdP: {keys_2}."
+msgstr ""
+
+#: src/Controller/SsoController.php:312
 msgid "Automatic registering is disabled."
 msgstr ""
 
-#: src/Controller/SsoController.php:310
-#, php-format
+#: src/Controller/SsoController.php:319
 msgid ""
 "No name provided or mapped. Available canonical attributes for this IdP: "
-"\"%1$s\". Available friendly attributes for this IdP: \"%2$s\"."
+"{keys}. Available friendly attributes for this IdP: {keys_2}."
 msgstr ""
 
-#: src/Controller/SsoController.php:332
-#, php-format
-msgid "User \"%s\" is inactive."
+#: src/Controller/SsoController.php:369
+msgid "User \"{email}\" is inactive."
 msgstr ""
 
-#: src/Controller/SsoController.php:368
+#: src/Controller/SsoController.php:407
 msgid "Successfully logged in."
 msgstr ""
 
-#: src/Controller/SsoController.php:422
-#, php-format
-msgid "Single logout service failed: %1$s. %2$s"
+#: src/Controller/SsoController.php:463
+msgid "Single logout service failed: {errors}. {error_last}"
 msgstr ""
 
-#: src/Controller/SsoController.php:428
-#, php-format
-msgid "Single logout service failed: %s"
+#: src/Controller/SsoController.php:471
+msgid "Single logout service failed: {errors}"
 msgstr ""
 
-#: src/Controller/SsoController.php:441
+#: src/Controller/SsoController.php:484
 msgid "Successfully logged out."
 msgstr ""
 
-#: src/Controller/SsoController.php:456 src/Controller/SsoController.php:465
-#, php-format
-msgid "The IdP \"%s\" has no available metadata."
+#: src/Controller/SsoController.php:505 src/Controller/SsoController.php:514
+msgid "The IdP \"{idp}\" has no available metadata."
 msgstr ""
 
-#: src/Controller/SsoController.php:475
-#, php-format
-msgid "The IdP \"%s\" has no valid xml metadata."
+#: src/Controller/SsoController.php:524
+msgid "The IdP \"{idp}\" has no valid xml metadata."
 msgstr ""
 
-#: src/Controller/SsoController.php:561
-#, php-format
-msgid "SSO service has an error in configuration: %s"
+#: src/Controller/SsoController.php:651
+msgid "SSO service has an error in configuration: {exception}"
 msgstr ""
 
-#: src/Controller/SsoController.php:567
+#: src/Controller/SsoController.php:659
 msgid "SSO service is not available. Ask admin to config it."
 msgstr ""
 
-#: src/Controller/SsoController.php:571
+#: src/Controller/SsoController.php:663
 msgid "SSO service is unavailable."
 msgstr ""
 
-#: src/Controller/SsoController.php:576
+#: src/Controller/SsoController.php:668
 msgid "SSO service is unavailable. Ask admin to config it."
 msgstr ""
 

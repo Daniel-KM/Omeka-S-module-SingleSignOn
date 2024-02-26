@@ -20,26 +20,28 @@ deprecated, since all its features are implemented in this module.
 Installation
 ------------
 
-The module uses an external library, [onelogin/php-saml], so use the release zip to
-install it, or use and init the source.
+See general end user documentation for [installing a module].
+
+This module is dependant of module [Common], that should be installed first.
 
 You may install the module [Guest] or [Guest Role] to give a non-admin role to
 new users. This is important for security, else the default role will be
 "researcher", who can access admin board. Of course, once authenticated, an
 admin can set the right role.
 
-See general end user documentation for [installing a module].
+The module uses an external library, [onelogin/php-saml], so use the release zip
+to install it, or use and init the source.
 
 * From the zip
 
-Download the last release [SingleSignOn.zip] from the list of releases (the
-master does not contain the dependency), and uncompress it in the `modules`
+Download the last release [SingleSignOn.zip] from the list of releases
+(the "master" does not contain the dependency), and uncompress it in the `modules`
 directory.
 
 * From the source and for development
 
 If the module was installed from the source, rename the name of the folder of
-the module to `SingleSignOn`, go to the root of the module, and run:
+the module to `SingleSignOn`, go to the root module, and run:
 
 ```sh
 composer install --no-dev
@@ -230,7 +232,7 @@ and the [Université de Strasbourg] (UNISTRA).
 [Shibboleth]: https://www.shibboleth.net
 [module Shibboleth]: https://gitlab.com/Daniel-KM/Omeka-S-module-Shibboleth
 [onelogin/php-saml]: https://github.com/SAML-Toolkits/php-saml
-[Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
+[installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [SingleSignOn.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/releases
 [Guest]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest
 [Guest Role]: https://github.com/biblibre/omeka-s-module-GuestRole

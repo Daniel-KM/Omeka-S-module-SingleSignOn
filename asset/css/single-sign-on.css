@@ -1,0 +1,20 @@
+.single-sign-on-links {
+    list-style: none;
+    padding-left: 0;
+}
+.single-sign-on-links .single-sign-on-link {
+    height: 48px;
+}
+.single-sign-on-links .button {
+    min-height: 0;
+    height: 36px;
+    padding: 6px 1em;
+    border: 0;
+    border-radius: .25rem;
+    background-color: #222933;
+    color: #bdcde3;
+    box-shadow: none;
+}
+.single-sign-on-links:hover .button {
+    color: #fff;
+}

@@ -11,9 +11,12 @@
 $plugins = $this->getHelperPluginManager();
 $url = $plugins->get('url');
 $escape = $plugins->get('escapeHtml');
+$assetUrl = $plugins->get('assetUrl');
 $translate = $plugins->get('translate');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
 $currentSite = $plugins->get('currentSite');
+
+$this->headLink()->appendStylesheet($assetUrl('css/single-sign-on.css', 'SingleSignOn'));
 
 if ($internal) {
     $urlLogin = $plugins->has('guestWidget') && $site = $currentSite() ? $url('site/guest/anonymous', ['action' => 'login', 'site-slug' => $site->slug()], true) : $url('login');
@@ -26,15 +29,15 @@ if ($internal) {
 
 <div class="single-sign-on-login">
     <?php if ($heading): ?>
-    <h4><?= $escape($heading) ?></h4>
+    <h2><?= $escape($heading) ?></h2>
     <?php endif; ?>
     <ul class="single-sign-on-links">
         <?php foreach($idps as $idpSlug => $idp):
         $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], true);
         $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
         ?>
-        <li>
-            <a class="single-sign-on-idp <?= $escapeAttr(str_replace('.', '-', $idpSlug)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></a>
+        <li class="single-sign-on-link">
+            <a class="single-sign-on-idp button <?= $escapeAttr(str_replace('.', '-', $idpSlug)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></a>
         </li>
         <?php endforeach; ?>
     </ul>

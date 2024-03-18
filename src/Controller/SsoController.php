@@ -219,7 +219,8 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toUrl($redirectUrl);
         }
 
-        $idpName = $this->idpNameFromRoute();
+        $idpName = $this->idpNameFromRoute() ?: $this->idpNameFromRequest();
+
         $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new PsrMessage('No IdP with this name.')); // @translate
@@ -431,7 +432,8 @@ class SsoController extends AbstractActionController
         $redirectUrl = $this->params()->fromQuery('redirect_url')
             ?: $this->url()->fromRoute('top');
 
-        $idpName = $this->idpNameFromRoute();
+        $idpName = $this->idpNameFromRoute() ?: $this->idpNameFromRequest();
+
         $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new PsrMessage(
@@ -565,7 +567,18 @@ class SsoController extends AbstractActionController
     }
 
     /**
-     * Get idp data as array.
+     * Get the idp name from request, in particular for acs and sls.
+     *
+     * @todo Find a way to set the idp name via the routing for the second request.
+     */
+    protected function idpNameFromRequest(): ?string
+    {
+        $domain = $this->getRequest()->getHeaders()->get('Origin')->getFieldValue();
+        return $domain ? parse_url($domain, PHP_URL_HOST) : null;
+    }
+
+    /**
+     * Get idp data as array. If no idp is set, use the first one.
      *
      * Idp certificate may be updated when outdated.
      */

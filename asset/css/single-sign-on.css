@@ -6,6 +6,7 @@
     height: 48px;
 }
 .single-sign-on-links .button {
+    display: initial;
     min-height: 0;
     height: 36px;
     padding: 6px 1em;
@@ -14,7 +15,9 @@
     background-color: #222933;
     color: #bdcde3;
     box-shadow: none;
+    text-decoration: none;
 }
-.single-sign-on-links:hover .button {
+.single-sign-on-link .button:hover {
     color: #fff;
+    text-decoration: none;
 }

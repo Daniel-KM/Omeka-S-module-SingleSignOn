@@ -124,6 +124,8 @@ url, for example https://idp.example.org/idp/shibboleth.
     or "guest", if the role exists.
   - User settings: list of keys and values that will be stored in user settings
     when a user is created. Values are not updated next times the user logs in.
+  - Update mode: define if the config will be updated automatically. It is
+    useful, in particular for the certificate, that may have a limited lifetime.
 
 For the main map, in most of the cases (Shibboleth), use:
 
@@ -219,7 +221,7 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2023 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2023-2024 (see [Daniel-KM] on GitLab)
 
 This module was built for a new section of [Numistral] the digital library of
 the [Bibliothèque nationale et universitaire de Strasbourg] (BNU), the [Université de Haute-Alsace] (UHA).

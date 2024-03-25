@@ -80,3 +80,18 @@ if (version_compare($oldVersion, '3.4.7', '<')) {
     );
     $messenger->addSuccess($message);
 }
+
+if (version_compare($oldVersion, '3.4.11', '<')) {
+    $activeSsoServices = $settings->get('singlesignon_services') ?: [];
+    $updatePos = array_search('update', $activeSsoServices);
+    if ($updatePos !== false) {
+        unset($activeSsoServices[$updatePos]);
+        $activeSsoServices[] = 'update_user_name';
+        $settings->get('singlesignon_services', $activeSsoServices);
+    }
+
+    $message = new PsrMessage(
+        'It is now possible to set an IdP manually. Warning: the certificate of IdP set manually will not be updated automatically.' // @translate
+    );
+    $messenger->addSuccess($message);
+}

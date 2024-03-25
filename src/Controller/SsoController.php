@@ -630,6 +630,9 @@ class SsoController extends AbstractActionController
                 $idpMeta['idp_roles_map'] = $idp['idp_roles_map'];
                 $idpMeta['idp_user_settings'] = $idp['idp_user_settings'];
                 $idpMeta['idp_metadata_update_mode'] = $idp['idp_metadata_update_mode'];
+                if ($updateMode === 'auto_except_id' && !empty($idp['idp_entity_id'])) {
+                    $idpMeta['idp_entity_id'] = $idp['idp_entity_id'];
+                }
                 $idp = $idpMeta;
                 $idps[$idpName] = $idp;
                 $settings->set('singlesignon_idps', $idps);

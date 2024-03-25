@@ -77,7 +77,10 @@ class IdpMetadata extends AbstractPlugin
             return $xml;
         };
 
-        $entityId = (string) ($xml['samlmetadata:entityID'] ?? $xml['entityID'] ?? parse_url($idpUrl, PHP_URL_HOST));
+        $entityId = (string) ($xml['samlmetadata:entityID']
+            ?? $xml['entityID']
+            ?? parse_url($idpUrl, PHP_URL_HOST));
+        $entityId = $entityId ?: '';
 
         if ($namespaces) {
             $entityName = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:Organization/samlmetadata:OrganizationName[1]')[0] ?? '')

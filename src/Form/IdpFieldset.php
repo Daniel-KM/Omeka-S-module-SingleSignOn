@@ -29,7 +29,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 ],
             ])
 
-            // Automatically fillable data.
+            // Automatically fillable data (except id when option is set).
 
             ->add([
                 'name' => 'idp_entity_id',
@@ -141,11 +141,15 @@ userprofile_key = value',
 
             ->add([
                 'name' => 'idp_metadata_update_mode',
-                'type' => Element\Radio::class,
+                'type' => Element\Select::class,
                 'options' => [
                     'label' => 'Update mode', // @translate
+                    'label_attributes' => [
+                        'style' => 'display: block;',
+                    ],
                     'value_options' => [
                         'auto' => 'Automatic (set the url and the id and data will be automatically filled, checked and updated)', // @translate
+                        'auto_except_id' => 'Automatic, except entity id (fix possible issue with reverse proxies)', // @translate
                         'manual' => 'Manual (not recommended, because most certificates have a limited lifetime)', // @translate
                     ],
                 ],

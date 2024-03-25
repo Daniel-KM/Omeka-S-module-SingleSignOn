@@ -374,7 +374,7 @@ class SsoController extends AbstractActionController
             $this->logger()->warn($message);
             // Since this is a non-authorized user, return to redirect url.
             return $this->redirect()->toUrl($redirectUrl);
-        } elseif (in_array('update', $activeSsoServices)) {
+        } elseif (in_array('update_user_name', $activeSsoServices)) {
             $update = false;
             if ($name && $name !== $user->getName()) {
                 $update = true;

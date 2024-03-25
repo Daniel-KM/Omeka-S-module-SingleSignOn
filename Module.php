@@ -160,6 +160,8 @@ class Module extends AbstractModule
         $messenger = $plugins->get('messenger');
         $idpMetadata = $plugins->get('idpMetadata');
 
+        $ssoServices = $settings->get('singlesignon_services') ?: [];
+
         $idps = $settings->get('singlesignon_idps');
 
         // Messages are displayed, but data are stored in all cases.
@@ -180,27 +182,52 @@ class Module extends AbstractModule
                 $messenger->addError($message);
                 continue;
             }
+
+            $updateMode = $idp['idp_metadata_update_mode'] ?? 'auto';
+
+            // Check if the idp is filled.
+            $isFilled = !empty($idp['idp_entity_name'])
+                && !empty($idp['idp_x509_certificate'])
+                && (!in_array('sso', $ssoServices) || !empty($idp['idp_sso_url']))
+                && (!in_array('sls', $ssoServices) || !empty($idp['idp_slo_url']));
+
+            if ($isFilled && $updateMode === 'manual') {
+                $cleanIdps[$key] = $idp;
+                $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
+                $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: (string) $key;
+                $message = new PsrMessage(
+                    'The idp "{idp}" was manually filled and is not checked neither updated.', // @translate
+                    ['idp' => $idpName]
+                );
+                $messenger->addWarning($message);
+                continue;
+            }
+
             if ($entityUrl) {
                 $idpMeta = $idpMetadata($entityUrl, true);
                 if (!$idpMeta) {
+                    // Message is already prepared.
                     $cleanIdps[$key] = $idp;
                     continue;
                 }
+                // Keep some data.
                 $idpMeta['idp_entity_name'] = $idpMeta['idp_entity_name'] ?: $idp['idp_entity_name'];
                 $idpMeta['idp_attributes_map'] = $idp['idp_attributes_map'];
                 $idpMeta['idp_roles_map'] = $idp['idp_roles_map'];
                 $idpMeta['idp_user_settings'] = $idp['idp_user_settings'];
+                $idpMeta['idp_metadata_update_mode'] = $idp['idp_metadata_update_mode'];
                 $idp = $idpMeta;
                 $entityId = $idp['idp_entity_id'];
             }
-            if (substr($entityId, 0, 4) !== 'http') {
-                $entityId = 'http://' . $entityId;
-            }
-            $idpName = parse_url($entityId, PHP_URL_HOST) ?: (string) $key;
+
+            $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
+            $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: (string) $key;
+
             $result = $this->checkX509Certificate($idp['idp_x509_certificate'] ?? null, $idpName);
             if ($result) {
                 $idp['idp_x509_certificate'] = $result;
             }
+
             $cleanIdps[$idpName] = $idp;
         }
 

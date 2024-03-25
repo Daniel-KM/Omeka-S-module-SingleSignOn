@@ -15,6 +15,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
             ->setAttribute('id', 'idp')
             ->setAttribute('class', 'singlesignon-idp idp')
             ->setName('idp')
+
             ->add([
                 'name' => 'idp_metadata_url',
                 'type' => Element\Url::class,
@@ -27,6 +28,9 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                     'required' => false,
                 ],
             ])
+
+            // Automatically fillable data.
+
             ->add([
                 'name' => 'idp_entity_id',
                 'type' => Element\Text::class,
@@ -39,6 +43,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                     'required' => false,
                 ],
             ])
+
             ->add([
                 'name' => 'idp_entity_name',
                 'type' => Element\Text::class,
@@ -84,6 +89,9 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                     'rows' => 5,
                 ],
             ])
+
+            // Specific manual options.
+
             ->add([
                 'name' => 'idp_attributes_map',
                 'type' => OmekaElement\ArrayTextarea::class,
@@ -130,6 +138,23 @@ guest_agreed_terms = 1
 userprofile_key = value',
                 ],
             ])
+
+            ->add([
+                'name' => 'idp_metadata_update_mode',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Update mode', // @translate
+                    'value_options' => [
+                        'auto' => 'Automatic (set the url and the id and data will be automatically filled, checked and updated)', // @translate
+                        'manual' => 'Manual (not recommended, because most certificates have a limited lifetime)', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'idp_metadata_update_mode',
+                    'required' => false,
+                    'value' => 'auto',
+                ],
+            ])
         ;
     }
 
@@ -142,7 +167,7 @@ userprofile_key = value',
      */
     public function getInputFilterSpecification()
     {
-        $spec = [
+        return [
             'idp_metadata_url' => [
                 'required' => false,
             ],
@@ -152,7 +177,9 @@ userprofile_key = value',
             'idp_slo_url' => [
                 'required' => false,
             ],
+            'idp_metadata_update_mode' => [
+                'required' => false,
+            ],
         ];
-        return $spec;
     }
 }

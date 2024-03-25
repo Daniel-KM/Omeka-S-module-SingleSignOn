@@ -119,6 +119,7 @@ return [
                         // 'guest_agreed_terms' => true,
                         // 'userprofile_key' => 'value',
                     ],
+                    'idp_metadata_update_mode' => 'auto',
                 ],
             ],
         ],

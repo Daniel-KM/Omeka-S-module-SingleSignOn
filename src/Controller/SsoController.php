@@ -603,11 +603,15 @@ class SsoController extends AbstractActionController
             'idp_attributes_map' => [],
             'idp_roles_map' => [],
             'idp_user_settings' => [],
+            'idp_metadata_update_mode' => 'auto',
         ];
 
+        $updateMode = $settings->get('idp_metadata_update_mode') ?: 'auto';
+
         // Update idp data when possible.
-        if ($idp['idp_metadata_url']
+        $toUpdate = $idp['idp_metadata_url']
             && $update
+            && $updateMode !== 'manual'
             && (
                 // Init and store if missing.
                 empty($idp['idp_date'])
@@ -615,8 +619,9 @@ class SsoController extends AbstractActionController
                 || (new \DateTimeImmutable($idp['idp_date']))->setTime(0, 0, 0)
                     ->diff((new \DateTimeImmutable('now'))->setTime(0, 0, 0), true)
                     ->format('%a') >= 1
-            )
-        ) {
+            );
+
+        if ($toUpdate) {
             $idpMeta = $this->idpMetadataArray($idpName);
             if ($idpMeta) {
                 // Keep some data.
@@ -624,6 +629,7 @@ class SsoController extends AbstractActionController
                 $idpMeta['idp_attributes_map'] = $idp['idp_attributes_map'];
                 $idpMeta['idp_roles_map'] = $idp['idp_roles_map'];
                 $idpMeta['idp_user_settings'] = $idp['idp_user_settings'];
+                $idpMeta['idp_metadata_update_mode'] = $idp['idp_metadata_update_mode'];
                 $idp = $idpMeta;
                 $idps[$idpName] = $idp;
                 $settings->set('singlesignon_idps', $idps);

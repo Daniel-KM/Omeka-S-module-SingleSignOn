@@ -12,6 +12,9 @@ return [
         'invokables' => [
             'ssoLoginLinks' => View\Helper\SsoLoginLinks::class,
         ],
+        'factories' => [
+            'isSsoUser' => Service\ViewHelper\IsSsoUserFactory::class,
+        ],
     ],
     'block_layouts' => [
         'invokables' => [

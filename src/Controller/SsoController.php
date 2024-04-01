@@ -2,6 +2,7 @@
 
 namespace SingleSignOn\Controller;
 
+use DateTime;
 use Doctrine\ORM\EntityManager;
 use Laminas\Authentication\AuthenticationService;
 use Laminas\Mvc\Controller\AbstractActionController;
@@ -404,6 +405,14 @@ class SsoController extends AbstractActionController
         $this->authentication->getStorage()->write($user);
         // A useless check.
         $user = $this->authentication->getIdentity();
+
+        // Store some data for module Access: rights may be related to idps.
+        /** @var \Omeka\Settings\UserSettings $userSettings */
+        $userSettings = $this->userSettings();
+        $userSettings->setTargetId($user->getId());
+        $userSettings->set('connection_authenticator', 'SingleSignOn');
+        $userSettings->set('connection_idp', $idpName);
+        $userSettings->set('connection_last', (new DateTime('now'))->format('Y-m-d H:i:s'));
 
         $this->messenger()->addSuccess(new PsrMessage('Successfully logged in.')); // @translate
 

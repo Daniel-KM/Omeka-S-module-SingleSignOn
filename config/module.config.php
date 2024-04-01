@@ -34,6 +34,9 @@ return [
         'invokables' => [
             'idpMetadata' => Mvc\Controller\Plugin\IdpMetadata::class,
         ],
+        'factories' => [
+            'isSsoUser' => Service\ControllerPlugin\IsSsoUserFactory::class,
+        ],
     ],
     'router' => [
         'routes' => [

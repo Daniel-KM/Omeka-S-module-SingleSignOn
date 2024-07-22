@@ -15,11 +15,12 @@ $assetUrl = $plugins->get('assetUrl');
 $translate = $plugins->get('translate');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
 $currentSite = $plugins->get('currentSite');
+$site = $currentSite();
 
 $this->headLink()->appendStylesheet($assetUrl('css/single-sign-on.css', 'SingleSignOn'));
 
 if ($internal) {
-    $urlLogin = $plugins->has('guestWidget') && $site = $currentSite() ? $url('site/guest/anonymous', ['action' => 'login', 'site-slug' => $site->slug()], true) : $url('login');
+    $urlLogin = $plugins->has('guestWidget') && $site ? $url('site/guest/anonymous', ['action' => 'login', 'site-slug' => $site->slug()], true) : $url('login');
     $idps['default-login'] = [
         'url' => $urlLogin,
         'idp_entity_name' => $translate('Direct login'),

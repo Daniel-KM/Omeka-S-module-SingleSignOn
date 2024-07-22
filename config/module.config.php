@@ -3,6 +3,11 @@
 namespace SingleSignOn;
 
 return [
+    'service_manager' => [
+        'factories' => [
+            'Omeka\AuthenticationService' => Service\AuthenticationServiceFactory::class,
+        ],
+    ],
     'view_manager' => [
         'template_path_stack' => [
             dirname(__DIR__) . '/view',
@@ -136,5 +141,10 @@ return [
                 'template' => '',
             ],
         ],
+    ],
+    'authentication' => [
+        // Warning: check your idp access first, because when set true,
+        // all current locally logged users will be logged out.
+        'forbid_local_login' => false,
     ],
 ];

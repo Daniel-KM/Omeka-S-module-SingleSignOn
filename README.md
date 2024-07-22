@@ -11,10 +11,12 @@ automatically through single sign-on (SSO) via [SAML] and the identity provider
 users can login through multiple services. The certificates of the IdP can be
 automatically updated each day too.
 
-Local users can still connect via the local passwords if they have one.
+Local users can still connect via the local passwords if they have one, but an
+option allow to disallow local login.
 
 Note that [Shibboleth] is an extension of Saml, so the [module Shibboleth] is
-deprecated, since all its features are implemented in this module.
+deprecated, since all its features are implemented in this module, without
+installing a specific package on the server.
 
 
 Installation
@@ -25,10 +27,7 @@ See general end user documentation for [installing a module].
 This module is dependant of module [Common], that should be installed first.
 
 You may install the module [Guest] or [Guest Role] to give a non-admin role to
-new users. This is important for security, else the default role will be
-"researcher", who can access admin board. Of course, once authenticated, an
-admin can set the right role.
-
+new users.
 The module uses an external library, [onelogin/php-saml], so use the release zip
 to install it, or use and init the source.
 
@@ -51,6 +50,8 @@ composer install --no-dev
 Quick start
 -----------
 
+### Configuration
+
 For security, each service must be configured on the Omeka part and the identity
 provider (IdP) part: Omeka needs to know each IdP and, each IdP requires to
 allow Omeka as a SAML service provider (SP).
@@ -65,7 +66,7 @@ Params available to config SP and IdP in Omeka, and that should be updated when
 the IdP is updated. To get the metadata from the saml idp server, just go to its
 url, for example https://idp.example.org/idp/shibboleth.
 
-- services:
+- Services:
   - log in (sso): required.
   - log out (sls): Log out is not recommended, because it can have bad side
     effects when deconnecting from other services.
@@ -73,6 +74,12 @@ url, for example https://idp.example.org/idp/shibboleth.
     automatically, else the users should be created by an administrator first
     inside Omeka.
   - Update user name: Update the name in Omeka when it is updated in IdP.
+
+- Default role:
+
+  The default role is "researcher", who can access admin board, or "guest" if
+  the module is installed. Of course, once authenticated, an admin can set the
+  right role. For security, the admin roles are forbidden for new users.
 
 - Service provider:
   - Metadata content type
@@ -134,8 +141,8 @@ mail = email
 displayName = name
 ```
 
-The role can be added, generally: `role = role`.
-
+The role can be added, generally: `role = role`. If not set, the default role is
+used.
 
 ### Testing on SamlTest.id
 
@@ -152,6 +159,20 @@ the new config to SamlTest.id, then reenable your features. Anyway, the validity
 of the service provider metadata is 48 hours, so the IdP will be disabled after
 that. And if the IdP is no more registered in Omeka, it won't be able to log in.
 
+### Local login
+
+To disallow local login, append this to the file config/local.config.php of Omeka:
+
+```php
+    'authentication' => [
+        // Warning: check your idp access first, because when set true,
+        // all current locally logged users will be logged out.
+        'forbid_local_login' => true,
+        // Unless this option is false: in that case, current sessions are kept.
+        'logout_logged_users' => false,
+    ],
+```
+
 
 TODO
 ----
@@ -163,8 +184,9 @@ TODO
 - [x] Extra settings, in particular locale (see module Shibboleth).
 - [ ] Add logo and site name (see onelogin config and https://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-metadata-ui/v1.0/os/sstc-saml-metadata-ui-v1.0-os.html).
 - [ ] Added discovery login (two steps login, to avoid selecting the idp). Store user idp in user settings instead of a new table!
-- [ ] Force sso login (with dynamic check of config first).
+- [x] Force sso login (with dynamic check of config first).
 - [-] Allow to log in without registering SP in the IdP (Unsolicited Login Initiator), but may be a security issue.
+- [ ] Use a Laminas SSO adapter instead of a specific url.
 
 
 Warning

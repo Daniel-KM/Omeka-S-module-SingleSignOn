@@ -32,6 +32,7 @@ if ($internal) {
     <?php if ($heading): ?>
     <h2><?= $escape($heading) ?></h2>
     <?php endif; ?>
+    <?php if ($idps): ?>
     <ul class="single-sign-on-links">
         <?php foreach($idps as $idpSlug => $idp):
         $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], true);
@@ -42,4 +43,7 @@ if ($internal) {
         </li>
         <?php endforeach; ?>
     </ul>
+    <?php else: ?>
+    <p><?= $translate('No identity provider is available.') ?></p>
+    <?php endif; ?>
 </div>

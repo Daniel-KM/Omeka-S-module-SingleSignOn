@@ -42,6 +42,18 @@ class ConfigForm extends Form
             ])
 
             ->add([
+                'name' => 'singlesignon_role_default',
+                'type' => 'Omeka\Form\Element\RoleSelect',
+                'options' => [
+                    'label' => 'Default role for new users when not configured in idp', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_role_default',
+                    'required' => false,
+                ],
+            ])
+
+            ->add([
                 'name' => 'singlesignon_append_links_to_login_view',
                 'type' => Element\Checkbox::class,
                 'options' => [
@@ -196,6 +208,10 @@ class ConfigForm extends Form
         $this->getInputFilter()
             ->add([
                 'name' => 'singlesignon_services',
+                'required' => false,
+            ])
+            ->add([
+                'name' => 'singlesignon_role_default',
                 'required' => false,
             ])
             ->add([

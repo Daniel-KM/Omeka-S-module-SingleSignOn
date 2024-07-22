@@ -2,6 +2,7 @@
 
 namespace SingleSignOn\Controller;
 
+use Common\Stdlib\PsrMessage;
 use DateTime;
 use Doctrine\ORM\EntityManager;
 use Laminas\Authentication\AuthenticationService;
@@ -13,7 +14,6 @@ use Omeka\Permissions\Acl;
 use OneLogin\Saml2\Auth as SamlAuth;
 use OneLogin\Saml2\Error as SamlError;
 use OneLogin\Saml2\Settings as SamlSettings;
-use Common\Stdlib\PsrMessage;
 
 class SsoController extends AbstractActionController
 {
@@ -293,14 +293,19 @@ class SsoController extends AbstractActionController
             ?? null;
 
         // The map is already checked.
-        $rolesMap = $idp['idp_roles_map'];
         $roles = $this->acl->getRoles();
+        $rolesMap = $idp['idp_roles_map'];
+        $defaultRole = $this->settings('singlesignon_role_default') ?: null;
         $idpRole = $samlAttributesFriendly[array_search('role', $attributesMap)][0]
             ?? $samlAttributesCanonical[array_search('role', $this->attributesMapCanonical)][0]
             ?? null;
         $role = $rolesMap ? $rolesMap[$idpRole] ?? null : $idpRole;
         if (!in_array($role, $roles)) {
-            $role = in_array('guest', $roles) ? 'guest' : Acl::ROLE_RESEARCHER;
+            if ($defaultRole && in_array($defaultRole, $roles)) {
+                $role = $defaultRole;
+            } else {
+                $role = in_array('guest', $roles) ? 'guest' : Acl::ROLE_RESEARCHER;
+            }
         }
 
         $user = $this->entityManager
@@ -321,7 +326,7 @@ class SsoController extends AbstractActionController
                     'No name provided or mapped. Available canonical attributes for this IdP: {keys}. Available friendly attributes for this IdP: {keys_2}.', // @translate
                     [
                         'keys' => implode('", "', array_keys($samlAttributesCanonical)),
-                        'keys_2' => implode('", "', array_keys($samlAttributesFriendly))
+                        'keys_2' => implode('", "', array_keys($samlAttributesFriendly)),
                     ]
                 );
                 $this->logger()->warn($message);

@@ -146,5 +146,7 @@ return [
         // Warning: check your idp access first, because when set true,
         // all current locally logged users will be logged out.
         'forbid_local_login' => false,
+        // Unless this option is false: in that case, current sessions are kept.
+        'logout_logged_users' => false,
     ],
 ];

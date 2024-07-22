@@ -95,3 +95,15 @@ if (version_compare($oldVersion, '3.4.11', '<')) {
     );
     $messenger->addSuccess($message);
 }
+
+if (version_compare($oldVersion, '3.4.13', '<')) {
+    $message = new PsrMessage(
+        'It is now possible to force login via SSO, so to disallow local login.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'It is now possible to define a default role.' // @translate
+    );
+    $messenger->addSuccess($message);
+}

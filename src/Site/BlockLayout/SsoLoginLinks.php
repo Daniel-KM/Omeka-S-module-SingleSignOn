@@ -7,8 +7,9 @@ use Omeka\Api\Representation\SitePageBlockRepresentation;
 use Omeka\Api\Representation\SitePageRepresentation;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Site\BlockLayout\AbstractBlockLayout;
+use Omeka\Site\BlockLayout\TemplateableBlockLayoutInterface;
 
-class SsoLoginLinks extends AbstractBlockLayout
+class SsoLoginLinks extends AbstractBlockLayout implements TemplateableBlockLayoutInterface
 {
     /**
      * The default partial view script.
@@ -45,17 +46,9 @@ class SsoLoginLinks extends AbstractBlockLayout
         return $view->formCollection($fieldset);
     }
 
-    public function render(PhpRenderer $view, SitePageBlockRepresentation $block)
+    public function render(PhpRenderer $view, SitePageBlockRepresentation $block, $templateViewScript = self::PARTIAL_NAME)
     {
-        $vars = [
-            'block' => $block,
-        ] + $block->data();
-
-        $template = empty($vars['template']) ? self::PARTIAL_NAME : $vars['template'];
-        unset($vars['template']);
-
-        return $template !== self::PARTIAL_NAME && $view->resolver($template)
-            ? $view->partial($template, $vars)
-            : $view->partial(self::PARTIAL_NAME, $vars);
+        $vars = ['block' => $block] + $block->data();
+        return $view->partial($templateViewScript, $vars);
     }
 }

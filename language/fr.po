@@ -7,8 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-25 00:00+0000"
-"MI+ZONE\n"
+"POT-Creation-Date: 2024-07-22 00:00+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
@@ -28,10 +27,14 @@ msgid ""
 "When the metadata url of an IdP is set, its form will be automatically "
 "filled and updated each day."
 msgstr ""
+"Quand l’url des métadonnées de l’IdP est mise, le formulaire est "
+"automatiquement mis à jour chaque jour."
 
 #: Module.php:129
 msgid "Warning: some IdPs hide the name, so you may fill it yourself."
 msgstr ""
+"Attention : certains IdPs cachent le nom et vous devez donc le remplir vous-"
+"même dans ce cas."
 
 #: Module.php:131
 msgid "Furthermore, IdP keys still need to be mapped, at least for name."
@@ -39,11 +42,23 @@ msgstr ""
 
 #: src/View/Helper/SsoLoginLinks.php:30
 msgid "Login with your identity provider"
-msgstr "Se connecter avec son fournisseur d‘identité"
+msgstr "Se connecter avec son fournisseur d’identité"
 
-#: view/common/sso-login-links.phtml:25
+#: view/common/sso-login-links.phtml:26
 msgid "Direct login"
 msgstr "Connexion directe"
+
+#: view/common/sso-login-links.phtml:47
+msgid "No identity provider is available."
+msgstr "Aucun fournisseur d’identité n’est disponible."
+
+#: view/omeka/login/create-password.phtml:32
+msgid "Create your password via your identity provider."
+msgstr "Créez votre mot de passe via votre fournisseur d’identité."
+
+#: view/omeka/login/forgot-password.phtml:32
+msgid "Update your password via your identity provider."
+msgstr "Mettez à jour votre mot de passe via votre fournisseur d’identité."
 
 #: data/scripts/upgrade.php:65
 msgid "It is now possible to manage multiple IdPs."
@@ -65,58 +80,74 @@ msgid ""
 "set manually will not be updated automatically."
 msgstr ""
 
-#: Module.php:179
+#: data/scripts/upgrade.php:101
+msgid "It is now possible to force login via SSO, so to disallow local login."
+msgstr ""
+
+#: data/scripts/upgrade.php:106
+msgid "It is now possible to define a default role."
+msgstr ""
+
+#: Module.php:174
+msgid ""
+"For security, the default role cannot be an admin one. The default role was "
+"set to {role}."
+msgstr ""
+"Par sécurité, le rôle par défaut ne peut pas être un rôle administrateur. Le "
+"rôle par défaut a été mis à {role}."
+
+#: Module.php:194
 msgid "The IdP #{index} has no url and no id and is not valid."
 msgstr ""
 
-#: Module.php:199
+#: Module.php:214
 msgid ""
 "The idp \"{idp}\" was manually filled and is not checked neither updated."
 msgstr ""
 
-#: Module.php:278
+#: Module.php:293
 msgid "The SP public certificate is set, but not the private key."
 msgstr ""
 
-#: Module.php:285
+#: Module.php:300
 msgid "The SP private key is set, but not the public certificate."
 msgstr ""
 
-#: Module.php:311
+#: Module.php:326
 msgid "The SP public certificate is not valid."
 msgstr ""
 
-#: Module.php:319
+#: Module.php:334
 msgid "The SP private key is not valid."
 msgstr ""
 
-#: Module.php:334
+#: Module.php:349
 msgid "Unable to encrypt message with SP public certificate."
 msgstr ""
 
-#: Module.php:342
+#: Module.php:357
 msgid "Unable to decrypt message with SP private key."
 msgstr ""
 
-#: Module.php:350
+#: Module.php:365
 msgid ""
 "An issue occurred during decryption with SP private key. It may not the good "
 "one."
 msgstr ""
 
-#: Module.php:357
+#: Module.php:372
 msgid "No issue found on SP public certificate and private key."
 msgstr ""
 
-#: Module.php:392
+#: Module.php:407
 msgid "The IdP public certificate of \"{idp}\" is not valid."
 msgstr ""
 
-#: Module.php:404
+#: Module.php:419
 msgid "Unable to encrypt message with IdP public certificate of \"{idp}\"."
 msgstr ""
 
-#: Module.php:412
+#: Module.php:427
 msgid "No issue found on IdP public certificate of \"{idp}\"."
 msgstr ""
 
@@ -142,96 +173,102 @@ msgstr ""
 
 #: src/Form/ConfigForm.php:31
 msgid "Log in (SSO)"
-msgstr ""
+msgstr "Connexion (SSO)"
 
 #: src/Form/ConfigForm.php:32
 msgid "Log out (SLS)"
-msgstr ""
+msgstr "Déconnexion (SLS)"
 
 #: src/Form/ConfigForm.php:33
 msgid "Register (JIT)"
-msgstr ""
+msgstr "Enregistrement (JIT)"
 
 #: src/Form/ConfigForm.php:34
 msgid "Update user name"
 msgstr "Mettre à jour le nom de l’utilisateur"
 
-#: src/Form/ConfigForm.php:48
+#: src/Form/ConfigForm.php:49
+msgid "Default role for new users when not configured in idp"
+msgstr ""
+"Rôle par défaut pour les nouveaux utilisateurs s’il n’est pas configuré par "
+"l’idp"
+
+#: src/Form/ConfigForm.php:61
 msgid "Append idp links to login view"
 msgstr "Ajouter les liens IdP à la vue de connexion"
 
-#: src/Form/ConfigForm.php:49
+#: src/Form/ConfigForm.php:62
 msgid ""
 "The list of idps can be displayed on any page via the theme block and helper."
 msgstr ""
 
-#: src/Form/ConfigForm.php:62
+#: src/Form/ConfigForm.php:75
 msgid "Metadata content type"
 msgstr ""
 
-#: src/Form/ConfigForm.php:63
+#: src/Form/ConfigForm.php:76
 msgid "Some IdP require response header content type to be simple xml."
 msgstr ""
 
-#: src/Form/ConfigForm.php:65
+#: src/Form/ConfigForm.php:78
 msgid "application/samlmetadata+xml"
 msgstr "application/samlmetadata+xml"
 
-#: src/Form/ConfigForm.php:66
+#: src/Form/ConfigForm.php:79
 msgid "application/xml"
 msgstr "application/xml"
 
-#: src/Form/ConfigForm.php:78
+#: src/Form/ConfigForm.php:91
 msgid "Metadata content disposition"
 msgstr ""
 
-#: src/Form/ConfigForm.php:79
+#: src/Form/ConfigForm.php:92
 msgid "Some IdP require metadata to be downloadable, not inline."
 msgstr ""
 
-#: src/Form/ConfigForm.php:81
+#: src/Form/ConfigForm.php:94
 msgid "Inline (display in browser)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:82
+#: src/Form/ConfigForm.php:95
 msgid "Attachment (download in browser)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:83
+#: src/Form/ConfigForm.php:96
 msgid "Undefined"
 msgstr "Indéfini"
 
-#: src/Form/ConfigForm.php:95
+#: src/Form/ConfigForm.php:108
 msgid "Metadata mode"
-msgstr ""
+msgstr "Mode des métadonnées"
 
-#: src/Form/ConfigForm.php:96
+#: src/Form/ConfigForm.php:109
 msgid "Some IdP don’t manage xml prefixes in metadata, so they may be removed."
 msgstr ""
 
-#: src/Form/ConfigForm.php:99
+#: src/Form/ConfigForm.php:112
 msgid "Basic (xml metadata without prefixes)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:111
+#: src/Form/ConfigForm.php:124
 msgid "SP name id format"
 msgstr ""
 
-#: src/Form/ConfigForm.php:112
+#: src/Form/ConfigForm.php:125
 msgid ""
 "Value to set in xml element `<md:NameIDFormat>`. Let empty to use the "
 "default value (persistent)."
 msgstr ""
 
-#: src/Form/ConfigForm.php:129
+#: src/Form/ConfigForm.php:142
 msgid "Select name id format if needed"
-msgstr ""
+msgstr "Choisir le format de l’id du nom si besoin"
 
-#: src/Form/ConfigForm.php:137
+#: src/Form/ConfigForm.php:150
 msgid "Path for SP certificates (outside of webserver or protected)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:138
+#: src/Form/ConfigForm.php:151
 msgid ""
 "Some idp require certificates. If needed, set the path to it. It should "
 "contains a directory \"certs/\" with at least \"sp.crt\" and \"sp.key\". It "
@@ -239,29 +276,29 @@ msgid ""
 "when needed."
 msgstr ""
 
-#: src/Form/ConfigForm.php:150
-msgid "SP public certificate (x509)"
-msgstr ""
-
-#: src/Form/ConfigForm.php:151
-msgid ""
-"Some idp require certificates. If needed and if you cannot use a path, paste "
-"public certificate here. Take care to renew them when needed."
-msgstr ""
-
 #: src/Form/ConfigForm.php:163
-msgid "SP private key (x509)"
+msgid "SP public certificate (x509)"
 msgstr ""
 
 #: src/Form/ConfigForm.php:164
 msgid ""
 "Some idp require certificates. If needed and if you cannot use a path, paste "
+"public certificate here. Take care to renew them when needed."
+msgstr ""
+
+#: src/Form/ConfigForm.php:176
+msgid "SP private key (x509)"
+msgstr ""
+
+#: src/Form/ConfigForm.php:177
+msgid ""
+"Some idp require certificates. If needed and if you cannot use a path, paste "
 "private key here. Take care to renew them when needed."
 msgstr ""
 
-#: src/Form/ConfigForm.php:178
+#: src/Form/ConfigForm.php:191
 msgid "Identity providers (IdP)"
-msgstr "Fournisseurs d‘identité (IdP)"
+msgstr "Fournisseurs d’identité (IdP)"
 
 #: src/Form/SsoLoginLinksFieldset.php:17
 msgid "Block title"
@@ -288,6 +325,7 @@ msgstr ""
 #: src/Form/IdpFieldset.php:24
 msgid "For Shibboleth, it may be \"https://idp.example.org/idp/shibboleth\"."
 msgstr ""
+"Pour Shibboleth, cela peut être « https://idp.example.org/idp/shibboleth »."
 
 #: src/Form/IdpFieldset.php:38
 msgid "IdP Entity Id"
@@ -328,7 +366,7 @@ msgstr ""
 
 #: src/Form/IdpFieldset.php:84
 msgid "Public X.509 certificate of the IdP"
-msgstr ""
+msgstr "Certificat public X.509 de l’IdP"
 
 #: src/Form/IdpFieldset.php:85
 msgid "If not set, it will be fetched from the IdP url, if available."
@@ -336,7 +374,7 @@ msgstr ""
 
 #: src/Form/IdpFieldset.php:99
 msgid "Attributes map between IdP and Omeka"
-msgstr ""
+msgstr "Alignements des valeurs entre l’IdP et Omeka"
 
 #: src/Form/IdpFieldset.php:100
 msgid ""
@@ -348,7 +386,7 @@ msgstr ""
 
 #: src/Form/IdpFieldset.php:115
 msgid "Roles map between IdP and Omeka"
-msgstr ""
+msgstr "Alignement entre les rôles IdP et Omeka"
 
 #: src/Form/IdpFieldset.php:116
 msgid ""
@@ -380,92 +418,92 @@ msgid ""
 "Manual (not recommended, because most certificates have a limited lifetime)"
 msgstr ""
 
-#: src/Controller/SsoController.php:146 src/Controller/SsoController.php:226
-#: src/Controller/SsoController.php:440 src/Controller/SsoController.php:501
+#: src/Controller/SsoController.php:147 src/Controller/SsoController.php:227
+#: src/Controller/SsoController.php:458 src/Controller/SsoController.php:519
 msgid "No IdP with this name."
 msgstr "Aucun IdP avec ce nom."
 
-#: src/Controller/SsoController.php:153 src/Controller/SsoController.php:232
+#: src/Controller/SsoController.php:154 src/Controller/SsoController.php:233
 msgid "Single sign-on is disabled."
 msgstr "Le service SSO est désactivé."
 
-#: src/Controller/SsoController.php:244
+#: src/Controller/SsoController.php:245
 msgid "Single sign-on failed: {errors}. {error_last}"
 msgstr "Le service SSO a échoué : {errors}. {error_last}"
 
-#: src/Controller/SsoController.php:252
+#: src/Controller/SsoController.php:253
 msgid "Single sign-on failed: {errors}"
 msgstr "Le service SSO a échoué : {errors}"
 
-#: src/Controller/SsoController.php:276
+#: src/Controller/SsoController.php:277
 msgid "No email provided to log in or register."
 msgstr ""
 
-#: src/Controller/SsoController.php:279
+#: src/Controller/SsoController.php:280
 msgid ""
 "No email provided or mapped. Available canonical attributes for this IdP: "
 "{keys}. Available friendly attributes for this IdP: {keys_2}."
 msgstr ""
 
-#: src/Controller/SsoController.php:313
+#: src/Controller/SsoController.php:319
 msgid "Automatic registering is disabled."
-msgstr "L‘inscription automatique est désactivée."
+msgstr "L’inscription automatique est désactivée."
 
-#: src/Controller/SsoController.php:320
+#: src/Controller/SsoController.php:326
 msgid ""
 "No name provided or mapped. Available canonical attributes for this IdP: "
 "{keys}. Available friendly attributes for this IdP: {keys_2}."
 msgstr ""
 
-#: src/Controller/SsoController.php:370
+#: src/Controller/SsoController.php:380
 msgid "User \"{email}\" is inactive."
-msgstr "L‘utilisateur « {email} » est inactif."
+msgstr "L’utilisateur « {email} » est inactif."
 
-#: src/Controller/SsoController.php:408
+#: src/Controller/SsoController.php:426
 msgid "Successfully logged in."
 msgstr "Connecté avec succès."
 
-#: src/Controller/SsoController.php:465
+#: src/Controller/SsoController.php:483
 msgid "Single logout service failed: {errors}. {error_last}"
 msgstr "Le service SLO de déconnexion a échoué : {errors}. {error_last}"
 
-#: src/Controller/SsoController.php:473
+#: src/Controller/SsoController.php:491
 msgid "Single logout service failed: {errors}"
 msgstr "Le service SLO de déconnexion a échoué : {errors}"
 
-#: src/Controller/SsoController.php:486
+#: src/Controller/SsoController.php:504
 msgid "Successfully logged out."
 msgstr "Déconnecté avec succès."
 
-#: src/Controller/SsoController.php:507 src/Controller/SsoController.php:516
+#: src/Controller/SsoController.php:525 src/Controller/SsoController.php:534
 msgid "The IdP \"{idp}\" has no available metadata."
 msgstr ""
 
-#: src/Controller/SsoController.php:526
+#: src/Controller/SsoController.php:544
 msgid "The IdP \"{idp}\" has no valid xml metadata."
 msgstr ""
 
-#: src/Controller/SsoController.php:671
+#: src/Controller/SsoController.php:689
 msgid "SSO service has an error in configuration: {exception}"
 msgstr "Le service SSO a une erreur de configuration : {exception}"
 
-#: src/Controller/SsoController.php:679
+#: src/Controller/SsoController.php:697
 msgid "SSO service is not available. Ask admin to config it."
 msgstr ""
-"Le service SSO n‘est pas disponible. Demander à votre administrateur de le "
+"Le service SSO n’est pas disponible. Demander à votre administrateur de le "
 "configurer."
 
-#: src/Controller/SsoController.php:683
+#: src/Controller/SsoController.php:701
 msgid "SSO service is unavailable."
 msgstr "Le service SSO est indisponible."
 
-#: src/Controller/SsoController.php:688
+#: src/Controller/SsoController.php:706
 msgid "SSO service is unavailable. Ask admin to config it."
 msgstr ""
 "Le service SSO est indisponible. Demander à votre administrateur de le "
 "configurer."
 
-#: src/Site/BlockLayout/SsoLoginLinks.php:20
+#: src/Site/BlockLayout/SsoLoginLinks.php:21
 msgid "Single sign-on login links"
 msgstr "Liens de connexion SSO"
 

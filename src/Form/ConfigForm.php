@@ -41,6 +41,7 @@ class ConfigForm extends Form
                 ],
             ])
 
+            // TODO Remove admin role from role select.
             ->add([
                 'name' => 'singlesignon_role_default',
                 'type' => 'Omeka\Form\Element\RoleSelect',

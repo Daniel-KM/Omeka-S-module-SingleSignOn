@@ -335,7 +335,11 @@ class SsoController extends AbstractActionController
 
             // For security, a new user cannot be an admin.
             if ($this->acl->isAdminRole($role)) {
-                $role = in_array('guest', $roles) ? 'guest' : Acl::ROLE_RESEARCHER;
+                if ($defaultRole && in_array($defaultRole, $roles) && !$this->acl->isAdminRole($defaultRole)) {
+                    $role = $defaultRole;
+                } else {
+                    $role = in_array('guest', $roles) ? 'guest' : Acl::ROLE_RESEARCHER;
+                }
             }
 
             $user = new User();

@@ -151,16 +151,31 @@ class Module extends AbstractModule
         /**
          * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
          * @var \Omeka\Settings\Settings $settings
+         * @var \Omeka\Permissions\Acl $acl
          * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
          * @var \SingleSignOn\Mvc\Controller\Plugin\IdpMetadata $idpMetadata
          */
         $services = $this->getServiceLocator();
         $plugins = $services->get('ControllerPluginManager');
         $settings = $services->get('Omeka\Settings');
+        $acl = $services->get('Omeka\Acl');
         $messenger = $plugins->get('messenger');
         $idpMetadata = $plugins->get('idpMetadata');
 
         $ssoServices = $settings->get('singlesignon_services') ?: [];
+
+        // For security, forbid admin roles for new user.
+        $defaultRole = $settings->get('singlesignon_role_default');
+        if ($defaultRole && $acl->isAdminRole($defaultRole)) {
+            $roles = $acl->getRoles();
+            $role = in_array('guest', $roles) ? 'guest' : \Omeka\Permissions\Acl::ROLE_RESEARCHER;
+            $settings->set('singlesignon_role_default', $role);
+            $message = new PsrMessage(
+                'For security, the default role cannot be an admin one. The default role was set to {role}.', // @translate
+                ['role' => $role]
+            );
+            $messenger->addWarning($message);
+        }
 
         $idps = $settings->get('singlesignon_idps');
 

@@ -88,9 +88,9 @@ class Module extends AbstractModule
             $data[$name] = $val;
         }
 
-        // At least one fieldset.
-        // The list should be zero based to simplify js.
-        $data['singlesignon_idps'] = $data['singlesignon_idps'] ?: $config['singlesignon']['config']['singlesignon_idps'];
+        // Remove the federated idps from the list of idps to keep only the
+        // manually defined ones.
+        $data['singlesignon_idps'] = array_filter($data['singlesignon_idps'], fn ($v) => empty($v['federation_url']));
 
         /** @var \SingleSignOn\Form\ConfigForm $form */
         $form = $services->get('FormElementManager')->get(\SingleSignOn\Form\ConfigForm::class);
@@ -135,6 +135,7 @@ class Module extends AbstractModule
         $html .= $view->formCollection()
             ->setLabelWrapper('<legend>%s</legend>' . $collectionNote)
             ->render($collection);
+
         // The form is closed in parent, so don't close it here, else the csrf
         // will be outside.
         // $html .= $view->form()->closeTag();
@@ -177,24 +178,43 @@ class Module extends AbstractModule
             $messenger->addWarning($message);
         }
 
-        $idps = $settings->get('singlesignon_idps');
-
         // Messages are displayed, but data are stored in all cases.
-        $this->checkSPConfig();
+        $this->checkConfigSP();
+
+        $this->checkConfigFederation();
+
+        // Check and finalize federation.
+        $federation = $settings->get('singlesignon_federation');
+        if ($federation) {
+            $this->prepareFederation($federation);
+        }
+
+        // Check and finalize idps.
+        $idps = $settings->get('singlesignon_idps');
 
         $hasError = false;
         $cleanIdps = [];
         foreach (array_values($idps) as $key => $idp) {
             ++$key;
+            $federationUrl = $idp['federation_url'] ?? '';
             $entityUrl = $idp['idp_metadata_url'] ?? '';
             $entityId = $idp['idp_entity_id'] ?? '';
-            if (!$entityUrl && !$entityId) {
+            if ((!$federationUrl && !$entityUrl) || !$entityId) {
                 $hasError = true;
                 $message = new PsrMessage(
                     'The IdP #{index} has no url and no id and is not valid.', // @translate
                     ['index' => $key]
                 );
                 $messenger->addError($message);
+                continue;
+            }
+
+            $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
+            $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+
+            // Don't chech the idps of the federation.
+            if ($federationUrl) {
+                $cleanIdps[$idpName] = $idp;
                 continue;
             }
 
@@ -207,9 +227,7 @@ class Module extends AbstractModule
                 && (!in_array('sls', $ssoServices) || !empty($idp['idp_slo_url']));
 
             if ($isFilled && $updateMode === 'manual') {
-                $cleanIdps[$key] = $idp;
-                $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
-                $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: (string) $key;
+                $cleanIdps[$idpName] = $idp;
                 $message = new PsrMessage(
                     'The idp "{idp}" was manually filled and is not checked neither updated.', // @translate
                     ['idp' => $idpName]
@@ -222,7 +240,7 @@ class Module extends AbstractModule
                 $idpMeta = $idpMetadata($entityUrl, true);
                 if (!$idpMeta) {
                     // Message is already prepared.
-                    $cleanIdps[$key] = $idp;
+                    $cleanIdps[$idpName] = $idp;
                     continue;
                 }
                 // Keep some data.
@@ -236,10 +254,9 @@ class Module extends AbstractModule
                 }
                 $idp = $idpMeta;
                 $entityId = $idp['idp_entity_id'];
+                $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
+                $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
             }
-
-            $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
-            $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: (string) $key;
 
             $result = $this->checkX509Certificate($idp['idp_x509_certificate'] ?? null, $idpName);
             if ($result) {
@@ -269,7 +286,27 @@ class Module extends AbstractModule
         echo $view->ssoLoginLinks();
     }
 
-    protected function checkSPConfig(): bool
+    protected function checkConfigFederation(): bool
+    {
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+
+        $federation = $settings->get('singlesignon_federation');
+        $idps = $settings->get('singlesignon_idps');
+        if (!empty($federation) && !empty($idps)) {
+            /**@var \Omeka\Mvc\Controller\Plugin\Messenger $messenger */
+            $plugins = $services->get('ControllerPluginManager');
+            $messenger = $plugins->get('messenger');
+            $messenger->addNotice(new PsrMessage(
+                'A federation is specified and a list of idps too. The idps defined manually will overwrite the federation ones with the same name.', // @ŧranslate
+            ));
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function checkConfigSP(): bool
     {
         /**
          * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
@@ -430,5 +467,47 @@ class Module extends AbstractModule
         $messenger->addSuccess($message);
 
         return Utils::formatCert($x509cert, true);
+    }
+
+    protected function prepareFederation(string $federation): bool
+    {
+        $services = $this->getServiceLocator();
+        $config = $services->get('Config');
+        $settings = $services->get('Omeka\Settings');
+
+        $federations = $config['singlesignon']['federations'];
+        if (!isset($federations[$federation])) {
+            return false;
+        }
+
+        $federationUrl = $federations[$federation];
+
+        /**
+         * @var \SingleSignOn\Mvc\Controller\Plugin\SsoFederationMetadata $ssoFederationMetadata
+         */
+        $services = $this->getServiceLocator();
+        $plugins = $services->get('ControllerPluginManager');
+        $ssoFederationMetadata = $plugins->get('ssoFederationMetadata');
+
+        $result = $ssoFederationMetadata($federationUrl, true);
+        if ($result === null) {
+            return false;
+        }
+
+        usort($result, fn($idpA, $idpB) => strcasecmp($idpA['idp_entity_name'], $idpB['idp_entity_name']));
+
+        // Store the federated idps and the locally defined idps in a single
+        // place to simplify interface and management.
+        // The local idps may override the federated ones.
+        // Keep them first.
+
+        $idps = $settings->get('singlesignon_idps');
+        $idps = array_filter($idps, fn ($v) => empty($v['federation_url']));
+
+        $idps = $idps + $result;
+
+        $settings->set('singlesignon_idps', $idps);
+
+        return true;
     }
 }

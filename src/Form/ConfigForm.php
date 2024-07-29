@@ -188,6 +188,24 @@ class ConfigForm extends Form
                 ],
             ])
 
+            // Federation
+
+            ->add([
+                'name' => 'singlesignon_federation',
+                'type' => Element\Select::class,
+                'options' => [
+                    'label' => 'Federation', // @translate
+                    'info' => 'The idps defined manually below will overwrite the federation ones with the same name.', // @ŧranslate
+                    'value_options' => $this->getOption('federations') ?: [],
+                    'empty_option' => '',
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_federation',
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select a federation…', // @translate
+                ],
+            ])
+
             // Identity Provider (IdP).
 
             ->add([
@@ -195,7 +213,7 @@ class ConfigForm extends Form
                 'name' => 'singlesignon_idps',
                 'options' => [
                     'label' => 'Identity providers (IdP)', // @translate
-                    'count' => 1,
+                    'count' => 0,
                     'allow_add' => true,
                     'allow_remove' => true,
                     'should_create_template' => true,
@@ -259,6 +277,10 @@ class ConfigForm extends Form
             ])
             ->add([
                 'name' => 'singlesignon_sp_name_id_format',
+                'required' => false,
+            ])
+            ->add([
+                'name' => 'singlesignon_federation',
                 'required' => false,
             ])
         ;

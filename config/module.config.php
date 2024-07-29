@@ -43,6 +43,7 @@ return [
     'controller_plugins' => [
         'invokables' => [
             'idpMetadata' => Mvc\Controller\Plugin\IdpMetadata::class,
+            'ssoFederationMetadata' => Mvc\Controller\Plugin\SsoFederationMetadata::class,
         ],
         'factories' => [
             'isSsoUser' => Service\ControllerPlugin\IsSsoUserFactory::class,
@@ -92,6 +93,12 @@ return [
             'singlesignon_sp_cert_path' => '',
             'singlesignon_sp_x509_certificate' => '',
             'singlesignon_sp_x509_private_key' => '',
+
+            // The config of the federation is merged with the single idps in
+            // "singlesignon_idps".
+            // The difference is the presence of the key "federation_url", that
+            // replaces the key "idp_metadata_url".
+            'singlesignon_federation' => null,
 
             // The config manages multiple idp services.
             // In Omeka, they are all stored in one setting for now.
@@ -145,6 +152,11 @@ return [
                 'internal' => false,
                 'template' => '',
             ],
+        ],
+        'federations' => [
+            // File "main idps" is the most useful for the module.
+            'Renater'
+                => 'https://pub.federation.renater.fr/metadata/renater/main/main-idps-renater-metadata.xml',
         ],
     ],
     'authentication' => [

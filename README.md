@@ -7,8 +7,9 @@ Single Sign-On (module for Omeka S)
 
 [Single Sign-On] is a module for [Omeka S] that allows users to authenticate
 automatically through single sign-on (SSO) via [SAML] and the identity provider
-(IdP) of your institution or any external service. Multiple IdP are managed, so
-users can login through multiple services. The certificates of the IdP can be
+(IdP) of your institution or any external service. To authenticate through
+multiple IdPs individually defined or defined via a federation of identity
+providers like Renater is possible too. The certificates of the IdP can be
 automatically updated each day too.
 
 Local users can still connect via the local passwords if they have one, but an
@@ -103,6 +104,12 @@ url, for example https://idp.example.org/idp/shibboleth.
     planning (anyway your users will warn you).
 
 - Identity Provider:
+  - The identity provider can be a federation of identity providers, in which
+    case the config is automatic. If you have a federation not implemented in
+    the module, you can set it in the Omeka config/local.config.php under key
+    `[singlesignon][federations]`.
+    When a federation is set, the locally defined idps are still available,
+    merged in a single list.
   - Identity provider metadata url: When set, the form will be automatically
     filled and updated each day, in particular for the certificate. It is
     recommended to fill it. When enable, there is a shortcut to get these public

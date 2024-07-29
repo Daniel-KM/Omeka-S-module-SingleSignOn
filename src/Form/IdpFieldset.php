@@ -13,7 +13,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
     {
         $this
             ->setAttribute('id', 'idp')
-            ->setAttribute('class', 'singlesignon-idp idp')
+            ->setAttribute('class', 'form-fieldset-element singlesignon-idp idp')
             ->setName('idp')
 
             ->add([
@@ -157,6 +157,61 @@ userprofile_key = value',
                     'id' => 'idp_metadata_update_mode',
                     'required' => false,
                     'value' => 'auto',
+                ],
+            ])
+
+            ->add([
+                'name' => 'minus',
+                'type' => Element\Button::class,
+                'options' => [
+                    'label' => ' ',
+                    'label_options' => [
+                        'disable_html_escape' => true,
+                    ],
+                    'label_attributes' => [
+                        'class' => 'config-fieldset-action-label',
+                    ],
+                ],
+                'attributes' => [
+                    // Don't use o-icon-delete.
+                    'class' => 'config-fieldset-action config-fieldset-minus fa fa-minus remove-value button',
+                    'aria-label' => 'Remove this idp', // @translate
+                ],
+            ])
+            ->add([
+                'name' => 'up',
+                'type' => Element\Button::class,
+                'options' => [
+                    'label' => ' ',
+                    'label_options' => [
+                        'disable_html_escape' => true,
+                    ],
+                    'label_attributes' => [
+                        'class' => 'config-fieldset-action-label',
+                    ],
+                ],
+                'attributes' => [
+                    // Don't use o-icon-delete.
+                    'class' => 'config-fieldset-action config-fieldset-up fa fa-arrow-up button',
+                    'aria-label' => 'Move this idp up', // @translate
+                ],
+            ])
+            ->add([
+                'name' => 'down',
+                'type' => Element\Button::class,
+                'options' => [
+                    'label' => ' ',
+                    'label_options' => [
+                        'disable_html_escape' => true,
+                    ],
+                    'label_attributes' => [
+                        'class' => 'config-fieldset-action-label',
+                    ],
+                ],
+                'attributes' => [
+                    // Don't use o-icon-delete.
+                    'class' => 'config-fieldset-action config-fieldset-down fa fa-arrow-down button',
+                    'aria-label' => 'Move this idp down', // @translate
                 ],
             ])
         ;

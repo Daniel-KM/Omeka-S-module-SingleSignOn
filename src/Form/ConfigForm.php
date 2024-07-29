@@ -4,10 +4,16 @@ namespace SingleSignOn\Form;
 
 use Laminas\Form\Element;
 use Laminas\Form\Form;
+use Laminas\Mvc\I18n\Translator;
 use OneLogin\Saml2\Constants as SamlConstants;
 
 class ConfigForm extends Form
 {
+    /**
+     * @var \Laminas\Mvc\I18n\Translator
+     */
+    protected $translator;
+
     /**
      * Technical note
      * For creating collections of fieldset with a different name for each
@@ -193,7 +199,6 @@ class ConfigForm extends Form
                     'allow_add' => true,
                     'allow_remove' => true,
                     'should_create_template' => true,
-                    // TODO Not working, so managed currently in Module and js (but it seems to be the normal way).
                     'template_placeholder' => '__index__',
                     'create_new_objects' => true,
                     'target_element' => [
@@ -202,6 +207,27 @@ class ConfigForm extends Form
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_idps',
+                    'required' => false,
+                    'class' => 'form-fieldset-collection',
+                    'data-label-index' => $this->translator->translate('Idp {index}'), // @ŧranslate
+                ],
+            ])
+            ->add([
+                'name' => 'plus',
+                'type' => Element\Button::class,
+                'options' => [
+                    'label' => ' ',
+                    'label_options' => [
+                        'disable_html_escape' => true,
+                    ],
+                    'label_attributes' => [
+                        'class' => 'config-fieldset-action-label',
+                    ],
+                ],
+                'attributes' => [
+                    // Don't use o-icon-add.
+                    'class' => 'config-fieldset-action config-fieldset-plus fa fa-plus add-value button',
+                    'aria-label' => 'Add an idp', // @translate
                 ],
             ])
         ;
@@ -236,5 +262,11 @@ class ConfigForm extends Form
                 'required' => false,
             ])
         ;
+    }
+
+    public function setTranslator(Translator $translator): self
+    {
+        $this->translator = $translator;
+        return $this;
     }
 }

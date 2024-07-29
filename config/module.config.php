@@ -28,9 +28,11 @@ return [
     ],
     'form_elements' => [
         'invokables' => [
-            Form\ConfigForm::class => Form\ConfigForm::class,
             Form\IdpFieldset::class => Form\IdpFieldset::class,
             Form\SsoLoginLinksFieldset::class => Form\SsoLoginLinksFieldset::class,
+        ],
+        'factories' => [
+            Form\ConfigForm::class => Service\Form\ConfigFormFactory::class,
         ],
     ],
     'controllers' => [

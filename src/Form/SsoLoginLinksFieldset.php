@@ -20,6 +20,22 @@ class SsoLoginLinksFieldset extends Fieldset
                     'id' => 'sso-login-links-internal',
                 ],
             ])
+            ->add([
+                'name' => 'o:block[__blockIndex__][o:data][selector]',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Input element', // @translate
+                    'value_options' => [
+                        '' => 'Automatic', // @translate
+                        'button' => 'Buttons', // @translate
+                        // A space is appended to simplify translation.
+                        'select' => 'Select ', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'sso-login-links-selector',
+                ],
+            ])
         ;
     }
 }

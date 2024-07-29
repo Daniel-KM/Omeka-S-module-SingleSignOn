@@ -149,6 +149,7 @@ return [
         'block_settings' => [
             'ssoLoginLinks' => [
                 'internal' => false,
+                'selector' => false,
             ],
         ],
         'federations' => [

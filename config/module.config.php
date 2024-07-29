@@ -148,9 +148,7 @@ return [
         ],
         'block_settings' => [
             'ssoLoginLinks' => [
-                'heading' => '',
                 'internal' => false,
-                'template' => '',
             ],
         ],
         'federations' => [

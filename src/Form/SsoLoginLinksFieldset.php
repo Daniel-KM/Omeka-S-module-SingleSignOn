@@ -11,16 +11,6 @@ class SsoLoginLinksFieldset extends Fieldset
     {
         $this
             ->add([
-                'name' => 'o:block[__blockIndex__][o:data][heading]',
-                'type' => Element\Text::class,
-                'options' => [
-                    'label' => 'Block title', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'sso-login-links-heading',
-                ],
-            ])
-            ->add([
                 'name' => 'o:block[__blockIndex__][o:data][internal]',
                 'type' => Element\Checkbox::class,
                 'options' => [
@@ -31,22 +21,5 @@ class SsoLoginLinksFieldset extends Fieldset
                 ],
             ])
         ;
-
-        if (class_exists('BlockPlus\Form\Element\TemplateSelect')) {
-            $this
-                ->add([
-                    'name' => 'template',
-                    'type' => 'BlockPlus\Form\Element\TemplateSelect',
-                    'options' => [
-                        'label' => 'Template to display', // @translate
-                        'info' => 'Templates are in folder "common/block-layout" of the theme and should start with "sso-login-links".', // @translate
-                        'template' => 'common/block-layout/sso-login-links',
-                    ],
-                    'attributes' => [
-                        'id' => 'sso-login-links-template',
-                        'class' => 'chosen-select',
-                    ],
-                ]);
-        }
     }
 }

@@ -61,7 +61,7 @@ class SsoController extends AbstractActionController
         $samlSettings = new SamlSettings($configSso, true);
         $metadata = $samlSettings->getSPMetadata();
 
-        $idpName = $this->idpNameFromRoute();
+        $idpName = $this->params()->fromRoute('idp');
         if ($idpName) {
             $idpMetadata = $this->idpMetadataXml($idpName);
             if (!$idpMetadata) {
@@ -141,7 +141,11 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toUrl($redirectUrl);
         }
 
-        $idpName = $this->idpNameFromRoute();
+        $idpName = $this->params()->fromRoute('idp')
+            // The select on login page uses a form "get".
+            ?: $this->params()->fromQuery('idp')
+            // But allow post for other implementations.
+            ?: $this->params()->fromPost('idp');
 
         $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
@@ -175,7 +179,7 @@ class SsoController extends AbstractActionController
         $this->authentication->clearIdentity();
 
         // Don't check for a valid idp: logout in all cases.
-        $idpName = $this->idpNameFromRoute();
+        $idpName = $this->params()->fromRoute('idp');
 
         $configSso = $this->validConfigSso($idpName, true);
         $isSlsAvailable = !empty($configSso['sp']['singleLogoutService']);
@@ -221,7 +225,8 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toUrl($redirectUrl);
         }
 
-        $idpName = $this->idpNameFromRoute() ?: $this->idpNameFromRequest();
+        $idpName = $this->params()->fromRoute('idp')
+            ?: $this->idpNameFromRequest();
 
         $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
@@ -451,7 +456,8 @@ class SsoController extends AbstractActionController
         $redirectUrl = $this->params()->fromQuery('redirect_url')
             ?: $this->url()->fromRoute('top');
 
-        $idpName = $this->idpNameFromRoute() ?: $this->idpNameFromRequest();
+            $idpName = $this->params()->fromRoute('idp')
+                ?: $this->idpNameFromRequest();
 
         $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
@@ -677,15 +683,6 @@ class SsoController extends AbstractActionController
         }
 
         return $idpString;
-    }
-
-    /**
-     * Get the idp name from route.
-     */
-    protected function idpNameFromRoute(): ?string
-    {
-        $params = $this->params()->fromRoute();
-        return $params['idp'] ?? null;
     }
 
     /**

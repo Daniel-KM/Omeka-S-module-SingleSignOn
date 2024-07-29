@@ -62,10 +62,16 @@ class ConfigForm extends Form
 
             ->add([
                 'name' => 'singlesignon_append_links_to_login_view',
-                'type' => Element\Checkbox::class,
+                'type' => Element\Radio::class,
                 'options' => [
                     'label' => 'Append idp links to login view', // @translate
-                    'info' => 'The list of idps can be displayed on any page via the theme block and helper.', // @translate
+                    'info' => 'The list of idps can be displayed on any page via the theme block and helper or via module Guest.', // @translate
+                    'value_options' => [
+                        '' => 'No', // @translate
+                        'button' => 'Buttons', // @translate
+                        // A space is appended to simplify translation.
+                        'select' => 'Select ', // @translate
+                    ],
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_append_links_to_login_view',

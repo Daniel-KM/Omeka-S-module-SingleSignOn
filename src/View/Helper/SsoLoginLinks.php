@@ -17,14 +17,23 @@ class SsoLoginLinks extends AbstractHelper
      * @var array $options Managed options:
      * - heading (string): Add a title to the list.
      * - internal (bool): Include internal login link (admin or guest).
+     * - selector (string): button (default) or select (default for federation).
      * - template (string): Use another template.
      * Other options are passed to template.
      */
     public function __invoke(array $options = []): ?string
     {
         $view = $this->getView();
+        $setting = $view->plugin('setting');
 
-        $options['idps'] = $view->setting('singlesignon_idps') ?: [];
+        $options['idps'] = $setting('singlesignon_idps') ?: [];
+
+        $selector = $options['selector'] ?? null;
+        if ($setting('singlesignon_federation')) {
+            $options['selector'] = $selector === 'button' ? 'button' : 'select';
+        } else {
+            $options['selector'] = $selector === 'select' ? 'select' : 'button';
+        }
 
         $options += [
             'heading' => $view->translate('Login with your identity provider'), // @translate

@@ -27,6 +27,7 @@ class SsoLoginLinksFieldset extends Fieldset
                     'label' => 'Input element', // @translate
                     'value_options' => [
                         '' => 'Automatic', // @translate
+                        'link' => 'Links', // @translate
                         'button' => 'Buttons', // @translate
                         // A space is appended to simplify translation.
                         'select' => 'Select ', // @translate

@@ -1,11 +1,11 @@
-.single-sign-on-links {
+.single-sign-on-buttons {
     list-style: none;
     padding-left: 0;
 }
-.single-sign-on-links .single-sign-on-link {
+.single-sign-on-buttons .single-sign-on-button {
     height: 48px;
 }
-.single-sign-on-links .button {
+.single-sign-on-buttons .button {
     display: initial;
     min-height: 0;
     height: 36px;
@@ -17,7 +17,7 @@
     box-shadow: none;
     text-decoration: none;
 }
-.single-sign-on-link .button:hover {
+.single-sign-on-button .button:hover {
     color: #fff;
     text-decoration: none;
 }

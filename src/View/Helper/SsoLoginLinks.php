@@ -28,16 +28,17 @@ class SsoLoginLinks extends AbstractHelper
 
         $options['idps'] = $setting('singlesignon_idps') ?: [];
 
-        $selector = $options['selector'] ?? null;
+        $selectors = ['link', 'button', 'select'];
         if ($setting('singlesignon_federation')) {
-            $options['selector'] = $selector === 'button' ? 'button' : 'select';
+            $selector = in_array($options['selector'] ?? null, $selectors) ? $options['selector'] : 'select';
         } else {
-            $options['selector'] = $selector === 'select' ? 'select' : 'button';
+            $selector = in_array($options['selector'] ?? null, $selectors) ? $options['selector'] : 'button';
         }
 
         $options += [
             'heading' => $view->translate('Login with your identity provider'), // @translate
             'internal' => false,
+            'selector' => $selector,
             'template' => self::PARTIAL_NAME,
         ];
 

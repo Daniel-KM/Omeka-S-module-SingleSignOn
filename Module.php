@@ -282,10 +282,11 @@ class Module extends AbstractModule
             return;
         }
 
+        $selectors = ['link', 'button', 'select'];
         if ($settings->get('singlesignon_federation')) {
-            $selector = $loginView === 'button' ? 'button' : 'select';
+            $selector = in_array($loginView, $selectors) ? $loginView : 'select';
         } else {
-            $selector = $loginView === 'select' ? 'select' : 'button';
+            $selector = in_array($loginView, $selectors) ? $loginView : 'link';
         }
 
         /** @var \Laminas\View\Renderer\PhpRenderer $view */

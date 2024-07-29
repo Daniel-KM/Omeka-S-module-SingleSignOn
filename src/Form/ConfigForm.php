@@ -68,6 +68,7 @@ class ConfigForm extends Form
                     'info' => 'The list of idps can be displayed on any page via the theme block and helper or via module Guest.', // @translate
                     'value_options' => [
                         '' => 'No', // @translate
+                        'link' => 'Links', // @translate
                         'button' => 'Buttons', // @translate
                         // A space is appended to simplify translation.
                         'select' => 'Select ', // @translate

@@ -14,6 +14,7 @@ use Omeka\Permissions\Acl;
 use OneLogin\Saml2\Auth as SamlAuth;
 use OneLogin\Saml2\Error as SamlError;
 use OneLogin\Saml2\Settings as SamlSettings;
+use SimpleXMLElement;
 
 class SsoController extends AbstractActionController
 {
@@ -506,96 +507,6 @@ class SsoController extends AbstractActionController
     }
 
     /**
-     * Get xml metadata from the idp.
-     *
-     * A message of error may be prepared for messenger
-     *
-     * @return ?string Checked xml metadata.
-     */
-    protected function idpMetadataXml(string $idpName): ?string
-    {
-        $idp = $this->idpData($idpName, false);
-        if (!$idp['idp_entity_id']) {
-            $this->messenger()->addError(new PsrMessage('No IdP with this name.')); // @translate
-            return null;
-        }
-
-        if (!$idp['idp_metadata_url']) {
-            $this->messenger()->addError(new PsrMessage(
-                'The IdP "{idp}" has no available metadata.', // @translate
-                ['idp' => $idpName]
-            ));
-            return null;
-        }
-
-        $idpString = @file_get_contents($idp['idp_metadata_url']);
-        if (!$idpString) {
-            $this->messenger()->addError(new PsrMessage(
-                'The IdP "{idp}" has no available metadata.', // @translate
-                ['idp' => $idpName]
-            ));
-            return null;
-        }
-
-        /** @var \SimpleXMLElement $idpXml */
-        $idpXml = @simplexml_load_string($idpString);
-        if (!$idpXml) {
-            $this->messenger()->addError(new PsrMessage(
-                'The IdP "{idp}" has no valid xml metadata.', // @translate
-                ['idp' => $idpName]
-            ));
-            return null;
-        }
-
-        return $idpString;
-    }
-
-    /**
-     * FIXME Extract certificate from saml metadata xml.
-     */
-    protected function idpMetadataArray(string $idpName): ?array
-    {
-        $xml = $this->idpMetadataXml($idpName);
-        if (!$xml) {
-            return null;
-        }
-
-        $idpMeta = [
-            'idp_metadata_url' => '',
-            'idp_entity_id' => '',
-            'idp_entity_name' => '',
-            'idp_sso_url' => '',
-            'idp_slo_url' => '',
-            'idp_x509_certificate' => '',
-            'idp_date' => (new \DateTimeImmutable('now'))->format(\DATE_ISO8601),
-        ];
-
-        $idpMeta = null;
-        return $idpMeta;
-    }
-
-    /**
-     * Get the idp name from route.
-     */
-    protected function idpNameFromRoute(): ?string
-    {
-        $params = $this->params()->fromRoute();
-        $idpName = $params['idp'] ?? null;
-        return $idpName;
-    }
-
-    /**
-     * Get the idp name from request, in particular for acs and sls.
-     *
-     * @todo Find a way to set the idp name via the routing for the second request.
-     */
-    protected function idpNameFromRequest(): ?string
-    {
-        $domain = $this->getRequest()->getHeaders()->get('Origin')->getFieldValue();
-        return $domain ? parse_url($domain, PHP_URL_HOST) : null;
-    }
-
-    /**
      * Get idp data as array. If no idp is set, use the first one.
      *
      * Idp certificate may be updated when outdated.
@@ -626,10 +537,12 @@ class SsoController extends AbstractActionController
 
         $updateMode = $settings->get('idp_metadata_update_mode') ?: 'auto';
 
-        // Update idp data when possible.
-        $toUpdate = $idp['idp_metadata_url']
-            && $update
+        // Update idp data when possible, once a day.
+        $toUpdate = $update
             && $updateMode !== 'manual'
+            && (string) $idpName !== ''
+            && $idp['idp_entity_id']
+            && (!empty($idp['federation_url']) || !empty($idp['idp_metadata_url']))
             && (
                 // Init and store if missing.
                 empty($idp['idp_date'])
@@ -640,7 +553,13 @@ class SsoController extends AbstractActionController
             );
 
         if ($toUpdate) {
-            $idpMeta = $this->idpMetadataArray($idpName);
+            /**
+             * @see \SingleSignOn\Mvc\Controller\Plugin\IdpMetadata
+             * @see \SingleSignOn\Mvc\Controller\Plugin\SsoFederationMetadata
+             */
+            $idpMeta = !empty($idp['federation_url'])
+                ? $this->ssoFederationMetadata($idp['federation_url'], $idp['idp_entity_id'], false)
+                : $this->idpMetadata($idp['idp_metadata_url'], false);
             if ($idpMeta) {
                 // Keep some data.
                 $idpMeta['idp_entity_name'] = $idpMeta['idp_entity_name'] ?: $idp['idp_entity_name'];
@@ -648,6 +567,7 @@ class SsoController extends AbstractActionController
                 $idpMeta['idp_roles_map'] = $idp['idp_roles_map'];
                 $idpMeta['idp_user_settings'] = $idp['idp_user_settings'];
                 $idpMeta['idp_metadata_update_mode'] = $idp['idp_metadata_update_mode'];
+                // When defined manually.
                 if ($updateMode === 'auto_except_id' && !empty($idp['idp_entity_id'])) {
                     $idpMeta['idp_entity_id'] = $idp['idp_entity_id'];
                 }
@@ -658,6 +578,125 @@ class SsoController extends AbstractActionController
         }
 
         return $idp;
+    }
+
+    /**
+     * Get xml metadata from the idp.
+     *
+     * A message of error may be prepared for messenger
+     *
+     * @return ?string Checked xml metadata.
+     */
+    protected function idpMetadataXml(string $idpName): ?string
+    {
+        $idp = $this->idpData($idpName, false);
+        if (!$idp['idp_entity_id']) {
+            $this->messenger()->addError(new PsrMessage('No IdP with this name.')); // @translate
+            return null;
+        }
+
+        if (empty($idp['federation_url']) && empty($idp['idp_metadata_url'])) {
+            $this->messenger()->addError(new PsrMessage(
+                'The IdP "{idp}" has no available metadata.', // @translate
+                ['idp' => $idpName]
+            ));
+            return null;
+        }
+
+        if (empty($idp['idp_metadata_url'])) {
+            // <md:EntityDescriptor entityID="http://adfs.devinci.fr/adfs/services/trust">
+            $federationUrl = $idp['federation_url'];
+            $federationString = @file_get_contents($federationUrl);
+            if (!$federationString) {
+                $this->messenger()->addError(new PsrMessage(
+                    'The IdP "{idp}" has no available metadata.', // @translate
+                    ['idp' => $idpName]
+                ));
+                return null;
+            }
+
+            /** @var \SimpleXMLElement $xml */
+            $xml = @simplexml_load_string($federationString);
+            if (!$xml) {
+                $this->messenger()->addError(new PsrMessage(
+                    'The federation url {url} does not return valid xml metadata.', // @translate
+                    ['url' => $federationUrl]
+                ));
+                return null;
+            }
+
+            // Extract the xml for the entity.
+            $namespaces = $xml->getDocNamespaces();
+            $registerXpathNamespaces = function (SimpleXMLElement $xml): SimpleXMLElement {
+                $xml->registerXPathNamespace('', 'urn:oasis:names:tc:SAML:2.0:metadata');
+                $xml->registerXPathNamespace('samlmetadata', 'urn:oasis:names:tc:SAML:2.0:metadata');
+                $xml->registerXPathNamespace('samlassertion', 'urn:oasis:names:tc:SAML:2.0:assertion');
+                $xml->registerXPathNamespace('md', 'urn:oasis:names:tc:SAML:2.0:metadata');
+                $xml->registerXPathNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
+                $xml->registerXPathNamespace('req-attr', 'urn:oasis:names:tc:SAML:protocol:ext:req-attr');
+                $xml->registerXPathNamespace('ds', 'http://www.w3.org/2000/09/xmldsig#');
+                $xml->registerXPathNamespace('shibmd', 'urn:mace:shibboleth:metadata:1.0');
+                $xml->registerXPathNamespace('xml', 'http://www.w3.org/XML/1998/namespace');
+                $xml->registerXPathNamespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+                return $xml;
+            };
+
+            $idpEntityId = $idp['idp_entity_id'];
+            if ($namespaces) {
+                $baseXpath = sprintf('/md:EntitiesDescriptor/md:EntityDescriptor[@entityID="%s"]', $idpEntityId);
+                $idpXml = $registerXpathNamespaces($xml)->xpath($baseXpath);
+            } else {
+                $baseXpath = sprintf('/EntitiesDescriptor/EntityDescriptor[@entityID="%s"]', $idpEntityId);
+                $idpXml = $xml->xpath($baseXpath);
+            }
+            if (!$idpXml) {
+                return null;
+            }
+            $idpString = $idpXml[0]->asXml();
+            return '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL
+                . $idpString;
+        }
+
+        $idpString = @file_get_contents($idp['idp_metadata_url']);
+        if (!$idpString) {
+            $this->messenger()->addError(new PsrMessage(
+                'The IdP "{idp}" has no available metadata.', // @translate
+                ['idp' => $idpName]
+            ));
+            return null;
+        }
+
+        /** @var \SimpleXMLElement $idpXml */
+        $idpXml = @simplexml_load_string($idpString);
+        if (!$idpXml) {
+            $this->messenger()->addError(new PsrMessage(
+                'The IdP "{idp}" has no valid xml metadata.', // @translate
+                ['idp' => $idpName]
+            ));
+            return null;
+        }
+
+        return $idpString;
+    }
+
+    /**
+     * Get the idp name from route.
+     */
+    protected function idpNameFromRoute(): ?string
+    {
+        $params = $this->params()->fromRoute();
+        return $params['idp'] ?? null;
+    }
+
+    /**
+     * Get the idp name from request, in particular for acs and sls.
+     *
+     * @todo Find a way to set the idp name via the routing for the second request.
+     */
+    protected function idpNameFromRequest(): ?string
+    {
+        $domain = $this->getRequest()->getHeaders()->get('Origin')->getFieldValue();
+        return $domain ? parse_url($domain, PHP_URL_HOST) : null;
     }
 
     protected function redirectUrl(): string

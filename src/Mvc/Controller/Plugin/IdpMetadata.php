@@ -23,41 +23,43 @@ class IdpMetadata extends AbstractPlugin
         if ($useMessenger) {
             /** @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger */
             $messenger = $this->getController()->messenger();
+        } else {
+            $logger = $this->getController()->logger();
         }
 
         if (!filter_var($idpUrl, FILTER_VALIDATE_URL)) {
-            if ($useMessenger) {
-                $message = new PsrMessage(
-                    'The IdP url "{url}" is not valid.', // @translate
-                    ['url' => $idpUrl]
-                );
-                $messenger->addError($message);
-            }
+            $message = new PsrMessage(
+                'The IdP url "{url}" is not valid.', // @translate
+                ['url' => $idpUrl]
+            );
+            $useMessenger
+                ? $messenger->addError($message)
+                : $logger->err($message->getMessage(), $message->getContext());
             return null;
         }
 
-        $idpString = file_get_contents($idpUrl);
+        $idpString = @file_get_contents($idpUrl);
         if (!$idpString) {
-            if ($useMessenger) {
-                $message = new PsrMessage(
-                    'The IdP url {url} does not return any metadata.', // @translate
-                    ['url' => $idpUrl]
-                );
-                $messenger->addError($message);
-            }
+            $message = new PsrMessage(
+                'The IdP url {url} does not return any metadata.', // @translate
+                ['url' => $idpUrl]
+            );
+            $useMessenger
+                ? $messenger->addError($message)
+                : $logger->err($message->getMessage(), $message->getContext());
             return null;
         }
 
         /** @var \SimpleXMLElement $xml */
         $xml = @simplexml_load_string($idpString);
         if (!$xml) {
-            if ($useMessenger) {
-                $message = new PsrMessage(
-                    'The IdP url {url} does not return valid xml metadata.', // @translate
-                    ['url' => $idpUrl]
-                );
-                $messenger->addError($message);
-            }
+            $message = new PsrMessage(
+                'The IdP url {url} does not return valid xml metadata.', // @translate
+                ['url' => $idpUrl]
+            );
+            $useMessenger
+                ? $messenger->addError($message)
+                : $logger->err($message->getMessage(), $message->getContext());
             return null;
         }
 

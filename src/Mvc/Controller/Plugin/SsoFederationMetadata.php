@@ -13,7 +13,7 @@ class SsoFederationMetadata extends AbstractPlugin
      *
      * Metadata are: entity id, sso url, slo url and x509 certificate.
      */
-    public function __invoke(?string $federationUrl, bool $useMessenger = false): ?array
+    public function __invoke(?string $federationUrl, ?string $idpEntityId, bool $useMessenger = false): ?array
     {
         $federationUrl = trim((string) $federationUrl);
         if (!$federationUrl) {
@@ -23,41 +23,43 @@ class SsoFederationMetadata extends AbstractPlugin
         if ($useMessenger) {
             /** @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger */
             $messenger = $this->getController()->messenger();
+        } else {
+            $logger = $this->getController()->logger();
         }
 
         if (!filter_var($federationUrl, FILTER_VALIDATE_URL)) {
-            if ($useMessenger) {
-                $message = new PsrMessage(
-                    'The federation url "{url}" is not valid.', // @translate
-                    ['url' => $federationUrl]
-                );
-                $messenger->addError($message);
-            }
+            $message = new PsrMessage(
+                'The federation url "{url}" is not valid.', // @translate
+                ['url' => $federationUrl]
+            );
+            $useMessenger
+                ? $messenger->addError($message)
+                : $logger->err($message->getMessage(), $message->getContext());
             return null;
         }
 
-        $federationString = file_get_contents($federationUrl);
+        $federationString = @file_get_contents($federationUrl);
         if (!$federationString) {
-            if ($useMessenger) {
-                $message = new PsrMessage(
-                    'The federation url {url} does not return any metadata.', // @translate
-                    ['url' => $federationUrl]
-                );
-                $messenger->addError($message);
-            }
+            $message = new PsrMessage(
+                'The federation url {url} does not return any metadata.', // @translate
+                ['url' => $federationUrl]
+            );
+            $useMessenger
+                ? $messenger->addError($message)
+                : $logger->err($message->getMessage(), $message->getContext());
             return null;
         }
 
         /** @var \SimpleXMLElement $xml */
         $xml = @simplexml_load_string($federationString);
         if (!$xml) {
-            if ($useMessenger) {
-                $message = new PsrMessage(
-                    'The federation url {url} does not return valid xml metadata.', // @translate
-                    ['url' => $federationUrl]
-                );
-                $messenger->addError($message);
-            }
+            $message = new PsrMessage(
+                'The federation url {url} does not return valid xml metadata.', // @translate
+                ['url' => $federationUrl]
+            );
+            $useMessenger
+                ? $messenger->addError($message)
+                : $logger->err($message->getMessage(), $message->getContext());
             return null;
         }
 
@@ -86,7 +88,9 @@ class SsoFederationMetadata extends AbstractPlugin
 
         $date = (new \DateTime('now'))->format(\DateTime::ISO8601);
         if ($namespaces) {
-            $entityIds = (array) ($registerXpathNamespaces($xml)->xpath('/md:EntitiesDescriptor/md:EntityDescriptor/@entityID') ?? []);
+            $entityIds = $idpEntityId
+                ? [$idpEntityId]
+                : (array) ($registerXpathNamespaces($xml)->xpath('/md:EntitiesDescriptor/md:EntityDescriptor/@entityID') ?? []);
             foreach ($entityIds as $entityId) {
                 $entityId = trim((string) $entityId);
                 $baseXpath = sprintf('/md:EntitiesDescriptor/md:EntityDescriptor[@entityID="%s"]', $entityId);
@@ -113,7 +117,9 @@ class SsoFederationMetadata extends AbstractPlugin
                 ];
             }
         } else {
-            $entityIds = (array) ($xml->xpath('/EntitiesDescriptor/EntityDescriptor/@entityID') ?? []);
+            $entityIds = $idpEntityId
+                ? [$idpEntityId]
+                : (array) ($xml->xpath('/EntitiesDescriptor/EntityDescriptor/@entityID') ?? []);
             foreach ($entityIds as $entityId) {
                 $entityId = trim((string) $entityId);
                 $baseXpath = sprintf('/EntitiesDescriptor/EntityDescriptor[@entityID="%s"]', $entityId);
@@ -141,6 +147,8 @@ class SsoFederationMetadata extends AbstractPlugin
             }
         }
 
-        return $list;
+        return $idpEntityId
+            ? reset($list)
+            : $list;
     }
 }

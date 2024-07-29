@@ -489,7 +489,7 @@ class Module extends AbstractModule
         $plugins = $services->get('ControllerPluginManager');
         $ssoFederationMetadata = $plugins->get('ssoFederationMetadata');
 
-        $result = $ssoFederationMetadata($federationUrl, true);
+        $result = $ssoFederationMetadata($federationUrl, null, true);
         if ($result === null) {
             return false;
         }

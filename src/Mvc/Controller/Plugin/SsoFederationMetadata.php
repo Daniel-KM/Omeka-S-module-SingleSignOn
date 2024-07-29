@@ -94,8 +94,8 @@ class SsoFederationMetadata extends AbstractPlugin
             foreach ($entityIds as $entityId) {
                 $entityId = trim((string) $entityId);
                 $baseXpath = sprintf('/md:EntitiesDescriptor/md:EntityDescriptor[@entityID="%s"]', $entityId);
-                $entityName = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:Organization/md:OrganizationName[1]')[0] ?? '')
-                    ?: (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:Extensions/mdui:UIInfo/mdui:DisplayName[1]')[0] ?? '');
+                $entityName = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:Extensions/mdui:UIInfo/mdui:DisplayName[1]')[0] ?? '')
+                    ?: (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:Organization/md:OrganizationName[1]')[0] ?? '');
                 // The One-Login library supports "Redirect" only.
                 $ssoUrl = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
                 $sloUrl = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
@@ -123,8 +123,8 @@ class SsoFederationMetadata extends AbstractPlugin
             foreach ($entityIds as $entityId) {
                 $entityId = trim((string) $entityId);
                 $baseXpath = sprintf('/EntitiesDescriptor/EntityDescriptor[@entityID="%s"]', $entityId);
-                $entityName = (string) ($xml->xpath($baseXpath . '/Organization/OrganizationName[1]')[0] ?? '')
-                    ?: (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/Extensions/UIInfo/mdui:DisplayName[1]')[0] ?? '');
+                $entityName = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/Extensions/UIInfo/mdui:DisplayName[1]')[0] ?? '')
+                    ?: (string) ($xml->xpath($baseXpath . '/Organization/OrganizationName[1]')[0] ?? '');
                 // The One-Login library supports "Redirect" only.
                 $ssoUrl = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
                 $sloUrl = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');

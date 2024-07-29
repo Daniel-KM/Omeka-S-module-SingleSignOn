@@ -152,6 +152,13 @@ return [
                 'selector' => false,
             ],
         ],
+        'user_settings' => [
+            // Hidden settings to store the idp name.
+            // More keys can be set during login, according to config.
+            'connection_authenticator' => null,
+            'connection_idp' => null,
+            'connection_last' => null,
+        ],
         'federations' => [
             // File "main idps" is the most useful for the module.
             'Renater'

@@ -199,7 +199,17 @@ class Module extends AbstractModule
             $federationUrl = $idp['federation_url'] ?? '';
             $entityUrl = $idp['idp_metadata_url'] ?? '';
             $entityId = $idp['idp_entity_id'] ?? '';
-            if ((!$federationUrl && !$entityUrl) || !$entityId) {
+            if ($federationUrl) {
+                if (!$entityId) {
+                    $hasError = true;
+                    $message = new PsrMessage(
+                        'The federated IdP #{index} has no id and is not valid.', // @translate
+                        ['index' => $key]
+                    );
+                    $messenger->addError($message);
+                    continue;
+                }
+            } elseif (!$entityId && !$entityUrl) {
                 $hasError = true;
                 $message = new PsrMessage(
                     'The IdP #{index} has no url and no id and is not valid.', // @translate
@@ -212,9 +222,11 @@ class Module extends AbstractModule
             $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
             $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
 
-            // Don't chech the idps of the federation.
+            // Don't check the idps of the federation.
             if ($federationUrl) {
-                $cleanIdps[$idpName] = $idp;
+                // Warning: a federated idp should not override a manual one.
+                // Normally, single idps are checked first in the list.
+                $cleanIdps[$idpName] ??= $idp;
                 continue;
             }
 

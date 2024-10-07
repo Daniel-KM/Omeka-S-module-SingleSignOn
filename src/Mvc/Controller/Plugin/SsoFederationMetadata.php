@@ -27,10 +27,23 @@ class SsoFederationMetadata extends AbstractPlugin
             $logger = $this->getController()->logger();
         }
 
-        if (!filter_var($federationUrl, FILTER_VALIDATE_URL)) {
+        $isUrl = mb_substr($federationUrl, 0, 8) !== 'https://'
+            || mb_substr($federationUrl, 0, 7) !== 'http://';
+        if ($isUrl && !filter_var($federationUrl, FILTER_VALIDATE_URL)) {
             $message = new PsrMessage(
-                'The federation url "{url}" is not valid.', // @translate
+                'The federation url "{url}" is not a valid url.', // @translate
                 ['url' => $federationUrl]
+            );
+            $useMessenger
+                ? $messenger->addError($message)
+                : $logger->err($message->getMessage(), $message->getContext());
+            return null;
+        } elseif (!$isUrl
+            && (!file_exists($federationUrl) || !is_readable($federationUrl))
+        ) {
+            $message = new PsrMessage(
+                'The local federation file "{file}" does not exist or is not readable.', // @translate
+                ['file' => $federationUrl]
             );
             $useMessenger
                 ? $messenger->addError($message)

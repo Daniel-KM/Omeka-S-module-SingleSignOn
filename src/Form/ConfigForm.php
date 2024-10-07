@@ -202,7 +202,7 @@ class ConfigForm extends Form
                 'type' => Element\Select::class,
                 'options' => [
                     'label' => 'Federation', // @translate
-                    'info' => 'The idps defined manually below will overwrite the federation ones with the same name.', // @ŧranslate
+                    'info' => 'The idps defined manually below will overwrite the federation ones with the same name. To add a federation, append it to the config.', // @ŧranslate
                     'value_options' => $this->getOption('federations') ?: [],
                     'empty_option' => '',
                 ],

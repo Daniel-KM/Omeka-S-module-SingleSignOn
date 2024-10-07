@@ -163,6 +163,7 @@ return [
             // File "main idps" is the most useful for the module.
             'Renater'
                 => 'https://pub.federation.renater.fr/metadata/renater/main/main-idps-renater-metadata.xml',
+            // Urls and local paths are allowed.
         ],
     ],
     'authentication' => [

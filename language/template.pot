@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-29 00:00+0000\n"
+"POT-Creation-Date: 2024-10-28 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -116,70 +116,78 @@ msgid ""
 "set to {role}."
 msgstr ""
 
-#: Module.php:205
+#: Module.php:206
+msgid "The federated IdP #{index} has no id and is not valid."
+msgstr ""
+
+#: Module.php:215
 msgid "The IdP #{index} has no url and no id and is not valid."
 msgstr ""
 
-#: Module.php:232
+#: Module.php:244
 msgid ""
 "The idp \"{idp}\" was manually filled and is not checked neither updated."
 msgstr ""
 
-#: Module.php:338
+#: Module.php:350
 msgid "The SP public certificate is set, but not the private key."
 msgstr ""
 
-#: Module.php:345
+#: Module.php:357
 msgid "The SP private key is set, but not the public certificate."
 msgstr ""
 
-#: Module.php:371
+#: Module.php:383
 msgid "The SP public certificate is not valid."
 msgstr ""
 
-#: Module.php:379
+#: Module.php:391
 msgid "The SP private key is not valid."
 msgstr ""
 
-#: Module.php:394
+#: Module.php:406
 msgid "Unable to encrypt message with SP public certificate."
 msgstr ""
 
-#: Module.php:402
+#: Module.php:414
 msgid "Unable to decrypt message with SP private key."
 msgstr ""
 
-#: Module.php:410
+#: Module.php:422
 msgid ""
 "An issue occurred during decryption with SP private key. It may not the good "
 "one."
 msgstr ""
 
-#: Module.php:417
+#: Module.php:429
 msgid "No issue found on SP public certificate and private key."
 msgstr ""
 
-#: Module.php:452
+#: Module.php:464
 msgid "The IdP public certificate of \"{idp}\" is not valid."
 msgstr ""
 
-#: Module.php:464
+#: Module.php:476
 msgid "Unable to encrypt message with IdP public certificate of \"{idp}\"."
 msgstr ""
 
-#: Module.php:472
+#: Module.php:484
 msgid "No issue found on IdP public certificate of \"{idp}\"."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:32
-msgid "The federation url \"{url}\" is not valid."
+#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:34
+msgid "The federation url \"{url}\" is not a valid url."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:44
-msgid "The federation url {url} does not return any metadata."
+#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:45
+msgid "The local federation file \"{file}\" does not exist or is not readable."
 msgstr ""
 
 #: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:57
+msgid "The federation url {url} does not return any metadata."
+msgstr ""
+
+#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:70
 #: src/Controller/SsoController.php:628
 msgid "The federation url {url} does not return valid xml metadata."
 msgstr ""

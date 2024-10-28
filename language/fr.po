@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-29 00:00+0000\n"
+"POT-Creation-Date: 2024-10-28 00:00+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
@@ -143,41 +143,45 @@ msgstr ""
 "Par sécurité, le rôle par défaut ne peut pas être un rôle administrateur. Le "
 "rôle par défaut a été mis à {role}."
 
-#: Module.php:205
+#: Module.php:206
+msgid "The federated IdP #{index} has no id and is not valid."
+msgstr "L’IdP fédéré #{index} n’a pas d’identifiant et n’est pas valide."
+
+#: Module.php:215
 msgid "The IdP #{index} has no url and no id and is not valid."
 msgstr "L’IdP #{index} n’a pas d’url ni d’identifiant et n’est pas valide."
 
-#: Module.php:232
+#: Module.php:244
 msgid ""
 "The idp \"{idp}\" was manually filled and is not checked neither updated."
 msgstr ""
 "L’IdP « {idp} » a été rempli manuellement et n’est ni vérifié ni mis à jour."
 
-#: Module.php:338
+#: Module.php:350
 msgid "The SP public certificate is set, but not the private key."
 msgstr "Le certificat public du SP est défini, mais pas la clé privée."
 
-#: Module.php:345
+#: Module.php:357
 msgid "The SP private key is set, but not the public certificate."
 msgstr "La clé privée du SP est définie, mais pas le certificat public."
 
-#: Module.php:371
+#: Module.php:383
 msgid "The SP public certificate is not valid."
 msgstr "Le certificat public du SP n’est pas valide."
 
-#: Module.php:379
+#: Module.php:391
 msgid "The SP private key is not valid."
 msgstr "La clé privée du SP n’est pas valide."
 
-#: Module.php:394
+#: Module.php:406
 msgid "Unable to encrypt message with SP public certificate."
 msgstr "Impossible de crypter le message avec le certificat public SP."
 
-#: Module.php:402
+#: Module.php:414
 msgid "Unable to decrypt message with SP private key."
 msgstr "Impossible de décrypter le message avec la clé privée du SP."
 
-#: Module.php:410
+#: Module.php:422
 msgid ""
 "An issue occurred during decryption with SP private key. It may not the good "
 "one."
@@ -185,35 +189,41 @@ msgstr ""
 "Un problème s’est produit lors du décryptage avec la clé privée SP. Il se "
 "peut qu’elle ne soit pas la bonne."
 
-#: Module.php:417
+#: Module.php:429
 msgid "No issue found on SP public certificate and private key."
 msgstr ""
 "Aucun problème n’a été constaté pour le certificat public et la clé privée "
 "du SP."
 
-#: Module.php:452
+#: Module.php:464
 msgid "The IdP public certificate of \"{idp}\" is not valid."
 msgstr "Le certificat public de l’IdP « {idp} » n’est pas valide."
 
-#: Module.php:464
+#: Module.php:476
 msgid "Unable to encrypt message with IdP public certificate of \"{idp}\"."
 msgstr ""
 "Impossible de chiffrer le message avec le certificat public IdP de « {idp} »."
 
-#: Module.php:472
+#: Module.php:484
 msgid "No issue found on IdP public certificate of \"{idp}\"."
 msgstr ""
 "Aucun problème n’a été détecté sur le certificat public de l’IdP « {idp} »."
 
-#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:32
-msgid "The federation url \"{url}\" is not valid."
-msgstr "L’URL de la fédération « {url} » n'est pas correcte."
+#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:34
+msgid "The federation url \"{url}\" is not a valid url."
+msgstr "L’url de la fédération « {url} » n'est pas valide."
 
-#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:44
+#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:45
+msgid "The local federation file \"{file}\" does not exist or is not readable."
+msgstr ""
+"Le fichier local pour la fédération {url} n’existe pas ou n’est pas "
+"accessible."
+
+#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:57
 msgid "The federation url {url} does not return any metadata."
 msgstr "L’url de la fédération {url} ne renvoie aucune métadonnée."
 
-#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:57
+#: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:70
 #: src/Controller/SsoController.php:628
 msgid "The federation url {url} does not return valid xml metadata."
 msgstr ""

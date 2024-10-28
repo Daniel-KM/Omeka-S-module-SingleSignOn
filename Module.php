@@ -514,7 +514,7 @@ class Module extends AbstractModule
             return false;
         }
 
-        usort($result, fn($idpA, $idpB) => strcasecmp($idpA['idp_entity_name'], $idpB['idp_entity_name']));
+        usort($result, fn ($idpA, $idpB) => strcasecmp($idpA['idp_entity_name'], $idpB['idp_entity_name']));
 
         // Store the federated idps and the locally defined idps in a single
         // place to simplify interface and management.

@@ -456,8 +456,8 @@ class SsoController extends AbstractActionController
         $redirectUrl = $this->params()->fromQuery('redirect_url')
             ?: $this->url()->fromRoute('top');
 
-            $idpName = $this->params()->fromRoute('idp')
-                ?: $this->idpNameFromRequest();
+        $idpName = $this->params()->fromRoute('idp')
+            ?: $this->idpNameFromRequest();
 
         $idp = $this->idpData($idpName, true);
         if (!$idp['idp_entity_id']) {
@@ -952,7 +952,7 @@ class SsoController extends AbstractActionController
             // Security settings
             'security' => [
 
-                /** signatures and encryptions offered */
+                // Signatures and encryptions offered.
 
                 // Indicates that the nameID of the <samlp:logoutRequest> sent by this SP
                 // will be encrypted.
@@ -978,7 +978,7 @@ class SsoController extends AbstractActionController
                  */
                 'signMetadata' => false,
 
-                /** signatures and encryptions required **/
+                // signatures and encryptions required.
 
                 // Indicates a requirement for the <samlp:Response>, <samlp:LogoutRequest> and
                 // <samlp:LogoutResponse> elements received by this SP to be signed.

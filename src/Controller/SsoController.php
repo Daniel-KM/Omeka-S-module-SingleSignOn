@@ -444,9 +444,12 @@ class SsoController extends AbstractActionController
         $session->offsetSet('saml_name_id_name_qualifier', $samlAuth->getNameIdNameQualifier());
         $session->offsetSet('saml_session_index', $samlAuth->getSessionIndex());
 
-        // The redirect url is refreshed because user is authenticated.
-        // $redirectUrl = $this->getRequest()->getPost('RelayState');
-        $redirectUrl = $this->redirectUrl();
+        // Checks if there is a RelayState in the response and redirects;
+        if ($this->getRequest()->getPost('RelayState')) {
+            $redirectUrl = $this->getRequest()->getPost('RelayState');
+        } else {
+            $redirectUrl = $this->redirectUrl();
+        }
         return $this->redirect()->toUrl($redirectUrl);
     }
 

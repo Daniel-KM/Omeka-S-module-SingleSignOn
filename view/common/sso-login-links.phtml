@@ -1,10 +1,12 @@
 <?php
+
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var array $idps
  * @var string $heading
  * @var string $selector
  * @var bool $internal
+ * @var string $redirect_url
  *
  * And options passed to the helper.
  */
@@ -38,58 +40,62 @@ if ($selector === 'select') {
     JS;
     $this->headScript()->appendScript($script);
 }
+$options = [];
+if ($redirect_url) {
+    $options['query'] =  ['redirect_url' => $redirect_url];
+}
 ?>
 
 <div class="single-sign-on-login">
     <?php if ($heading): ?>
-    <h2><?= $escape($heading) ?></h2>
+        <h2><?= $escape($heading) ?></h2>
     <?php endif; ?>
 
     <?php if ($idps): ?>
 
-    <?php if ($selector === 'select'): ?>
+        <?php if ($selector === 'select'): ?>
 
-    <select id="single-sign-on-select" class="single-sign-on-select" name="idp">
-        <option class="single-sign-on-idp" value=""></option>
-        <?php foreach($idps as $idpSlug => $idp):
-        $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], true);
-        $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
-        ?>
-        <option class="single-sign-on-idp <?= $escapeAttr(str_replace(['.', ':'], '-', $idpSlug)) ?>"  value="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></option>
-        <?php endforeach; ?>
-    </select>
+            <select id="single-sign-on-select" class="single-sign-on-select" name="idp">
+                <option class="single-sign-on-idp" value=""></option>
+                <?php foreach ($idps as $idpSlug => $idp):
+                    $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], $options, true);
+                    $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
+                ?>
+                    <option class="single-sign-on-idp <?= $escapeAttr(str_replace(['.', ':'], '-', $idpSlug)) ?>" value="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></option>
+                <?php endforeach; ?>
+            </select>
 
-    <?php elseif ($selector === 'button'): ?>
+        <?php elseif ($selector === 'button'): ?>
 
-    <ul id="single-sign-on-buttons" class="single-sign-on-buttons">
-        <?php foreach($idps as $idpSlug => $idp):
-        $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], true);
-        $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
-        ?>
-        <li class="single-sign-on-button">
-            <a class="single-sign-on-idp button <?= $escapeAttr(str_replace(['.', ':'], '-', $idpSlug)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></a>
-        </li>
-        <?php endforeach; ?>
-    </ul>
+            <ul id="single-sign-on-buttons" class="single-sign-on-buttons">
+                <?php foreach ($idps as $idpSlug => $idp):
+                    $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], $options, true);
+                    $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
+                ?>
+                    <li class="single-sign-on-button">
+                        <a class="single-sign-on-idp button <?= $escapeAttr(str_replace(['.', ':'], '-', $idpSlug)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+
+        <?php else: ?>
+
+            <ul id="single-sign-on-links" class="single-sign-on-links">
+                <?php foreach ($idps as $idpSlug => $idp):
+                    $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], $options, true);
+                    $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
+                ?>
+                    <li class="single-sign-on-link">
+                        <a class="single-sign-on-idp <?= $escapeAttr(str_replace(['.', ':'], '-', $idpSlug)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+
+        <?php endif; ?>
 
     <?php else: ?>
 
-    <ul id="single-sign-on-links" class="single-sign-on-links">
-        <?php foreach($idps as $idpSlug => $idp):
-        $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], true);
-        $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
-        ?>
-        <li class="single-sign-on-link">
-            <a class="single-sign-on-idp <?= $escapeAttr(str_replace(['.', ':'], '-', $idpSlug)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></a>
-        </li>
-        <?php endforeach; ?>
-    </ul>
-
-    <?php endif; ?>
-
-    <?php else: ?>
-
-    <p><?= $translate('No identity provider is available.') ?></p>
+        <p><?= $translate('No identity provider is available.') ?></p>
 
     <?php endif; ?>
 </div>

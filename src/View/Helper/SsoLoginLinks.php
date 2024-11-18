@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace SingleSignOn\View\Helper;
 
@@ -21,16 +19,18 @@ class SsoLoginLinks extends AbstractHelper
      * - internal (bool): Include internal login link (admin or guest).
      * - selector (string): button (default) or select (default for federation).
      * - template (string): Use another template.
+     * - redirectUrl (string): a URL that is returned from the IDP as
+     *   RelayState for redirecting to specific page after logging in.
      * Other options are passed to template.
-     * @var string $redirect_url is a URL that is returned from the IDP as RelayState for redirecting to specific page after logging in.
      */
-    public function __invoke(array $options = [], $redirect_url = null): ?string
+    public function __invoke(array $options = []): ?string
     {
         $view = $this->getView();
         $setting = $view->plugin('setting');
 
         $options['idps'] = $setting('singlesignon_idps') ?: [];
 
+        // Use a button for manual config or select for a federation.
         $selectors = ['link', 'button', 'select'];
         if ($setting('singlesignon_federation')) {
             $selector = in_array($options['selector'] ?? null, $selectors) ? $options['selector'] : 'select';
@@ -43,7 +43,7 @@ class SsoLoginLinks extends AbstractHelper
             'internal' => false,
             'selector' => $selector,
             'template' => self::PARTIAL_NAME,
-            'redirect_url' => $redirect_url,
+            'redirectUrl' => null,
         ];
 
         $template = $options['template'] ?: self::PARTIAL_NAME;

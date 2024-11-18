@@ -1,12 +1,11 @@
 <?php
-
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var array $idps
  * @var string $heading
  * @var string $selector
  * @var bool $internal
- * @var string $redirect_url
+ * @var string $redirectUrl
  *
  * And options passed to the helper.
  */
@@ -41,8 +40,8 @@ if ($selector === 'select') {
     $this->headScript()->appendScript($script);
 }
 $options = [];
-if ($redirect_url) {
-    $options['query'] =  ['redirect_url' => $redirect_url];
+if ($redirectUrl) {
+    $options['query'] =  ['redirect_url' => $redirectUrl];
 }
 ?>
 
@@ -60,8 +59,8 @@ if ($redirect_url) {
                 <?php foreach ($idps as $idpSlug => $idp):
                     $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], $options, true);
                     $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
-                ?>
-                    <option class="single-sign-on-idp <?= $escapeAttr(str_replace(['.', ':'], '-', $idpSlug)) ?>" value="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></option>
+                    ?>
+                <option class="single-sign-on-idp <?= $escapeAttr(str_replace(['.', ':'], '-', $idpSlug)) ?>" value="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></option>
                 <?php endforeach; ?>
             </select>
 
@@ -71,7 +70,7 @@ if ($redirect_url) {
                 <?php foreach ($idps as $idpSlug => $idp):
                     $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], $options, true);
                     $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
-                ?>
+                    ?>
                     <li class="single-sign-on-button">
                         <a class="single-sign-on-idp button <?= $escapeAttr(str_replace(['.', ':'], '-', $idpSlug)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></a>
                     </li>
@@ -84,7 +83,7 @@ if ($redirect_url) {
                 <?php foreach ($idps as $idpSlug => $idp):
                     $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], $options, true);
                     $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
-                ?>
+                    ?>
                     <li class="single-sign-on-link">
                         <a class="single-sign-on-idp <?= $escapeAttr(str_replace(['.', ':'], '-', $idpSlug)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></a>
                     </li>

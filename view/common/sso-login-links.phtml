@@ -40,7 +40,7 @@ if ($selector === 'select') {
     JS;
     $this->headScript()->appendScript($script);
 }
-$options = [];
+$options = ['force_canonical' => true];
 if ($redirect_url) {
     $options['query'] =  ['redirect_url' => $redirect_url];
 }

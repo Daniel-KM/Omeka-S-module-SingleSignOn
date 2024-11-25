@@ -8,6 +8,8 @@
  * @var string $redirectUrl
  *
  * And options passed to the helper.
+ *
+ * A similar template is available as common/guest-login-links.phtml in module Guest.
  */
 
 $plugins = $this->getHelperPluginManager();
@@ -30,14 +32,19 @@ if ($internal) {
 }
 
 if ($selector === 'select') {
+    $this->headLink()
+        ->prependStylesheet($assetUrl('vendor/chosen-js/chosen.css', 'Omeka'));
     $script = <<<'JS'
-    $(document).ready(function() {
-        $('#single-sign-on-select').on('change', function() {
-            window.location.assign($(this).val());
+        $(document).ready(function() {
+            $('#single-sign-on-select').on('change', function() {
+                window.location.assign($(this).val());
+            });
         });
-    });
-    JS;
-    $this->headScript()->appendScript($script);
+        JS;
+    $this->headScript()
+        ->prependFile($assetUrl('js/chosen-options.js', 'Omeka'))
+        ->prependFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'))
+        ->appendScript($script);
 }
 $options = [];
 if ($redirectUrl) {
@@ -54,7 +61,7 @@ if ($redirectUrl) {
 
         <?php if ($selector === 'select'): ?>
 
-            <select id="single-sign-on-select" class="single-sign-on-select" name="idp">
+            <select id="single-sign-on-select" class="single-sign-on-select chosen-select" name="idp" data-placeholder="<?= $escapeAttr($translate('Select your identity provider…')) ?>">
                 <option class="single-sign-on-idp" value=""></option>
                 <?php foreach ($idps as $idpSlug => $idp):
                     $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpSlug], $options, true);
@@ -92,7 +99,7 @@ if ($redirectUrl) {
 
         <?php endif; ?>
 
-    <?php else: ?>
+    <?php else: // Simple list of links. ?>
 
         <p><?= $translate('No identity provider is available.') ?></p>
 

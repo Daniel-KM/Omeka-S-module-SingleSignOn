@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace SingleSignOn\Controller;
 
@@ -273,6 +275,7 @@ class SsoController extends AbstractActionController
         $attributesMap = $idp['idp_attributes_map'];
         $email = $samlAttributesFriendly[array_search('email', $attributesMap)][0]
             ?? $samlAttributesCanonical[array_search('email', $this->attributesMapCanonical)][0]
+            ?? $samlAttributesCanonical[array_search('email', $attributesMap)][0]
             ?? null;
         if (!$email && strpos($nameId, '@')) {
             $email = $nameId;
@@ -295,6 +298,7 @@ class SsoController extends AbstractActionController
 
         $name = $samlAttributesFriendly[array_search('name', $attributesMap)][0]
             ?? $samlAttributesCanonical[array_search('name', $this->attributesMapCanonical)][0]
+            ?? $samlAttributesCanonical[array_search('name', $attributesMap)][0]
             ?? null;
 
         // The map is already checked.
@@ -556,8 +560,8 @@ class SsoController extends AbstractActionController
                 empty($idp['idp_date'])
                 // Update once a day.
                 || (new \DateTimeImmutable($idp['idp_date']))->setTime(0, 0, 0)
-                    ->diff((new \DateTimeImmutable('now'))->setTime(0, 0, 0), true)
-                    ->format('%a') >= 1
+                ->diff((new \DateTimeImmutable('now'))->setTime(0, 0, 0), true)
+                ->format('%a') >= 1
             );
 
         if ($toUpdate) {
@@ -748,13 +752,15 @@ class SsoController extends AbstractActionController
 
         $activeSsoServices = $this->settings()->get('singlesignon_services', ['sso']);
 
-        if (!in_array('sso', $activeSsoServices)
+        if (
+            !in_array('sso', $activeSsoServices)
             || empty($configSso['sp']['assertionConsumerService']['url'])
         ) {
             unset($configSso['sp']['assertionConsumerService']);
         }
 
-        if (!in_array('sls', $activeSsoServices)
+        if (
+            !in_array('sls', $activeSsoServices)
             || empty($configSso['sp']['singleLogoutService']['url'])
         ) {
             unset($configSso['sp']['singleLogoutService']);

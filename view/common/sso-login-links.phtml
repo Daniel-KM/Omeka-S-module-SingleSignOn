@@ -46,9 +46,9 @@ if ($selector === 'select') {
         ->prependFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'))
         ->appendScript($script);
 }
-$options = [];
+$options = ['force_canonical' => true];
 if ($redirectUrl) {
-    $options['query'] =  ['redirect_url' => $redirectUrl];
+    $options['query'] = ['redirect_url' => $redirectUrl];
 }
 ?>
 

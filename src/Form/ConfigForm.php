@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace SingleSignOn\Form;
 
@@ -58,8 +60,26 @@ class ConfigForm extends Form
                     'id' => 'singlesignon_role_default',
                     'required' => false,
                 ],
-            ])
+            ]);
 
+        // Check if group module is installed
+        if (class_exists(\Group\Form\Element\GroupSelect::class)) {
+            $this->add([
+                'name' => 'singlesignon_groups_default',
+                'type' => \Group\Form\Element\GroupSelect::class,
+                'options' => [
+                    'label' => 'Groups', // @translate
+                    'info' => 'Default Groups given to newly created users using the Group Module', // @translate
+                    'chosen' => true,
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_groups_default',
+                    'multiple' => true,
+                ],
+            ]);
+        }
+
+        $this
             ->add([
                 'name' => 'singlesignon_append_links_to_login_view',
                 'type' => Element\Radio::class,

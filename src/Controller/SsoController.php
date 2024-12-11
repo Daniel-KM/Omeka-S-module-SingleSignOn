@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace SingleSignOn\Controller;
 
@@ -125,8 +127,7 @@ class SsoController extends AbstractActionController
         }
 
         $response
-            ->setContent($metadata)
-        ;
+            ->setContent($metadata);
         return $response;
     }
 
@@ -376,6 +377,26 @@ class SsoController extends AbstractActionController
                 }
             }
 
+            //Group Module Settings to apply default groups
+            if (class_exists(\Group\Entity\GroupUser::class)) {
+                $settings = $this->settings();
+                $groups = $settings->get('singlesignon_groups_default', []);
+                if ($groups) {
+
+                    $groupsToAssign = $this->api()->search(
+                        'groups',
+                        ['name' => $groups],
+                        ['responseContent' => 'resource']
+                    )->getContent();
+
+                    foreach ($groupsToAssign as $group) {
+                        $groupEntity = new \Group\Entity\GroupUser($group, $user);
+                        $this->entityManager->persist($groupEntity);
+                    }
+                    $this->entityManager->flush();
+                }
+            }
+
             // Static settings.
             $staticSettings = $idp['idp_user_settings'];
             foreach ($staticSettings as $key => $value) {
@@ -554,8 +575,8 @@ class SsoController extends AbstractActionController
                 empty($idp['idp_date'])
                 // Update once a day.
                 || (new \DateTimeImmutable($idp['idp_date']))->setTime(0, 0, 0)
-                    ->diff((new \DateTimeImmutable('now'))->setTime(0, 0, 0), true)
-                    ->format('%a') >= 1
+                ->diff((new \DateTimeImmutable('now'))->setTime(0, 0, 0), true)
+                ->format('%a') >= 1
             );
 
         if ($toUpdate) {
@@ -746,13 +767,15 @@ class SsoController extends AbstractActionController
 
         $activeSsoServices = $this->settings()->get('singlesignon_services', ['sso']);
 
-        if (!in_array('sso', $activeSsoServices)
+        if (
+            !in_array('sso', $activeSsoServices)
             || empty($configSso['sp']['assertionConsumerService']['url'])
         ) {
             unset($configSso['sp']['assertionConsumerService']);
         }
 
-        if (!in_array('sls', $activeSsoServices)
+        if (
+            !in_array('sls', $activeSsoServices)
             || empty($configSso['sp']['singleLogoutService']['url'])
         ) {
             unset($configSso['sp']['singleLogoutService']);

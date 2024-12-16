@@ -102,6 +102,19 @@ class ConfigForm extends Form
             // Service Provider (SP).
 
             ->add([
+                'name' => 'singlesignon_sp_host_name',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Replace host name when SP is behind a proxy', // @translate
+                    'info' => 'This option allows to replace the host domain used by Omeka as internal SP server with the host name used in public.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_host_name',
+                    'required' => false,
+                ],
+            ])
+
+            ->add([
                 'name' => 'singlesignon_sp_metadata_content_type',
                 'type' => Element\Radio::class,
                 'options' => [

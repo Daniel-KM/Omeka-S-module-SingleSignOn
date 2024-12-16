@@ -90,6 +90,7 @@ return [
 
             'singlesignon_append_links_to_login_view' => null,
 
+            'singlesignon_sp_host_name' => '',
             'singlesignon_sp_metadata_content_type' => 'saml',
             'singlesignon_sp_metadata_disposition' => 'inline',
             'singlesignon_sp_metadata_mode' => 'standard',

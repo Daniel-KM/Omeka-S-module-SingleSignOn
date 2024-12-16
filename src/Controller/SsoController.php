@@ -799,7 +799,12 @@ class SsoController extends AbstractActionController
             defined('ONELOGIN_CUSTOMPATH') || define('ONELOGIN_CUSTOMPATH', rtrim($basePath, '/') . '/');
         }
 
-        $baseUrlSso = rtrim($url->fromRoute('sso', [], ['force_canonical' => true]), '/');
+        $spHostName = $this->settings()->get('singlesignon_sp_host_name');
+        if ($spHostName) {
+            $baseUrlSso = $spHostName . rtrim($url->fromRoute('sso', [], ['force_canonical' => false]), '/');
+        } else {
+            $baseUrlSso = rtrim($url->fromRoute('sso', [], ['force_canonical' => true]), '/');
+        }
 
         $spX509cert = trim($settings->get('singlesignon_sp_x509_certificate') ?: '');
         $spPrivateKey = trim($settings->get('singlesignon_sp_x509_private_key') ?: '');

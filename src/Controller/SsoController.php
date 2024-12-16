@@ -55,26 +55,29 @@ class SsoController extends AbstractActionController
     }
 
     /**
-     * Get the metadata of the sp or any managed idp.
+     * Get the metadata of the sp or any managed idp set in route.
      */
     public function metadataAction()
     {
-        $configSso = $this->validConfigSso(null, false) ?: [];
-        $samlSettings = new SamlSettings($configSso, true);
-        $metadata = $samlSettings->getSPMetadata();
-
+        // When the idp is set, it means to get its metadata.
         $idpName = $this->params()->fromRoute('idp');
-        if ($idpName) {
-            $idpMetadata = $this->idpMetadataXml($idpName);
-            if (!$idpMetadata) {
+        $isSp = empty($idpName);
+        if ($isSp) {
+            // Check for metadata of the current sp (option true of SamlSettings).
+            $configSso = $this->validConfigSso(null, false) ?: [];
+            $samlSettings = new SamlSettings($configSso, true);
+            $metadata = $samlSettings->getSPMetadata();
+        } else {
+            $metadata = $this->idpMetadataXml($idpName);
+            if (!$metadata) {
                 $redirectUrl = $this->redirectUrl();
                 return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
             }
         }
 
-        // Some idp don't manage namespaces, so remove them in basic mode.
+        // Some idps don't manage namespaces, so remove them in basic mode.
         $xmlMode = $this->settings()->get('singlesignon_sp_metadata_mode', 'standard');
-        if ($xmlMode === 'basic') {
+        if ($isSp && $xmlMode === 'basic') {
             // To remove namespaces is pretty complex in php, so use a quick
             // hack for now.
             $replace = [
@@ -267,6 +270,7 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toRoute('login');
         }
 
+        // Name id is a crypted name, not the real name.
         $nameId = $samlAuth->getNameId();
         $samlAttributesFriendly = $samlAuth->getAttributesWithFriendlyName();
         $samlAttributesCanonical = $samlAuth->getAttributes();
@@ -539,7 +543,7 @@ class SsoController extends AbstractActionController
     }
 
     /**
-     * Get idp data as array. If no idp is set, use the first one.
+     * Get idp data as array. If no idp is set, return data with empty values.
      *
      * Idp certificate may be updated when outdated.
      */
@@ -548,12 +552,9 @@ class SsoController extends AbstractActionController
         $settings = $this->settings();
         $idps = $settings->get('singlesignon_idps', []);
 
-        if (empty($idpName)) {
-            $idpName = key($idps);
-        }
-
         $idp = $idps[$idpName] ?? [];
-        $idp += [
+
+        $idpDefault = [
             'idp_metadata_url' => '',
             'idp_entity_id' => '',
             'idp_entity_name' => '',
@@ -564,8 +565,11 @@ class SsoController extends AbstractActionController
             'idp_attributes_map' => [],
             'idp_roles_map' => [],
             'idp_user_settings' => [],
+            'idp_replace_domain' => '',
             'idp_metadata_update_mode' => 'auto',
         ];
+
+        $idp += $idpDefault;
 
         $updateMode = $settings->get('idp_metadata_update_mode') ?: 'auto';
 
@@ -773,11 +777,14 @@ class SsoController extends AbstractActionController
         }
     }
 
+    /**
+     * Validate the SSO config of the current sp or any managed idp.
+     */
     protected function validConfigSso(?string $idpName, bool $throw = false): ?array
     {
         try {
             $configSso = $this->configSso($idpName);
-            new SamlSettings($configSso);
+            new SamlSettings($configSso, empty($idpName));
         } catch (SamlError $e) {
             $message = new PsrMessage(
                 'SSO service has an error in configuration: {exception}', // @translate
@@ -821,6 +828,9 @@ class SsoController extends AbstractActionController
         return $configSso;
     }
 
+    /**
+     * Get the SSO config of the current sp or any managed idp.
+     */
     protected function configSso(?string $idpName): array
     {
         $url = $this->url();
@@ -851,6 +861,7 @@ class SsoController extends AbstractActionController
             $spPrivateKey = str_replace(array_keys($spaces), array_values($spaces), $spPrivateKey);
         }
 
+        // When there is no idp name, get the config of the sp.
         $idp = $this->idpData($idpName, true);
 
         /**

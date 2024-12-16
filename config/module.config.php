@@ -85,10 +85,10 @@ return [
 
             // Default role is the lowest one (guest or researcher).
             'singlesignon_role_default' => null,
-
             'singlesignon_groups_default' => null,
 
             'singlesignon_append_links_to_login_view' => null,
+            'singlesignon_redirect' => null,
 
             'singlesignon_sp_host_name' => '',
             'singlesignon_sp_metadata_content_type' => 'saml',

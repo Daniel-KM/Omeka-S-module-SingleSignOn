@@ -735,10 +735,42 @@ class SsoController extends AbstractActionController
             return $redirectUrl;
         }
 
-        $user = $this->authentication->getIdentity();
-        return $user && $this->userIsAllowed('Omeka\Controller\Admin\Index', 'index')
-            ? $this->url()->fromRoute('admin')
-            : $this->url()->fromRoute('top');
+        return $this->redirectToAdminOrSite()
+            ?: $this->url()->fromRoute('top');
+    }
+
+    /**
+     * Redirect to admin or site according to the role of the user and setting.
+     *
+     * @return \Laminas\Http\Response
+     *
+     * Adapted:
+     * @see \Guest\Controller\Site\AbstractGuestController::redirectToAdminOrSite()
+     * @see \Guest\Site\BlockLayout\TraitGuest::redirectToAdminOrSite()
+     * @see \SingleSignOn\Controller\SsoController::redirectToAdminOrSite()
+     */
+    protected function redirectToAdminOrSite(): ?string
+    {
+        $redirect = $this->settings()->get('singlesignon_redirect');
+        switch ($redirect) {
+            case empty($redirect):
+            case 'home':
+                if ($this->userIsAllowed('Omeka\Controller\Admin\Index', 'index')) {
+                    return $this->url()->fromRoute('admin');
+                }
+                // no break.
+            case 'site':
+                $siteSlug = $this->params()->fromRoute('site-slug');
+                return $siteSlug
+                    ? $this->url()->fromRoute('site', ['site-slug' => $siteSlug])
+                    : $this->url()->fromRoute('top');
+            case 'top':
+                return $this->url()->fromRoute('top');
+            case 'me' && $this->getPluginManager()->has('userRedirectUrl'):
+                return $this->url()->fromRoute('site/guest', [], true);
+            default:
+                return $redirect;
+        }
     }
 
     protected function validConfigSso(?string $idpName, bool $throw = false): ?array

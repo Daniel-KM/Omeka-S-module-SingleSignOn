@@ -99,6 +99,19 @@ class ConfigForm extends Form
                 ],
             ])
 
+            ->add([
+                'name' => 'singlesignon_redirect',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Default redirect page after login', // @translate
+                    'info' => 'Set "home" for home page (admin or public), "site" for the current site home, "top" for main public page, "me" for guest account, or any path starting with "/", including "/" itself for main home page.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_redirect',
+                    'required' => false,
+                ],
+            ])
+
             // Service Provider (SP).
 
             ->add([

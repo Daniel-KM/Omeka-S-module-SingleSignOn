@@ -21,6 +21,7 @@ class SsoLoginLinks extends AbstractHelper
      * - template (string): Use another template.
      * - redirectUrl (string): a URL that is returned from the IDP as
      *   RelayState for redirecting to specific page after logging in.
+     *   If empty, an option can be set in config form to set it internally.
      * Other options are passed to template.
      */
     public function __invoke(array $options = []): ?string

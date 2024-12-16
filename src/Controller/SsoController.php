@@ -379,6 +379,26 @@ class SsoController extends AbstractActionController
                 }
             }
 
+            //Group Module Settings to apply default groups
+            if (class_exists(\Group\Entity\GroupUser::class)) {
+                $settings = $this->settings();
+                $groups = $settings->get('singlesignon_groups_default', []);
+                if ($groups) {
+
+                    $groupsToAssign = $this->api()->search(
+                        'groups',
+                        ['name' => $groups],
+                        ['responseContent' => 'resource']
+                    )->getContent();
+
+                    foreach ($groupsToAssign as $group) {
+                        $groupEntity = new \Group\Entity\GroupUser($group, $user);
+                        $this->entityManager->persist($groupEntity);
+                    }
+                    $this->entityManager->flush();
+                }
+            }
+
             // Static settings.
             $staticSettings = $idp['idp_user_settings'];
             foreach ($staticSettings as $key => $value) {

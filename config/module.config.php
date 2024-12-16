@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace SingleSignOn;
 
@@ -84,6 +86,8 @@ return [
             // Default role is the lowest one (guest or researcher).
             'singlesignon_role_default' => null,
 
+            'singlesignon_groups_default' => null,
+
             'singlesignon_append_links_to_login_view' => null,
 
             'singlesignon_sp_metadata_content_type' => 'saml',
@@ -162,7 +166,7 @@ return [
         'federations' => [
             // File "main idps" is the most useful for the module.
             'Renater'
-                => 'https://pub.federation.renater.fr/metadata/renater/main/main-idps-renater-metadata.xml',
+            => 'https://pub.federation.renater.fr/metadata/renater/main/main-idps-renater-metadata.xml',
             // Urls and local paths are allowed.
         ],
     ],

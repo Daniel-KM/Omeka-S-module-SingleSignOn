@@ -722,7 +722,8 @@ class SsoController extends AbstractActionController
      */
     protected function idpNameFromRequest(): ?string
     {
-        $domain = $this->getRequest()->getHeaders()->get('Origin')->getFieldValue();
+        $origin = $this->getRequest()->getHeaders()->get('Origin');
+        $domain = $origin ? $origin->getFieldValue() : null;
         return $domain ? parse_url($domain, PHP_URL_HOST) : null;
     }
 

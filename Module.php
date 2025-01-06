@@ -349,11 +349,29 @@ class Module extends AbstractModule
         $settings = $services->get('Omeka\Settings');
         $messenger = $plugins->get('messenger');
 
+        $basePath = $settings->get('singlesignon_sp_cert_path');
         $x509cert = trim($settings->get('singlesignon_sp_x509_certificate') ?: '');
         $privateKey = trim($settings->get('singlesignon_sp_x509_private_key') ?: '');
 
         if (!$x509cert && !$privateKey) {
-            return true;
+            if ($basePath) {
+                $x509certFilePath = $basePath . '/certs/sp.crt';
+                $x509cert = file_exists($x509certFilePath) || !is_readable($x509certFilePath) || !filesize($x509certFilePath)
+                    ? file_get_contents($x509certFilePath)
+                    : '';
+                $privateKeyPath = $basePath . '/certs/sp.key';
+                $privateKey = file_exists($privateKeyPath) || !is_readable($privateKeyPath) || !filesize($privateKeyPath)
+                    ? file_get_contents($privateKeyPath)
+                    : '';
+                if (!$x509cert || !$privateKey) {
+                    $message = new PsrMessage(
+                        'A path is set for the certificate, but it does not contain a directory "certs" with files "sp.crt" and "sp.key".' // @translate
+                    );
+                    $messenger->addError($message);
+                }
+            } else {
+                return true;
+            }
         } elseif ($x509cert && !$privateKey) {
             $message = new PsrMessage(
                 'The SP public certificate is set, but not the private key.' // @translate
@@ -364,6 +382,14 @@ class Module extends AbstractModule
                 'The SP private key is set, but not the public certificate.' // @translate
             );
             $messenger->addError($message);
+        }
+
+        if ($basePath && ($x509cert || $privateKey)) {
+            $message = new PsrMessage(
+                'You cannot set a path to the certificate and provide them in fields at the same time.' // @translate
+            );
+            $messenger->addError($message);
+            return false;
         }
 
         // Remove windows and apple issues.

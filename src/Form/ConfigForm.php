@@ -204,7 +204,7 @@ class ConfigForm extends Form
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'Path for SP certificates (outside of webserver or protected)', // @translate
-                    'info' => 'Some idp require certificates. If needed, set the path to it. It should contains a directory "certs/" with at least "sp.crt" and "sp.key". It must be protected, for example with a .htaccess. Take care to renew them when needed.', // @translate
+                    'info' => 'Some idp require certificates. If needed and not set in next fields, set the path to it. It should contains a directory "certs/" with at least "sp.crt" and "sp.key". It must be protected, for example with a .htaccess. Take care to renew them when needed.', // @translate
                     'documentation' => 'https://github.com/SAML-Toolkits/php-saml/tree/master/certs',
                 ],
                 'attributes' => [
@@ -216,7 +216,7 @@ class ConfigForm extends Form
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'SP public certificate (x509)', // @translate
-                    'info' => 'Some idp require certificates. If needed and if you cannot use a path, paste public certificate here. Take care to renew them when needed.', // @translate
+                    'info' => 'Some idp require certificates. If needed and if not set via a path, paste public certificate here. Take care to renew them when needed.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_sp_x509_certificate',
@@ -228,7 +228,7 @@ class ConfigForm extends Form
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'SP private key (x509)', // @translate
-                    'info' => 'Some idp require certificates. If needed and if you cannot use a path, paste private key here. Take care to renew them when needed.', // @translate
+                    'info' => 'Some idp require certificates. If needed and not set via a path, paste private key here. Take care to renew them when needed.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_sp_x509_private_key',

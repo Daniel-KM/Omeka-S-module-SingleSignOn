@@ -178,8 +178,13 @@ class Module extends AbstractModule
             $messenger->addWarning($message);
         }
 
+        // Normally, the value is not stored.
+        $createCertificate = !empty($_POST['singlesignon_sp_create_certificate']);
+        $settings->delete('singlesignon_sp_create_certificate');
+
         // Messages are displayed, but data are stored in all cases.
-        $this->checkConfigSP();
+
+        $this->checkConfigSP($createCertificate);
 
         $this->checkConfigFederation();
 
@@ -337,7 +342,7 @@ class Module extends AbstractModule
         return true;
     }
 
-    protected function checkConfigSP(): bool
+    protected function checkConfigSP(?bool $createCertificate = false): bool
     {
         /**
          * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
@@ -369,7 +374,7 @@ class Module extends AbstractModule
                     );
                     $messenger->addError($message);
                 }
-            } else {
+            } elseif (!$createCertificate) {
                 return true;
             }
         } elseif ($x509cert && !$privateKey) {
@@ -390,6 +395,31 @@ class Module extends AbstractModule
             );
             $messenger->addError($message);
             return false;
+        }
+
+        if ($createCertificate) {
+            if ($basePath || $x509cert || $privateKey) {
+                $message = new PsrMessage(
+                    'The certicate cannot be created when fields "certificate path", "x509 certificate", or "x509 private key" are filled.' // @translate
+                );
+                $messenger->addError($message);
+                return false;
+            }
+            [$x509cert, $privateKey] = $this->createCertificate();
+            if ($x509cert && $privateKey) {
+                $message = new PsrMessage(
+                    'The x509 certificate was created successfully.' // @translate
+                );
+                $messenger->addSuccess($message);
+            } else {
+                $message = openssl_error_string();
+                $message = new PsrMessage(
+                    'An error occurred during creation of the x509 certificate: {msg}', // @translate
+                    ['message' => $message ?: 'Unknown error']
+                );
+                $messenger->addError($message);
+                return false;
+            }
         }
 
         // Remove windows and apple issues.
@@ -552,5 +582,76 @@ class Module extends AbstractModule
         $settings->set('singlesignon_idps', $idps);
 
         return true;
+    }
+
+    /**
+     * Create an self-signed x509 certificate with settings or local data.
+     *
+     * @see https://www.php.net/manual/en/function.openssl-csr-new.php
+     */
+    protected function createCertificate(): array
+    {
+        /**
+         * @var \Omeka\Settings\Settings $settings
+         */
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+
+        // Append some data if they are not filled.
+        $dn = [
+            'countryName' => '',
+            'stateOrProvinceName' => '',
+            'localityName' => '',
+            'organizationName' => '',
+            'organizationalUnitName' => '',
+            'commonName' => '',
+            'emailAddress' => '',
+        ];
+        $certificateData = $settings->get('singlesignon_sp_x509_certificate_data') ?: [];
+        $dn = array_intersect_key($certificateData, $dn);
+        if (empty($dn['commonName'])) {
+            $commonName = $settings->get('singlesignon_sp_host_name');
+            if (!$commonName) {
+                $url = $services->get('ViewHelperManager')->get('url');
+                $commonName = $url('top', [], ['force_canonical' => true]);
+            }
+            $dn['commonName'] = parse_url($commonName, PHP_URL_HOST)
+                ?: ($_SERVER['SERVER_NAME'] ?? 'localhost');
+        }
+        if (empty($dn['emailAddress'])) {
+            $dn['emailAddress'] = $settings->get('administrator_email', '');
+        }
+        $dn = array_filter($dn);
+
+        // Create a private key.
+        $privateKey = openssl_pkey_new([
+            'private_key_bits' => 2048,
+            'private_key_type' => OPENSSL_KEYTYPE_RSA,
+        ]);
+
+        // Create the Certificate Signing Request.
+        $csr = openssl_csr_new($dn, $privateKey, [
+            'digest_alg' => 'sha256'
+        ]);
+
+        // Self-sign the CSR to create a certificate.
+        // The certificate is valid for a century.
+        $certificate = openssl_csr_sign($csr, null, $privateKey, 36525, [
+            'digest_alg' => 'sha256'
+        ]);
+
+        // Export private key and certificate.
+        $x509cert = null;
+        openssl_x509_export($certificate, $x509cert);
+        $readablePrivateKey = null;
+        openssl_pkey_export($privateKey, $readablePrivateKey);
+
+        // Free the private key for security.
+        openssl_pkey_free($privateKey);
+
+        return [
+            $x509cert,
+            $readablePrivateKey,
+        ];
     }
 }

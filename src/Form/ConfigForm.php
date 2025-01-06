@@ -8,6 +8,7 @@ use Common\Form\Element as CommonElement;
 use Laminas\Form\Element;
 use Laminas\Form\Form;
 use Laminas\Mvc\I18n\Translator;
+use Omeka\Form\Element as OmekaElement;
 use OneLogin\Saml2\Constants as SamlConstants;
 
 class ConfigForm extends Form
@@ -130,7 +131,7 @@ class ConfigForm extends Form
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'Replace host name when SP is behind a proxy', // @translate
-                    'info' => 'This option allows to replace the host domain used by Omeka as internal SP server with the host name used in public.', // @translate
+                    'info' => 'This option allows to replace the host domain used by Omeka as internal SP server with the host name used in public. The protocol (http or https) should be included.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'singlesignon_sp_host_name',
@@ -244,6 +245,38 @@ class ConfigForm extends Form
                 'attributes' => [
                     'id' => 'singlesignon_sp_x509_private_key',
                     'rows' => 5,
+                ],
+            ])
+
+            ->add([
+                'name' => 'singlesignon_sp_create_certificate',
+                'type' => CommonElement\OptionalCheckbox::class,
+                'options' => [
+                    'label' => 'Create an x509 certificate for the SP (require the three previous fields be empty)', // @translate
+                    'info' => 'The certificate is generated for a century with the default data of the server or the data below.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_create_certificate',
+                ],
+            ])
+            ->add([
+                'name' => 'singlesignon_sp_x509_certificate_data',
+                'type' => OmekaElement\ArrayTextarea::class,
+                'options' => [
+                    'label' => 'Data to store in the certificate to create (optional)', // @translate
+                    'info' => 'The optional data keys are: countryName, stateOrProvinceName, localityName, organizationName, organizationalUnitName, commonName, and emailAddress.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_x509_certificate_data',
+                    'placeholder' => <<<'TXT'
+                        countryName = FR
+                        stateOrProvinceName =
+                        localityName = Lyon
+                        organizationName = Université Lyon 1
+                        organizationalUnitName = Bibliothèque
+                        commonName = univ-lyon1.fr
+                        emailAddress = contact@univ-lyon1.fr
+                        TXT,
                 ],
             ])
 

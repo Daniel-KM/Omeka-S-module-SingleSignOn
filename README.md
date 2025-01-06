@@ -71,9 +71,9 @@ url, for example https://idp.example.org/idp/shibboleth.
   - log in (sso): required.
   - log out (sls): Log out is not recommended, because it can have bad side
     effects when deconnecting from other services.
-  - jit: register new users just in time, so create account inside Omeka
-    automatically, else the users should be created by an administrator first
-    inside Omeka.
+  - register (jit): register new users just in time, so create account inside
+    Omeka automatically, else the users should be created by an administrator
+    first inside Omeka.
   - Update user name: Update the name in Omeka when it is updated in IdP.
 
 - Default role:
@@ -82,26 +82,35 @@ url, for example https://idp.example.org/idp/shibboleth.
   the module is installed. Of course, once authenticated, an admin can set the
   right role. For security, the admin roles are forbidden for new users.
 
+- Redirect page after log in
+
 - Service provider:
+  - Specific entity id, in particular when behind a proxy. Defaut is the url of
+    the host.
+  - Specific host, in particular when behind a proxy.
   - Metadata content type
   - Metadata content disposition: these two options allow to fix some badly
     configured IdP. To display the metadata directly in a browser, use "application/xml"
     and "inline".
   - Metadata mode: some IdP don't manage xml fully, so a basic mode is provided
     that removes the prefixes of the xml metadata.
-  - Name ID format of the service provider: If the default config (persistent)
+  - Name ID format of the service provider: If the default config (unspecified)
     does not work, try to change  the format of the name to set in element `<md:NameIDFormat>`,
     for example "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified".
-  - SP certificate path: Some IdP require certificates. If needed, set the path
-    to it. It should contains a directory "certs/" with at least `sp.crt` and
-    `sp.key`. It must be outside of the web server or protected, for example
-    with a .htaccess.
-  - SP public certificate
-  - SP private key: if the IdP requires a certificate and you cannot use the
-    path above, you can fill the public certificate and the private key. The
-    format should be x509. You can use the ssl keys of your website.
-    **Warning**: All keys have an expiration date, so add them into your
-    planning (anyway your users will warn you).
+  - SP certificates:
+    Some IdPs require certificates. There are three ways to define it: a path to
+    the certificate and private key, a copy-paste in fields or a creation.
+    - SP certificate path: The path should contains a directory "certs/" with at
+      least the files `sp.crt` and `sp.key`. It must be outside of the web
+      server or protected, for example with a .htaccess.
+    - SP public certificate and SP private key: you can fill the public
+      certificate and the private key. The format should be x509.
+      **Warning**: All keys have an expiration date, so add them into your
+      planning (anyway your users will warn you), even if such keys are usually
+      long term (more than 10 years).
+    - Creation of an self-signed certificate. Check the box and fill the
+      optional keys: countryName, stateOrProvinceName, localityName,
+      organizationName, organizationalUnitName, commonName, and emailAddress.
 
 - Identity Provider:
   - The identity provider can be a federation of identity providers, in which
@@ -190,10 +199,13 @@ TODO
 - [x] Mapping roles (see module Shibboleth).
 - [x] Extra settings, in particular locale (see module Shibboleth).
 - [ ] Add logo and site name (see onelogin config and https://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-metadata-ui/v1.0/os/sstc-saml-metadata-ui-v1.0-os.html).
-- [ ] Added discovery login (two steps login, to avoid selecting the idp). Store user idp in user settings instead of a new table!
+- [ ] Add discovery login (two steps login, to avoid selecting the idp).
+- [x] Store user idp in user settings instead of a new table!
 - [x] Force sso login (with dynamic check of config first).
 - [-] Allow to log in without registering SP in the IdP (Unsolicited Login Initiator), but may be a security issue.
 - [ ] Use a Laminas SSO adapter instead of a specific url.
+- [ ] Use gz version of xml files from renater after checking if it is quicker.
+- [ ] Future certs and metadata cert to sign (see directory certs in vendor one-login).
 
 
 Warning
@@ -254,7 +266,8 @@ Copyright
 
 This module was built for a new section of [Numistral] the digital library of
 the [Bibliothèque nationale et universitaire de Strasbourg] (BNU), the [Université de Haute-Alsace] (UHA).
-and the [Université de Strasbourg] (UNISTRA).
+and the [Université de Strasbourg] (UNISTRA). New features were implemented for
+[Insa Lyon] and [Université Claude Bernard Lyon 1].
 
 
 [Single Sign-On]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn
@@ -263,6 +276,7 @@ and the [Université de Strasbourg] (UNISTRA).
 [Shibboleth]: https://www.shibboleth.net
 [module Shibboleth]: https://gitlab.com/Daniel-KM/Omeka-S-module-Shibboleth
 [onelogin/php-saml]: https://github.com/SAML-Toolkits/php-saml
+[Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [SingleSignOn.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/releases
 [Guest]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest
@@ -278,5 +292,7 @@ and the [Université de Strasbourg] (UNISTRA).
 [Bibliothèque nationale et universitaire de Strasbourg]: https://www.bnu.fr
 [Université de Haute-Alsace]: https://www.uha.fr
 [Université de Strasbourg]: https://www.unistra.fr
+[Insa Lyon]: https://www.insa-lyon.fr
+[Université Claude Bernard Lyon 1]: https://www.univ-lyon1.fr
 [GitLab]: https://gitlab.com/Daniel-KM
 [Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"

@@ -118,16 +118,16 @@ class IdpMetadata extends AbstractPlugin
         $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
 
         return [
-            'idp_metadata_url' => $idpUrl,
-            'idp_entity_id' => trim($entityId),
-            'idp_entity_name' => trim($entityName),
-            'idp_entity_short_id' => $idpName,
-            'idp_host' => $idpHost,
-            'idp_sso_url' => trim($ssoUrl),
-            'idp_slo_url' => trim($sloUrl),
+            'metadata_url' => $idpUrl,
+            'entity_id' => trim($entityId),
+            'entity_name' => trim($entityName),
+            'entity_short_id' => $idpName,
+            'host' => $idpHost,
+            'sso_url' => trim($ssoUrl),
+            'slo_url' => trim($sloUrl),
             // The xml may add tabulations and spaces, to be removed.
-            'idp_x509_certificate' => trim(str_replace(["\t", ' '], '', $x509Certificate)),
-            'idp_date' => (new \DateTime('now'))->format(\DateTime::ISO8601),
+            'x509_certificate' => trim(str_replace(["\t", ' '], '', $x509Certificate)),
+            'date' => (new \DateTime('now'))->format(\DateTime::ISO8601),
         ];
     }
 }

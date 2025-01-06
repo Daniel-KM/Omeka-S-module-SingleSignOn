@@ -197,8 +197,8 @@ class Module extends AbstractModule
         foreach (array_values($idps) as $key => $idp) {
             ++$key;
             $federationUrl = $idp['federation_url'] ?? '';
-            $entityUrl = $idp['idp_metadata_url'] ?? '';
-            $entityId = $idp['idp_entity_id'] ?? '';
+            $entityUrl = $idp['metadata_url'] ?? '';
+            $entityId = $idp['entity_id'] ?? '';
             if ($federationUrl) {
                 if (!$entityId) {
                     $hasError = true;
@@ -230,13 +230,13 @@ class Module extends AbstractModule
                 continue;
             }
 
-            $updateMode = $idp['idp_metadata_update_mode'] ?? 'auto';
+            $updateMode = $idp['metadata_update_mode'] ?? 'auto';
 
             // Check if the idp is filled.
-            $isFilled = !empty($idp['idp_entity_name'])
-                && !empty($idp['idp_x509_certificate'])
-                && (!in_array('sso', $ssoServices) || !empty($idp['idp_sso_url']))
-                && (!in_array('sls', $ssoServices) || !empty($idp['idp_slo_url']));
+            $isFilled = !empty($idp['entity_name'])
+                && !empty($idp['x509_certificate'])
+                && (!in_array('sso', $ssoServices) || !empty($idp['sso_url']))
+                && (!in_array('sls', $ssoServices) || !empty($idp['slo_url']));
 
             if ($isFilled && $updateMode === 'manual') {
                 $cleanIdps[$entityId ?: $idpName] = $idp;
@@ -256,23 +256,23 @@ class Module extends AbstractModule
                     continue;
                 }
                 // Keep some data.
-                $idpMeta['idp_entity_name'] = $idpMeta['idp_entity_name'] ?: $idp['idp_entity_name'];
-                $idpMeta['idp_attributes_map'] = $idp['idp_attributes_map'];
-                $idpMeta['idp_roles_map'] = $idp['idp_roles_map'];
-                $idpMeta['idp_user_settings'] = $idp['idp_user_settings'];
-                $idpMeta['idp_metadata_update_mode'] = $idp['idp_metadata_update_mode'];
+                $idpMeta['entity_name'] = $idpMeta['entity_name'] ?: $idp['entity_name'];
+                $idpMeta['attributes_map'] = $idp['attributes_map'];
+                $idpMeta['roles_map'] = $idp['roles_map'];
+                $idpMeta['user_settings'] = $idp['user_settings'];
+                $idpMeta['metadata_update_mode'] = $idp['metadata_update_mode'];
                 if ($updateMode === 'auto_except_id') {
-                    $idpMeta['idp_entity_id'] = $entityId;
+                    $idpMeta['entity_id'] = $entityId;
                 }
                 $idp = $idpMeta;
-                $entityId = $idp['idp_entity_id'];
+                $entityId = $idp['entity_id'];
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
                 $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
             }
 
-            $result = $this->checkX509Certificate($idp['idp_x509_certificate'] ?? null, $idpName);
+            $result = $this->checkX509Certificate($idp['x509_certificate'] ?? null, $idpName);
             if ($result) {
-                $idp['idp_x509_certificate'] = $result;
+                $idp['x509_certificate'] = $result;
             }
 
             // Normally not possible.
@@ -511,7 +511,7 @@ class Module extends AbstractModule
             return false;
         }
 
-        usort($result, fn ($idpA, $idpB) => strcasecmp($idpA['idp_entity_name'], $idpB['idp_entity_name']));
+        usort($result, fn ($idpA, $idpB) => strcasecmp($idpA['entity_name'], $idpB['entity_name']));
 
         // Store the federated idps and the locally defined idps in a single
         // place to simplify interface and management.

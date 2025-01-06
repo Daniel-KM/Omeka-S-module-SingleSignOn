@@ -120,16 +120,16 @@ class SsoFederationMetadata extends AbstractPlugin
                 $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
                 $list[$entityId] = [
                     'federation_url' => $federationUrl,
-                    'idp_metadata_url' => null,
-                    'idp_entity_id' => $entityId,
-                    'idp_entity_name' => trim($entityName),
-                    'idp_entity_short_id' => $idpName,
-                    'idp_host' => $idpHost,
-                    'idp_sso_url' => trim($ssoUrl),
-                    'idp_slo_url' => trim($sloUrl),
+                    'metadata_url' => null,
+                    'entity_id' => $entityId,
+                    'entity_name' => trim($entityName),
+                    'entity_short_id' => $idpName,
+                    'host' => $idpHost,
+                    'sso_url' => trim($ssoUrl),
+                    'slo_url' => trim($sloUrl),
                     // The xml may add tabulations and spaces, to be removed.
-                    'idp_x509_certificate' => trim(str_replace(["\t", ' '], '', $x509Certificate)),
-                    'idp_date' => $date,
+                    'x509_certificate' => trim(str_replace(["\t", ' '], '', $x509Certificate)),
+                    'date' => $date,
                 ];
             }
         } else {
@@ -152,16 +152,16 @@ class SsoFederationMetadata extends AbstractPlugin
                 $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
                 $list[$entityId] = [
                     'federation_url' => $federationUrl,
-                    'idp_metadata_url' => null,
-                    'idp_entity_id' => $entityId,
-                    'idp_entity_name' => trim($entityName),
-                    'idp_entity_short_id' => $idpName,
-                    'idp_host' => $idpHost,
-                    'idp_sso_url' => trim($ssoUrl),
-                    'idp_slo_url' => trim($sloUrl),
+                    'metadata_url' => null,
+                    'entity_id' => $entityId,
+                    'entity_name' => trim($entityName),
+                    'entity_short_id' => $idpName,
+                    'host' => $idpHost,
+                    'sso_url' => trim($ssoUrl),
+                    'slo_url' => trim($sloUrl),
                     // The xml may add tabulations and spaces, to be removed.
-                    'idp_x509_certificate' => trim(str_replace(["\t", ' '], '', $x509Certificate)),
-                    'idp_date' => $date,
+                    'x509_certificate' => trim(str_replace(["\t", ' '], '', $x509Certificate)),
+                    'date' => $date,
                 ];
             }
         }

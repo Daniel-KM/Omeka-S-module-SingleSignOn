@@ -27,7 +27,7 @@ if ($internal) {
     $urlLogin = $plugins->has('guestWidget') && $site ? $url('site/guest/anonymous', ['action' => 'login', 'site-slug' => $site->slug()], true) : $url('login');
     $idps['default-login'] = [
         'url' => $urlLogin,
-        'idp_entity_name' => $translate('Direct login'),
+        'entity_name' => $translate('Direct login'),
     ];
 }
 
@@ -64,9 +64,9 @@ if ($redirectUrl) {
             <select id="single-sign-on-select" class="single-sign-on-select chosen-select" name="idp" data-placeholder="<?= $escapeAttr($translate('Select your identity provider…')) ?>">
                 <option class="single-sign-on-idp" value=""></option>
                 <?php foreach ($idps as $idp):
-                    $idpName = $idp['idp_entity_short_id'];
+                    $idpName = $idp['entity_short_id'];
                     $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpName], $options, true);
-                    $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
+                    $idpName = $idp['entity_name'] ?: $idp['entity_id'];
                     ?>
                 <option class="single-sign-on-idp <?= $escapeAttr(str_replace(['.', ':'], '-', $idpName)) ?>" value="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></option>
                 <?php endforeach; ?>
@@ -76,9 +76,9 @@ if ($redirectUrl) {
 
             <ul id="single-sign-on-buttons" class="single-sign-on-buttons">
                 <?php foreach ($idps as $idp):
-                    $idpName = $idp['idp_entity_short_id'];
+                    $idpName = $idp['entity_short_id'];
                     $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpName], $options, true);
-                    $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
+                    $idpName = $idp['entity_name'] ?: $idp['entity_id'];
                     ?>
                     <li class="single-sign-on-button">
                         <a class="single-sign-on-idp button <?= $escapeAttr(str_replace(['.', ':'], '-', $idpName)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></a>
@@ -90,9 +90,9 @@ if ($redirectUrl) {
 
             <ul id="single-sign-on-links" class="single-sign-on-links">
                 <?php foreach ($idps as $idp):
-                    $idpName = $idp['idp_entity_short_id'];
+                    $idpName = $idp['entity_short_id'];
                     $urlLogin = $idp['url'] ?? $url('sso', ['action' => 'login', 'idp' => $idpName], $options, true);
-                    $idpName = $idp['idp_entity_name'] ?: $idp['idp_entity_id'];
+                    $idpName = $idp['entity_name'] ?: $idp['entity_id'];
                     ?>
                     <li class="single-sign-on-link">
                         <a class="single-sign-on-idp <?= $escapeAttr(str_replace(['.', ':'], '-', $idpName)) ?>" href="<?= $escapeAttr($urlLogin) ?>"><?= $escape($idpName) ?></a>

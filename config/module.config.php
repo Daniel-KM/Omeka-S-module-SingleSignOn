@@ -102,23 +102,23 @@ return [
             // The config of the federation is merged with the single idps in
             // "singlesignon_idps".
             // The difference is the presence of the key "federation_url", that
-            // replaces the key "idp_metadata_url".
+            // replaces the key "metadata_url".
             'singlesignon_federation' => null,
 
             // The config manages multiple idp services.
             // In Omeka, they are all stored in one setting for now.
             'singlesignon_idps' => [
                 [
-                    'idp_metadata_url' => '',
-                    'idp_entity_id' => '',
-                    'idp_entity_name' => '',
+                    'metadata_url' => '',
+                    'entity_id' => '',
+                    'entity_name' => '',
                     // This value is stored automatically from the sso url in
                     // order to manage idps that use a urn as id.
-                    // 'idp_host' => '',
-                    'idp_sso_url' => '',
-                    'idp_slo_url' => '',
-                    'idp_x509_certificate' => '',
-                    'idp_attributes_map' => [
+                    // 'host' => '',
+                    'sso_url' => '',
+                    'slo_url' => '',
+                    'x509_certificate' => '',
+                    'attributes_map' => [
                         'mail' => 'email',
                         'displayName' => 'name',
                         /*
@@ -131,7 +131,7 @@ return [
                     ],
                     // For security, it is not recommended to map to admin roles,
                     // but to update user manually in admin board.
-                    'idp_roles_map' => [
+                    'roles_map' => [
                         // '' => 'global_admin',
                         // '' => 'site_admin',
                         // '' => 'editor',
@@ -144,13 +144,13 @@ return [
                     ],
                     // Keys to store as user setting when the user is created.
                     // Warning: these values are not updated automatically.
-                    'idp_user_settings' => [
+                    'user_settings' => [
                         // Static keys.
                         // 'locale' => 'fr',
                         // 'guest_agreed_terms' => true,
                         // 'userprofile_key' => 'value',
                     ],
-                    'idp_metadata_update_mode' => 'auto',
+                    'metadata_update_mode' => 'auto',
                 ],
             ],
         ],

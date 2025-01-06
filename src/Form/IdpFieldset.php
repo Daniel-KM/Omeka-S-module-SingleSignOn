@@ -17,7 +17,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
             ->setName('idp')
 
             ->add([
-                'name' => 'idp_metadata_url',
+                'name' => 'metadata_url',
                 'type' => Element\Url::class,
                 'options' => [
                     'label' => 'IdP metadata url (allow to get and update settings automatically)', // @translate
@@ -32,7 +32,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
             // Automatically fillable data (except id when option is set).
 
             ->add([
-                'name' => 'idp_entity_id',
+                'name' => 'entity_id',
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'IdP Entity Id', // @translate
@@ -45,7 +45,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
             ])
 
             ->add([
-                'name' => 'idp_entity_name',
+                'name' => 'entity_name',
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'IdP name', // @translate
@@ -56,7 +56,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 ],
             ])
             ->add([
-                'name' => 'idp_sso_url',
+                'name' => 'sso_url',
                 'type' => Element\Url::class,
                 'options' => [
                     'label' => 'Url of the IdP single sign-on (SSO) service endpoint', // @translate
@@ -67,7 +67,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 ],
             ])
             ->add([
-                'name' => 'idp_slo_url',
+                'name' => 'slo_url',
                 'type' => Element\Url::class,
                 'options' => [
                     'label' => 'Url of the IdP single log out (SLO) service endpoint', // @translate
@@ -78,7 +78,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 ],
             ])
             ->add([
-                'name' => 'idp_x509_certificate',
+                'name' => 'x509_certificate',
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Public X.509 certificate of the IdP', // @translate
@@ -93,7 +93,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
             // Specific manual options.
 
             ->add([
-                'name' => 'idp_attributes_map',
+                'name' => 'attributes_map',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Attributes map between IdP and Omeka', // @translate
@@ -109,7 +109,7 @@ role = role',
                 ],
             ])
             ->add([
-                'name' => 'idp_roles_map',
+                'name' => 'roles_map',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Roles map between IdP and Omeka', // @translate
@@ -124,7 +124,7 @@ librarian = author',
                 ],
             ])
             ->add([
-                'name' => 'idp_user_settings',
+                'name' => 'user_settings',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Static user settings for new users', // @translate
@@ -140,7 +140,7 @@ userprofile_key = value',
             ])
 
             ->add([
-                'name' => 'idp_metadata_update_mode',
+                'name' => 'metadata_update_mode',
                 'type' => Element\Select::class,
                 'options' => [
                     'label' => 'Update mode', // @translate
@@ -227,16 +227,16 @@ userprofile_key = value',
     public function getInputFilterSpecification()
     {
         return [
-            'idp_metadata_url' => [
+            'metadata_url' => [
                 'required' => false,
             ],
-            'idp_sso_url' => [
+            'sso_url' => [
                 'required' => false,
             ],
-            'idp_slo_url' => [
+            'slo_url' => [
                 'required' => false,
             ],
-            'idp_metadata_update_mode' => [
+            'metadata_update_mode' => [
                 'required' => false,
             ],
         ];

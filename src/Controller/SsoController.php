@@ -622,6 +622,15 @@ class SsoController extends AbstractActionController
 
         $idp = $idps[$idpEntityId] ?? [];
 
+        // Append old and new keys to allow to log in during config migration.
+        if ($idp) {
+            foreach ($idp as $key => $value) {
+                if (mb_substr((string) $key, 0, 4) === 'idp_') {
+                    $idp[mb_substr($key, 4)] ??= $value;
+                }
+            }
+        }
+
         $idp += $this->providerData;
 
         $updateMode = $settings->get('metadata_update_mode') ?: 'auto';

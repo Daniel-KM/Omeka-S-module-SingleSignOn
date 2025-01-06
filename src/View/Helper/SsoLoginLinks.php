@@ -31,6 +31,25 @@ class SsoLoginLinks extends AbstractHelper
 
         $options['idps'] = $setting('singlesignon_idps') ?: [];
 
+        // For compatibility with old themes, keep some keys.
+        if ($options['idps']) {
+            $idp = reset($options['idps']);
+            if (array_key_exists('entity_name', $idp)) {
+                foreach ($options['idps'] as &$idp) {
+                    $idp['idp_entity_id'] = $idp['entity_id'] ?? '';
+                    $idp['idp_entity_name'] = $idp['entity_name'] ?? '';
+                    $idp['idp_entity_short_id']  = $idp['entity_short_id'] ?? '';
+                }
+            } else {
+                foreach ($options['idps'] as &$idp) {
+                    $idp['entity_id'] = $idp['idp_entity_id'] ?? '';
+                    $idp['entity_name'] = $idp['idp_entity_name'] ?? '';
+                    $idp['entity_short_id']  = $idp['idp_entity_short_id'] ?? '';
+                }
+            }
+            unset($idp);
+        }
+
         // Use a button for manual config or select for a federation.
         $selectors = ['link', 'button', 'select'];
         if ($setting('singlesignon_federation')) {

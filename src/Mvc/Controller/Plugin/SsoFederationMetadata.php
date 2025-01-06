@@ -117,11 +117,13 @@ class SsoFederationMetadata extends AbstractPlugin
                     ?: (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
                 $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+                $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
                 $list[$idpName] = [
                     'federation_url' => $federationUrl,
                     'idp_metadata_url' => null,
                     'idp_entity_id' => $entityId,
                     'idp_entity_name' => trim($entityName),
+                    'idp_host' => $idpHost,
                     'idp_sso_url' => trim($ssoUrl),
                     'idp_slo_url' => trim($sloUrl),
                     // The xml may add tabulations and spaces, to be removed.
@@ -146,11 +148,13 @@ class SsoFederationMetadata extends AbstractPlugin
                     ?: (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
                 $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+                $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
                 $list[$idpName] = [
                     'federation_url' => $federationUrl,
                     'idp_metadata_url' => null,
                     'idp_entity_id' => $entityId,
                     'idp_entity_name' => trim($entityName),
+                    'idp_host' => $idpHost,
                     'idp_sso_url' => trim($ssoUrl),
                     'idp_slo_url' => trim($sloUrl),
                     // The xml may add tabulations and spaces, to be removed.

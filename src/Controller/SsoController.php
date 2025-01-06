@@ -552,12 +552,19 @@ class SsoController extends AbstractActionController
         $settings = $this->settings();
         $idps = $settings->get('singlesignon_idps', []);
 
+        if (!isset($idps[$idpName])) {
+            // Flat array to map idp name / idp host.
+            $idpHosts = array_map(fn ($v) => $v['idp_host'] ?? null, $idps);
+            $idpName = array_search($idpName, $idpHosts);
+        }
+
         $idp = $idps[$idpName] ?? [];
 
         $idpDefault = [
             'idp_metadata_url' => '',
             'idp_entity_id' => '',
             'idp_entity_name' => '',
+            'idp_host' => '',
             'idp_sso_url' => '',
             'idp_slo_url' => '',
             'idp_x509_certificate' => '',

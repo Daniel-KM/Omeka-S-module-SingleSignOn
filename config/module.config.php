@@ -112,6 +112,9 @@ return [
                     'idp_metadata_url' => '',
                     'idp_entity_id' => '',
                     'idp_entity_name' => '',
+                    // This value is stored automatically from the sso url in
+                    // order to manage idps that use a urn as id.
+                    // 'idp_host' => '',
                     'idp_sso_url' => '',
                     'idp_slo_url' => '',
                     'idp_x509_certificate' => '',

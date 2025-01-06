@@ -109,10 +109,15 @@ class IdpMetadata extends AbstractPlugin
                 ?: (string) ($xml->xpath('//IDPSSODescriptor/KeyDescriptor/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '');
         }
 
+        // This value is stored automatically from the sso url in order to
+        // manage idps that use a urn as id.
+        $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
+
         return [
             'idp_metadata_url' => $idpUrl,
             'idp_entity_id' => trim($entityId),
             'idp_entity_name' => trim($entityName),
+            'idp_host' => $idpHost,
             'idp_sso_url' => trim($ssoUrl),
             'idp_slo_url' => trim($sloUrl),
             // The xml may add tabulations and spaces, to be removed.

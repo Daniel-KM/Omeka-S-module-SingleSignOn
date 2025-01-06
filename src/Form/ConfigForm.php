@@ -190,15 +190,15 @@ class ConfigForm extends Form
                 'type' => Element\Select::class,
                 'options' => [
                     'label' => 'SP name id format', // @translate
-                    'info' => 'Value to set in xml element `<md:NameIDFormat>`. Let empty to use the default value (persistent).', // @translate
+                    'info' => 'Value to set in xml element `<md:NameIDFormat>`. Let empty to use the default value (unspecified).', // @translate
                     'value_options' => [
+                        SamlConstants::NAMEID_UNSPECIFIED => 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+                        SamlConstants::NAMEID_EMAIL_ADDRESS => 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
                         SamlConstants::NAMEID_PERSISTENT => 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
                         SamlConstants::NAMEID_TRANSIENT => 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
                         SamlConstants::NAMEID_ENCRYPTED => 'urn:oasis:names:tc:SAML:2.0:nameid-format:encrypted',
                         SamlConstants::NAMEID_ENTITY => 'urn:oasis:names:tc:SAML:2.0:nameid-format:entity',
                         SamlConstants::NAMEID_KERBEROS => 'urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos',
-                        SamlConstants::NAMEID_UNSPECIFIED => 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
-                        SamlConstants::NAMEID_EMAIL_ADDRESS => 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
                         SamlConstants::NAMEID_X509_SUBJECT_NAME => 'urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName',
                         SamlConstants::NAMEID_WINDOWS_DOMAIN_QUALIFIED_NAME => 'urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName',
                     ],

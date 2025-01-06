@@ -1004,7 +1004,7 @@ class SsoController extends AbstractActionController
                 // represent the requested subject.
                 // Take a look on lib/Saml2/Constants.php to see the NameIdFormat supported
                 // 'NameIDFormat' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
-                'NameIDFormat' => $settings->get('singlesignon_sp_name_id_format', \OneLogin\Saml2\Constants::NAMEID_PERSISTENT),
+                'NameIDFormat' => $settings->get('singlesignon_sp_name_id_format', \OneLogin\Saml2\Constants::NAMEID_UNSPECIFIED),
 
                 // Usually x509cert and privateKey of the SP are provided by files placed at
                 // the certs folder. But we can also provide them with the following parameters

@@ -113,10 +113,15 @@ class IdpMetadata extends AbstractPlugin
         // manage idps that use a urn as id.
         $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
 
+        // The idpName is used to get metadata with a short url.
+        $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
+        $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+
         return [
             'idp_metadata_url' => $idpUrl,
             'idp_entity_id' => trim($entityId),
             'idp_entity_name' => trim($entityName),
+            'idp_entity_short_id' => $idpName,
             'idp_host' => $idpHost,
             'idp_sso_url' => trim($ssoUrl),
             'idp_slo_url' => trim($sloUrl),

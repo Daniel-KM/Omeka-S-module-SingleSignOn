@@ -61,6 +61,7 @@ class SsoController extends AbstractActionController
     {
         // When the idp is set, it means to get its metadata.
         $idpName = $this->params()->fromRoute('idp');
+
         $isSp = empty($idpName);
         if ($isSp) {
             // Check for metadata of the current sp (option true of SamlSettings).
@@ -157,7 +158,8 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
         }
 
-        $configSso = $this->validConfigSso($idpName, true);
+        $idpEntityId = $idp['idp_entity_id'];
+        $configSso = $this->validConfigSso($idpEntityId, true);
 
         if (empty($configSso['sp']['assertionConsumerService'])) {
             $this->messenger()->addWarning(new PsrMessage('Single sign-on is disabled.')); // @translate
@@ -238,7 +240,9 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
         }
 
-        $configSso = $this->validConfigSso($idpName, true);
+        $idpEntityId = $idp['idp_entity_id'];
+
+        $configSso = $this->validConfigSso($idpEntityId, true);
         if (empty($configSso['sp']['assertionConsumerService'])) {
             $this->messenger()->addWarning(new PsrMessage('Single sign-on is disabled.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
@@ -453,7 +457,7 @@ class SsoController extends AbstractActionController
         $userSettings = $this->userSettings();
         $userSettings->setTargetId($user->getId());
         $userSettings->set('connection_authenticator', 'SingleSignOn');
-        $userSettings->set('connection_idp', $idpName);
+        $userSettings->set('connection_idp', $idpEntityId);
         $userSettings->set('connection_last', (new DateTime('now'))->format('Y-m-d H:i:s'));
 
         $this->messenger()->addSuccess(new PsrMessage('Successfully logged in.')); // @translate
@@ -497,7 +501,9 @@ class SsoController extends AbstractActionController
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
         }
 
-        $configSso = $this->validConfigSso($idpName, true);
+        $idpEntityId = $idp['idp_entity_id'];
+
+        $configSso = $this->validConfigSso($idpEntityId, true);
         if (empty($configSso['sp']['singleLogoutService'])) {
             $this->messenger()->addSuccess('Successfully logged out'); // @translate
             // Allows to process core log out.
@@ -543,27 +549,61 @@ class SsoController extends AbstractActionController
     }
 
     /**
+     * Get the entity id from the idp short id (idp name).
+     */
+    protected function idpEntityIdFromIdpName(?string $idpName): ?string
+    {
+        if (!$idpName) {
+            return null;
+        }
+
+        $idps = $this->settings()->get('singlesignon_idps', []);
+        if (isset($idps[$idpName]['entity_id'])) {
+            return $idps[$idpName]['entity_id'];
+        }
+
+        // Flat array to map idp id / idp name.
+        $idpNames = array_column($idps, 'idp_entity_short_id', 'idp_entity_id');
+        $idpEntityId = array_search($idpName, $idpNames);
+        if ($idpEntityId) {
+            return $idpEntityId;
+        }
+
+        // Is it still usefull?
+        // Flat array to map idp id / idp host.
+        $idpHosts = array_column($idps, 'idp_host', 'idp_entity_id');
+        $idpEntityId = array_search($idpName, $idpHosts);
+        if ($idpEntityId) {
+            return $idpEntityId;
+        }
+
+        // Probably an invalid idp.
+        return isset($idps[$idpName])
+            ? $idpName
+            : null;
+    }
+
+    /**
      * Get idp data as array. If no idp is set, return data with empty values.
      *
      * Idp certificate may be updated when outdated.
      */
-    protected function idpData(?string $idpName, bool $update = false): array
+    protected function idpData(?string $idpEntityId, bool $update = false): array
     {
         $settings = $this->settings();
         $idps = $settings->get('singlesignon_idps', []);
 
-        if (!isset($idps[$idpName])) {
-            // Flat array to map idp name / idp host.
-            $idpHosts = array_map(fn ($v) => $v['idp_host'] ?? null, $idps);
-            $idpName = array_search($idpName, $idpHosts);
+        if (!isset($idps[$idpEntityId])) {
+            $idpEntityId = $this->idpEntityIdFromIdpName($idpEntityId);
         }
 
-        $idp = $idps[$idpName] ?? [];
+        $idp = $idps[$idpEntityId] ?? [];
 
         $idpDefault = [
             'idp_metadata_url' => '',
             'idp_entity_id' => '',
             'idp_entity_name' => '',
+            'idp_entity_short_id' => '',
             'idp_host' => '',
             'idp_sso_url' => '',
             'idp_slo_url' => '',
@@ -583,7 +623,7 @@ class SsoController extends AbstractActionController
         // Update idp data when possible, once a day.
         $toUpdate = $update
             && $updateMode !== 'manual'
-            && (string) $idpName !== ''
+            && $idpEntityId
             && $idp['idp_entity_id']
             && (!empty($idp['federation_url']) || !empty($idp['idp_metadata_url']))
             && (
@@ -615,7 +655,7 @@ class SsoController extends AbstractActionController
                     $idpMeta['idp_entity_id'] = $idp['idp_entity_id'];
                 }
                 $idp = $idpMeta;
-                $idps[$idpName] = $idp;
+                $idps[$idpEntityId] = $idp;
                 $settings->set('singlesignon_idps', $idps);
             }
         }
@@ -630,18 +670,24 @@ class SsoController extends AbstractActionController
      *
      * @return ?string Checked xml metadata.
      */
-    protected function idpMetadataXml(string $idpName): ?string
+    protected function idpMetadataXml(string $idpEntityId): ?string
     {
-        $idp = $this->idpData($idpName, false);
+        $idp = $this->idpData($idpEntityId, false);
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new PsrMessage('No IdP with this name.')); // @translate
             return null;
         }
 
+        $idpEntityId = $idp['idp_entity_id'];
+
+        $idpFullName = $idp['idp_entity_short_id'] && $idp['idp_entity_short_id'] !== $idpEntityId
+            ? sprintf('%s (%s)', $idp['idp_entity_short_id'], $idpEntityId)
+            : $idpEntityId;
+
         if (empty($idp['federation_url']) && empty($idp['idp_metadata_url'])) {
             $this->messenger()->addError(new PsrMessage(
                 'The IdP "{idp}" has no available metadata.', // @translate
-                ['idp' => $idpName]
+                ['idp' => $idpFullName]
             ));
             return null;
         }
@@ -653,7 +699,7 @@ class SsoController extends AbstractActionController
             if (!$federationString) {
                 $this->messenger()->addError(new PsrMessage(
                     'The IdP "{idp}" has no available metadata.', // @translate
-                    ['idp' => $idpName]
+                    ['idp' => $idpFullName]
                 ));
                 return null;
             }
@@ -704,7 +750,7 @@ class SsoController extends AbstractActionController
         if (!$idpString) {
             $this->messenger()->addError(new PsrMessage(
                 'The IdP "{idp}" has no available metadata.', // @translate
-                ['idp' => $idpName]
+                ['idp' => $idpFullName]
             ));
             return null;
         }
@@ -714,7 +760,7 @@ class SsoController extends AbstractActionController
         if (!$idpXml) {
             $this->messenger()->addError(new PsrMessage(
                 'The IdP "{idp}" has no valid xml metadata.', // @translate
-                ['idp' => $idpName]
+                ['idp' => $idpFullName]
             ));
             return null;
         }
@@ -788,11 +834,11 @@ class SsoController extends AbstractActionController
     /**
      * Validate the SSO config of the current sp or any managed idp.
      */
-    protected function validConfigSso(?string $idpName, bool $throw = false): ?array
+    protected function validConfigSso(?string $idpEntityId, bool $throw = false): ?array
     {
         try {
-            $configSso = $this->configSso($idpName);
-            new SamlSettings($configSso, empty($idpName));
+            $configSso = $this->configSso($idpEntityId);
+            new SamlSettings($configSso, empty($idpEntityId));
         } catch (SamlError $e) {
             $message = new PsrMessage(
                 'SSO service has an error in configuration: {exception}', // @translate
@@ -839,7 +885,7 @@ class SsoController extends AbstractActionController
     /**
      * Get the SSO config of the current sp or any managed idp.
      */
-    protected function configSso(?string $idpName): array
+    protected function configSso(?string $idpEntityId): array
     {
         $url = $this->url();
         $settings = $this->settings();
@@ -870,7 +916,7 @@ class SsoController extends AbstractActionController
         }
 
         // When there is no idp name, get the config of the sp.
-        $idp = $this->idpData($idpName, true);
+        $idp = $this->idpData($idpEntityId, true);
 
         /**
          * @see vendor/onelogin/php-saml/settings_example.php

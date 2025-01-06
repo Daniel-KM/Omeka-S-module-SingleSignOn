@@ -226,7 +226,7 @@ class Module extends AbstractModule
             if ($federationUrl) {
                 // Warning: a federated idp should not override a manual one.
                 // Normally, single idps are checked first in the list.
-                $cleanIdps[$idpName] ??= $idp;
+                $cleanIdps[$entityId] ??= $idp;
                 continue;
             }
 
@@ -239,7 +239,7 @@ class Module extends AbstractModule
                 && (!in_array('sls', $ssoServices) || !empty($idp['idp_slo_url']));
 
             if ($isFilled && $updateMode === 'manual') {
-                $cleanIdps[$idpName] = $idp;
+                $cleanIdps[$entityId ?: $idpName] = $idp;
                 $message = new PsrMessage(
                     'The idp "{idp}" was manually filled and is not checked neither updated.', // @translate
                     ['idp' => $idpName]
@@ -252,7 +252,7 @@ class Module extends AbstractModule
                 $idpMeta = $idpMetadata($entityUrl, true);
                 if (!$idpMeta) {
                     // Message is already prepared.
-                    $cleanIdps[$idpName] = $idp;
+                    $cleanIdps[$entityId ?: $idpName] = $idp;
                     continue;
                 }
                 // Keep some data.
@@ -275,7 +275,18 @@ class Module extends AbstractModule
                 $idp['idp_x509_certificate'] = $result;
             }
 
-            $cleanIdps[$idpName] = $idp;
+            // Normally not possible.
+            if (!$entityId) {
+                $cleanIdps[$idpName] = $idp;
+                $message = new PsrMessage(
+                    'The idp "{idp}" seems to be invalid and has no id.', // @translate
+                    ['idp' => $idpName]
+                );
+                $messenger->addWarning($message);
+                continue;
+            }
+
+            $cleanIdps[$entityId] = $idp;
         }
 
         $settings->set('singlesignon_idps', $cleanIdps);

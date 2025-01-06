@@ -118,11 +118,12 @@ class SsoFederationMetadata extends AbstractPlugin
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
                 $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
                 $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
-                $list[$idpName] = [
+                $list[$entityId] = [
                     'federation_url' => $federationUrl,
                     'idp_metadata_url' => null,
                     'idp_entity_id' => $entityId,
                     'idp_entity_name' => trim($entityName),
+                    'idp_entity_short_id' => $idpName,
                     'idp_host' => $idpHost,
                     'idp_sso_url' => trim($ssoUrl),
                     'idp_slo_url' => trim($sloUrl),
@@ -149,11 +150,12 @@ class SsoFederationMetadata extends AbstractPlugin
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
                 $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
                 $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
-                $list[$idpName] = [
+                $list[$entityId] = [
                     'federation_url' => $federationUrl,
                     'idp_metadata_url' => null,
                     'idp_entity_id' => $entityId,
                     'idp_entity_name' => trim($entityName),
+                    'idp_entity_short_id' => $idpName,
                     'idp_host' => $idpHost,
                     'idp_sso_url' => trim($ssoUrl),
                     'idp_slo_url' => trim($sloUrl),

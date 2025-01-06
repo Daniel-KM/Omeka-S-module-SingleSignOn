@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace SingleSignOn\Controller;
 
@@ -42,6 +40,25 @@ class SsoController extends AbstractActionController
         'urn:oid:0.9.2342.19200300.100.1.3' => 'email',
         'urn:oid:2.16.840.1.113730.3.1.241' => 'name',
         'https://samltest.id/attributes/role' => 'role',
+    ];
+
+    /**
+     * @var array
+     */
+    protected $providerData = [
+        'idp_metadata_url' => '',
+        'idp_entity_id' => '',
+        'idp_entity_name' => '',
+        'idp_entity_short_id' => '',
+        'idp_host' => '',
+        'idp_sso_url' => '',
+        'idp_slo_url' => '',
+        'idp_x509_certificate' => '',
+        'idp_date' => '',
+        'idp_attributes_map' => [],
+        'idp_roles_map' => [],
+        'idp_user_settings' => [],
+        'idp_metadata_update_mode' => 'auto',
     ];
 
     public function __construct(
@@ -152,7 +169,9 @@ class SsoController extends AbstractActionController
             // But allow post for other implementations.
             ?: $this->params()->fromPost('idp');
 
-        $idp = $this->idpData($idpName, true);
+        $idp = $idpName
+            ? $this->idpData($idpName, true)
+            : $this->providerData;
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new PsrMessage('No IdP with this name.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
@@ -234,7 +253,9 @@ class SsoController extends AbstractActionController
         $idpName = $this->params()->fromRoute('idp')
             ?: $this->idpNameFromRequest();
 
-        $idp = $this->idpData($idpName, true);
+        $idp = $idpName
+            ? $this->idpData($idpName, true)
+            : $this->providerData;
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new PsrMessage('No IdP with this name.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
@@ -388,7 +409,7 @@ class SsoController extends AbstractActionController
             }
 
             //Group Module Settings to apply default groups
-            if (class_exists(\Group\Entity\GroupUser::class)) {
+            if (class_exists(\Group\Module::class, false)) {
                 $settings = $this->settings();
                 $groups = $settings->get('singlesignon_groups_default', []);
                 if ($groups) {
@@ -493,7 +514,9 @@ class SsoController extends AbstractActionController
         $idpName = $this->params()->fromRoute('idp')
             ?: $this->idpNameFromRequest();
 
-        $idp = $this->idpData($idpName, true);
+        $idp = $idpName
+            ? $this->idpData($idpName, true)
+            : $this->providerData;
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new PsrMessage(
                 'No IdP with this name.' // @translate
@@ -588,7 +611,7 @@ class SsoController extends AbstractActionController
      *
      * Idp certificate may be updated when outdated.
      */
-    protected function idpData(?string $idpEntityId, bool $update = false): array
+    protected function idpData(string $idpEntityId, bool $update = false): array
     {
         $settings = $this->settings();
         $idps = $settings->get('singlesignon_idps', []);
@@ -599,24 +622,7 @@ class SsoController extends AbstractActionController
 
         $idp = $idps[$idpEntityId] ?? [];
 
-        $idpDefault = [
-            'idp_metadata_url' => '',
-            'idp_entity_id' => '',
-            'idp_entity_name' => '',
-            'idp_entity_short_id' => '',
-            'idp_host' => '',
-            'idp_sso_url' => '',
-            'idp_slo_url' => '',
-            'idp_x509_certificate' => '',
-            'idp_date' => '',
-            'idp_attributes_map' => [],
-            'idp_roles_map' => [],
-            'idp_user_settings' => [],
-            'idp_replace_domain' => '',
-            'idp_metadata_update_mode' => 'auto',
-        ];
-
-        $idp += $idpDefault;
+        $idp += $this->providerData;
 
         $updateMode = $settings->get('idp_metadata_update_mode') ?: 'auto';
 
@@ -631,8 +637,8 @@ class SsoController extends AbstractActionController
                 empty($idp['idp_date'])
                 // Update once a day.
                 || (new \DateTimeImmutable($idp['idp_date']))->setTime(0, 0, 0)
-                ->diff((new \DateTimeImmutable('now'))->setTime(0, 0, 0), true)
-                ->format('%a') >= 1
+                    ->diff((new \DateTimeImmutable('now'))->setTime(0, 0, 0), true)
+                    ->format('%a') >= 1
             );
 
         if ($toUpdate) {
@@ -672,7 +678,9 @@ class SsoController extends AbstractActionController
      */
     protected function idpMetadataXml(string $idpEntityId): ?string
     {
-        $idp = $this->idpData($idpEntityId, false);
+        $idp = $idpEntityId
+            ? $this->idpData($idpEntityId, false)
+            : $this->providerData;
         if (!$idp['idp_entity_id']) {
             $this->messenger()->addError(new PsrMessage('No IdP with this name.')); // @translate
             return null;
@@ -824,7 +832,7 @@ class SsoController extends AbstractActionController
                     : $this->url()->fromRoute('top');
             case 'top':
                 return $this->url()->fromRoute('top');
-            case 'me' && $this->getPluginManager()->has('userRedirectUrl'):
+            case 'me' && class_exists(\Guest\Module::class, false):
                 return $this->url()->fromRoute('site/guest', [], true);
             default:
                 return $redirect;
@@ -865,15 +873,13 @@ class SsoController extends AbstractActionController
 
         $activeSsoServices = $this->settings()->get('singlesignon_services', ['sso']);
 
-        if (
-            !in_array('sso', $activeSsoServices)
+        if (!in_array('sso', $activeSsoServices)
             || empty($configSso['sp']['assertionConsumerService']['url'])
         ) {
             unset($configSso['sp']['assertionConsumerService']);
         }
 
-        if (
-            !in_array('sls', $activeSsoServices)
+        if (!in_array('sls', $activeSsoServices)
             || empty($configSso['sp']['singleLogoutService']['url'])
         ) {
             unset($configSso['sp']['singleLogoutService']);
@@ -883,7 +889,9 @@ class SsoController extends AbstractActionController
     }
 
     /**
-     * Get the SSO config of the current sp or any managed idp.
+     * Get the SSO config of the current sp and a managed idp, if any.
+     *
+     * @param string|null $idpEntityId Null means the sp entity id.
      */
     protected function configSso(?string $idpEntityId): array
     {
@@ -895,7 +903,7 @@ class SsoController extends AbstractActionController
             defined('ONELOGIN_CUSTOMPATH') || define('ONELOGIN_CUSTOMPATH', rtrim($basePath, '/') . '/');
         }
 
-        $spHostName = $this->settings()->get('singlesignon_sp_host_name');
+        $spHostName = $settings->get('singlesignon_sp_host_name');
         if ($spHostName) {
             $baseUrlSso = $spHostName . rtrim($url->fromRoute('sso', [], ['force_canonical' => false]), '/');
         } else {
@@ -906,17 +914,14 @@ class SsoController extends AbstractActionController
         $spPrivateKey = trim($settings->get('singlesignon_sp_x509_private_key') ?: '');
         if ($spX509cert && $spPrivateKey) {
             // Remove windows and apple issues (managed later anyway).
-            $spaces = [
-                "\r\n" => "\n",
-                "\n\r" => "\n",
-                "\r" => "\n",
-            ];
-            $spX509cert = str_replace(array_keys($spaces), array_values($spaces), $spX509cert);
-            $spPrivateKey = str_replace(array_keys($spaces), array_values($spaces), $spPrivateKey);
+            $spX509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $spX509cert);
+            $spPrivateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $spPrivateKey);
         }
 
         // When there is no idp name, get the config of the sp.
-        $idp = $this->idpData($idpEntityId, true);
+        $idp = $idpEntityId
+            ? $this->idpData($idpEntityId, true)
+            : $this->providerData;
 
         /**
          * @see vendor/onelogin/php-saml/settings_example.php

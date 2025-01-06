@@ -354,16 +354,12 @@ class Module extends AbstractModule
 
         if (!$x509cert && !$privateKey) {
             return true;
-        }
-
-        if ($x509cert && !$privateKey) {
+        } elseif ($x509cert && !$privateKey) {
             $message = new PsrMessage(
                 'The SP public certificate is set, but not the private key.' // @translate
             );
             $messenger->addError($message);
-        }
-
-        if (!$x509cert && $privateKey) {
+        } elseif (!$x509cert && $privateKey) {
             $message = new PsrMessage(
                 'The SP private key is set, but not the public certificate.' // @translate
             );
@@ -371,13 +367,8 @@ class Module extends AbstractModule
         }
 
         // Remove windows and apple issues.
-        $spaces = [
-            "\r\n" => "\n",
-            "\n\r" => "\n",
-            "\r" => "\n",
-        ];
-        $x509cert = str_replace(array_keys($spaces), array_values($spaces), $x509cert);
-        $privateKey = str_replace(array_keys($spaces), array_values($spaces), $privateKey);
+        $x509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $x509cert);
+        $privateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $privateKey);
 
         // Clean keys.
         $x509cert = Utils::formatCert($x509cert, true);
@@ -460,12 +451,7 @@ class Module extends AbstractModule
         $messenger = $services->get('ControllerPluginManager')->get('messenger');
 
         // Remove windows and apple issues.
-        $spaces = [
-            "\r\n" => "\n",
-            "\n\r" => "\n",
-            "\r" => "\n",
-        ];
-        $x509cert = str_replace(array_keys($spaces), array_values($spaces), $x509cert);
+        $x509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $x509cert);
 
         $x509cert = Utils::formatCert($x509cert);
 

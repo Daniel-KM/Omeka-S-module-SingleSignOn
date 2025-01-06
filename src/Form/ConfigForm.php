@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SingleSignOn\Form;
 
+use Common\Form\Element as CommonElement;
 use Laminas\Form\Element;
 use Laminas\Form\Form;
 use Laminas\Mvc\I18n\Translator;
@@ -52,7 +53,7 @@ class ConfigForm extends Form
             // TODO Remove admin role from role select.
             ->add([
                 'name' => 'singlesignon_role_default',
-                'type' => 'Omeka\Form\Element\RoleSelect',
+                'type' => CommonElement\OptionalRoleSelect::class,
                 'options' => [
                     'label' => 'Default role for new users when not configured in idp', // @translate
                 ],
@@ -98,7 +99,6 @@ class ConfigForm extends Form
                     'id' => 'singlesignon_append_links_to_login_view',
                 ],
             ])
-
             ->add([
                 'name' => 'singlesignon_redirect',
                 'type' => Element\Text::class,
@@ -142,7 +142,6 @@ class ConfigForm extends Form
                     'id' => 'singlesignon_sp_metadata_disposition',
                 ],
             ])
-
             ->add([
                 'name' => 'singlesignon_sp_metadata_disposition',
                 'type' => Element\Radio::class,
@@ -159,7 +158,6 @@ class ConfigForm extends Form
                     'id' => 'singlesignon_sp_metadata_disposition',
                 ],
             ])
-
             ->add([
                 'name' => 'singlesignon_sp_metadata_mode',
                 'type' => Element\Radio::class,
@@ -175,7 +173,6 @@ class ConfigForm extends Form
                     'id' => 'singlesignon_sp_metadata_mode',
                 ],
             ])
-
             ->add([
                 'name' => 'singlesignon_sp_name_id_format',
                 'type' => Element\Select::class,
@@ -214,7 +211,6 @@ class ConfigForm extends Form
                     'id' => 'singlesignon_sp_cert_path',
                 ],
             ])
-
             ->add([
                 'name' => 'singlesignon_sp_x509_certificate',
                 'type' => Element\Textarea::class,
@@ -227,7 +223,6 @@ class ConfigForm extends Form
                     'rows' => 5,
                 ],
             ])
-
             ->add([
                 'name' => 'singlesignon_sp_x509_private_key',
                 'type' => Element\Textarea::class,

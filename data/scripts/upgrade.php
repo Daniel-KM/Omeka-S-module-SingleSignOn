@@ -207,3 +207,61 @@ if (version_compare($oldVersion, '3.4.14', '<')) {
     );
     $messenger->addSuccess($message);
 }
+
+if (version_compare($oldVersion, '3.4.16', '<')) {
+    $idps = $settings->get('singlesignon_idps', []);
+    foreach ($idps as $idpName => &$idpData) {
+        // Set the short id.
+        $entityIdUrl = $idpData['idp_metadata_url'] ?: '';
+        $entityId = $idpData['idp_entity_id'] ?: $idpName;
+        $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+        $idpData['idp_entity_short_id'] = $idpName;
+        // Set the host.
+        $ssoUrl = $idpData['idp_sso_url'] ?? null;
+        $idpData['idp_host'] = $ssoUrl
+            ? parse_url($ssoUrl, PHP_URL_HOST)
+            : null;
+    }
+    unset($idpData);
+    $settings->set('singlesignon_idps', $idps);
+
+    // Remove "idp_" from keys.
+    foreach ($idps as $idpName => $idpData) {
+        $idpDataNew = [];
+        foreach ($idpData as $key => $value) {
+            $idpDataNew[mb_substr($key, 0, 4) === 'idp_' ? mb_substr($key, 4) : $key] = $value;
+        }
+        $idps[$idpName] = $idpDataNew;
+    }
+    $settings->set('singlesignon_idps', $idps);
+
+    $message = new PsrMessage(
+        'It is now possible to define a specific entity id (default is the url of the site).' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'It is now possible to create the x509 certificate of the SP.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'It is now possible to manage IdPs with a urn as entity id.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'A new option allows to replace the host domain used by Omeka as internal SP server with the host name used in public.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'A new option allows to set the page to redirect after login.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'A new option allows to set groups for new users (module Group).' // @translate
+    );
+    $messenger->addSuccess($message);
+}

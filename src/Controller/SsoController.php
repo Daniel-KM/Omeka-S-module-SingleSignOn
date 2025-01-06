@@ -910,6 +910,8 @@ class SsoController extends AbstractActionController
             $baseUrlSso = rtrim($url->fromRoute('sso', [], ['force_canonical' => true]), '/');
         }
 
+        $spEntityId = $settings->get('singlesignon_sp_entity_id') ?: $baseUrlSso;
+
         $spX509cert = trim($settings->get('singlesignon_sp_x509_certificate') ?: '');
         $spPrivateKey = trim($settings->get('singlesignon_sp_x509_private_key') ?: '');
         if ($spX509cert && $spPrivateKey) {
@@ -946,7 +948,7 @@ class SsoController extends AbstractActionController
             // Service Provider Data that we are deploying
             'sp' => [
                 // Identifier of the SP entity  (must be a URI)
-                'entityId' => $baseUrlSso,
+                'entityId' => $spEntityId,
 
                 // Specifies info about where and how the <AuthnResponse> message MUST be
                 // returned to the requester, in this case our SP.

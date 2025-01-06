@@ -115,6 +115,17 @@ class ConfigForm extends Form
             // Service Provider (SP).
 
             ->add([
+                'name' => 'singlesignon_sp_entity_id',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Set a specific service provider entity id (default is the uri of the current host)', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_entity_id',
+                    'required' => false,
+                ],
+            ])
+            ->add([
                 'name' => 'singlesignon_sp_host_name',
                 'type' => Element\Text::class,
                 'options' => [

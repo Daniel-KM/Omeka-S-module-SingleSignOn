@@ -647,7 +647,9 @@ class Module extends AbstractModule
         openssl_pkey_export($privateKey, $readablePrivateKey);
 
         // Free the private key for security.
-        openssl_pkey_free($privateKey);
+        if (PHP_VERSION_ID < 80000) {
+            openssl_pkey_free($privateKey);
+        }
 
         return [
             $x509cert,

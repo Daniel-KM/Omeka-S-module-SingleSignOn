@@ -835,14 +835,13 @@ class SsoController extends AbstractActionController
                 }
                 // no break.
             case 'site':
-                $siteSlug = $this->params()->fromRoute('site-slug');
+            case 'me' && class_exists(\Guest\Module::class, false):
+                $siteSlug = $this->params()->fromRoute('site-slug') ?: $this->viewHelpers()->get('defaultSite')('slug');
                 return $siteSlug
-                    ? $this->url()->fromRoute('site', ['site-slug' => $siteSlug])
+                    ? $this->url()->fromRoute($redirect === 'me' ? 'site/guest' : 'site', ['site-slug' => $siteSlug])
                     : $this->url()->fromRoute('top');
             case 'top':
                 return $this->url()->fromRoute('top');
-            case 'me' && class_exists(\Guest\Module::class, false):
-                return $this->url()->fromRoute('site/guest', [], true);
             default:
                 return $redirect;
         }

@@ -929,6 +929,12 @@ class SsoController extends AbstractActionController
             // Remove windows and apple issues (managed later anyway).
             $spSignX509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $spSignX509cert);
             $spSignPrivateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $spSignPrivateKey);
+        } else {
+            if ($spSignX509cert || $spSignPrivateKey) {
+                $this->logger()->err('The cerificate for the signature is incomplete.'); // @translate
+            }
+            $spSignX509cert = null;
+            $spSignPrivateKey = null;
         }
 
         $spCryptX509cert = trim($settings->get('singlesignon_sp_crypt_x509_certificate') ?: '');
@@ -937,6 +943,12 @@ class SsoController extends AbstractActionController
             // Remove windows and apple issues (managed later anyway).
             $spCryptX509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $spCryptX509cert);
             $spCryptPrivateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $spCryptPrivateKey);
+        } else {
+            if ($spCryptX509cert && $spCryptPrivateKey) {
+                $this->logger()->err('The cerificate for the encryption is incomplete.'); // @translate
+            }
+            $spCryptX509cert = null;
+            $spCryptPrivateKey = null;
         }
 
         // When there is no idp name, get the config of the sp.
@@ -1116,21 +1128,25 @@ class SsoController extends AbstractActionController
 
                 // Indicates whether the <samlp:AuthnRequest> messages sent by this SP
                 // will be signed.              [The Metadata of the SP will offer this info]
-                'authnRequestsSigned' => false,
+                'authnRequestsSigned' => !empty($spSignX509cert),
 
                 // Indicates whether the <samlp:logoutRequest> messages sent by this SP
                 // will be signed.
-                'logoutRequestSigned' => false,
+                'logoutRequestSigned' => !empty($spSignX509cert),
 
                 // Indicates whether the <samlp:logoutResponse> messages sent by this SP
                 // will be signed.
-                'logoutResponseSigned' => false,
+                'logoutResponseSigned' => !empty($spSignX509cert),
 
                 /* Sign the Metadata
                  False || True (use sp certs) || array (
-                 keyFileName => 'metadata.key',
-                 certFileName => 'metadata.crt'
-                 )
+                        keyFileName => 'metadata.key',
+                        certFileName => 'metadata.crt'
+                    )
+                    || array (
+                        'x509cert' => '',
+                        'privateKey' => ''
+                    )
                  */
                 'signMetadata' => false,
 
@@ -1146,7 +1162,7 @@ class SsoController extends AbstractActionController
 
                 // Indicates a requirement for the <saml:Assertion> elements received by
                 // this SP to be signed.        [The Metadata of the SP will offer this info]
-                'wantAssertionsSigned' => false,
+                'wantAssertionsSigned' => !empty($spSignX509cert),
 
                 // Indicates a requirement for the NameID element on the SAMLResponse received
                 // by this SP to be present.
@@ -1174,13 +1190,27 @@ class SsoController extends AbstractActionController
                 // attribute will not be rejected for this fact.
                 'relaxDestinationValidation' => false,
 
+                // If true, Destination URL should strictly match to the address to
+                // which the response has been sent.
+                // Notice that if 'relaxDestinationValidation' is true an empty Destintation
+                // will be accepted.
+                'destinationStrictlyMatches' => false,
+
+                // If true, the toolkit will not raised an error when the Statement Element
+                // contain atribute elements with name duplicated
+                'allowRepeatAttributeName' => false,
+
+                // If true, SAMLResponses with an InResponseTo value will be rejectd if not
+                // AuthNRequest ID provided to the validation method.
+                'rejectUnsolicitedResponsesWithInResponseTo' => false,
+
                 // Algorithm that the toolkit will use on signing process. Options:
                 //    'http://www.w3.org/2000/09/xmldsig#rsa-sha1'
                 //    'http://www.w3.org/2000/09/xmldsig#dsa-sha1'
                 //    'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
                 //    'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384'
                 //    'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512'
-                // Notice that sha1 is a deprecated algorithm and should not be used
+                // Notice that rsa-sha1 is a deprecated algorithm and should not be used
                 'signatureAlgorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
 
                 // Algorithm that the toolkit will use on digest process. Options:
@@ -1190,6 +1220,17 @@ class SsoController extends AbstractActionController
                 //    'http://www.w3.org/2001/04/xmlenc#sha512'
                 // Notice that sha1 is a deprecated algorithm and should not be used
                 'digestAlgorithm' => 'http://www.w3.org/2001/04/xmlenc#sha256',
+
+                // Algorithm that the toolkit will use for encryption process. Options:
+                // 'http://www.w3.org/2001/04/xmlenc#tripledes-cbc'
+                // 'http://www.w3.org/2001/04/xmlenc#aes128-cbc'
+                // 'http://www.w3.org/2001/04/xmlenc#aes192-cbc'
+                // 'http://www.w3.org/2001/04/xmlenc#aes256-cbc'
+                // 'http://www.w3.org/2009/xmlenc11#aes128-gcm'
+                // 'http://www.w3.org/2009/xmlenc11#aes192-gcm'
+                // 'http://www.w3.org/2009/xmlenc11#aes256-gcm';
+                // Notice that aes-cbc are not consider secure anymore so should not be used
+                'encryption_algorithm' => 'http://www.w3.org/2009/xmlenc11#aes128-gcm',
 
                 // ADFS URL-Encodes SAML data as lowercase, and the toolkit by default uses
                 // uppercase. Turn it True for ADFS compatibility on signature verification

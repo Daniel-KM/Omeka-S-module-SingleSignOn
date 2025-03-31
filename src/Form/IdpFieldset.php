@@ -115,9 +115,11 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'attributes' => [
                     'id' => 'idp_attributes_map',
                     'rows' => 5,
-                    'placeholder' => 'mail = email
-displayName = name
-role = role',
+                    'placeholder' => <<<'TXT'
+                        mail = email
+                        displayName = name
+                        role = role
+                        TXT,
                 ],
             ])
             ->add([
@@ -131,8 +133,10 @@ role = role',
                 'attributes' => [
                     'id' => 'idp_roles_map',
                     'rows' => 5,
-                    'placeholder' => 'scholar = guest
-librarian = author',
+                    'placeholder' => <<<'TXT'
+                        scholar = guest
+                        librarian = author
+                        TXT,
                 ],
             ])
             ->add([
@@ -145,9 +149,11 @@ librarian = author',
                 'attributes' => [
                     'id' => 'idp_user_settings',
                     'rows' => 5,
-                    'placeholder' => 'locale = fr
-guest_agreed_terms = 1
-userprofile_key = value',
+                    'placeholder' => <<<'TXT'
+                        locale = fr
+                        guest_agreed_terms = 1
+                        userprofile_key = value
+                        TXT,
                 ],
             ])
 

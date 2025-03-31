@@ -242,6 +242,8 @@ class Module extends AbstractModule
                 continue;
             }
 
+            unset($idp['minus'], $idp['up'], $idp['down']);
+
             $updateMode = $idp['metadata_update_mode'] ?? 'auto';
 
             // Check if the idp is filled.

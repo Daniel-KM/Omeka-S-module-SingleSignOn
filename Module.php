@@ -252,7 +252,10 @@ class Module extends AbstractModule
 
             if ($isFilled && $updateMode === 'manual') {
                 $idp = $this->completeIdpData($idp) + $idp;
-                $cleanIdps[$entityId ?: $idp['entity_short_id'] ?: $idp['host']] = $idp;
+                // When an idp is not available, the key sshould not be empty,
+                // so use another key to keep track of it and to avoid an issue
+                // somewhere else, for example in form idp fieldset.
+                $cleanIdps[$entityId ?: $idp['entity_short_id'] ?: $idp['host'] ?: $idp['metadata_url']] = $idp;
                 $message = new PsrMessage(
                     'The idp "{idp}" was manually filled and is not checked neither updated.', // @translate
                     ['idp' => $entityShortId]
@@ -300,7 +303,7 @@ class Module extends AbstractModule
 
             // Normally not possible.
             if (!$entityId) {
-                $cleanIdps[$entityName] = $idp;
+                $cleanIdps[$entityName ?: $idp['entity_short_id'] ?: $idp['host'] ?: $idp['metadata_url']] = $idp;
                 $message = new PsrMessage(
                     'The idp "{idp}" seems to be invalid and has no id.', // @translate
                     ['idp' => $entityName]

@@ -603,6 +603,12 @@ class SsoController extends AbstractActionController
             return $idpEntityId;
         }
 
+        $idpUrls = array_column($idps, 'metadata_url', 'entity_id');
+        $idpEntityId = array_search($idpName, $idpUrls);
+        if ($idpEntityId) {
+            return $idpEntityId;
+        }
+
         // Probably an invalid idp.
         return isset($idps[$idpName])
             ? $idpName

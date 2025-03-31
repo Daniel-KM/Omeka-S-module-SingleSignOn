@@ -12,6 +12,7 @@ $url = $plugins->get('url');
 $api = $plugins->get('api');
 $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
+$pageTitle = $plugins->get('pageTitle');
 
 // The main config is not easy to get from the view without deprecation warning.
 $config = $api->read('vocabularies', 1)->getContent()->getServiceLocator()->get('Config');
@@ -20,7 +21,9 @@ $allowLocalLogin = empty($config['authentication']['forbid_local_login']);
 $this->htmlElement('body')->appendAttribute('class', 'login');
 ?>
 
-<h1><?= $translate('Log in') ?></h1>
+<?= $pageTitle($translate('Log in')) ?>
+
+<?php $this->trigger('view.login.before'); ?>
 
 <?php if ($allowLocalLogin): ?>
 <?= $this->form($form) ?>

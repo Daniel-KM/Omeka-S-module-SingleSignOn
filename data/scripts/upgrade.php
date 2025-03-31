@@ -12,17 +12,26 @@ use Omeka\Stdlib\Message;
  * @var string $oldVersion
  *
  * @var \Omeka\Api\Manager $api
+ * @var \Omeka\View\Helper\Url $url
+ * @var \Laminas\Log\Logger $logger
  * @var \Omeka\Settings\Settings $settings
+ * @var \Laminas\I18n\View\Helper\Translate $translate
  * @var \Doctrine\DBAL\Connection $connection
+ * @var \Laminas\Mvc\I18n\Translator $translator
  * @var \Doctrine\ORM\EntityManager $entityManager
+ * @var \Omeka\Settings\SiteSettings $siteSettings
  * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
  */
 $plugins = $services->get('ControllerPluginManager');
+$url = $services->get('ViewHelperManager')->get('url');
 $api = $plugins->get('api');
+$logger = $services->get('Omeka\Logger');
 $settings = $services->get('Omeka\Settings');
 $translate = $plugins->get('translate');
+$translator = $services->get('MvcTranslator');
 $connection = $services->get('Omeka\Connection');
 $messenger = $plugins->get('messenger');
+$siteSettings = $services->get('Omeka\Settings\Site');
 $entityManager = $services->get('Omeka\EntityManager');
 
 if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.66')) {
@@ -264,4 +273,50 @@ if (version_compare($oldVersion, '3.4.16', '<')) {
         'A new option allows to set groups for new users (module Group).' // @translate
     );
     $messenger->addSuccess($message);
+}
+
+if (version_compare($oldVersion, '3.4.17', '<')) {
+    $renamedKeys = [
+        'singlesignon_sp_cert_path' => 'singlesignon_sp_sign_x509_path',
+        'singlesignon_sp_x509_certificate' => 'singlesignon_sp_sign_x509_certificate',
+        'singlesignon_sp_x509_private_key' => 'singlesignon_sp_sign_x509_private_key',
+        'singlesignon_sp_x509_certificate_data' => 'singlesignon_sp_sign_x509_certificate_data',
+    ];
+    foreach ($renamedKeys as $oldK => $newK) {
+        if ($settings->get($newK) === null) {
+            $settings->set($newK, $settings->get($oldK));
+        }
+        $settings->delete($oldK);
+    }
+
+    $idps = $settings->get('singlesignon_idps', []);
+    $newIdps = [];
+    foreach ($idps as $idpName => $idpData) {
+        if (empty($idpData['federation_url'])) {
+            $idpData = $this->completeIdpData($idpData) + $idpData;
+        }
+        $idpData['sign_x509_certificate'] = $idpData['x509_certificate'] ?? $idpData['sign_x509_certificate'] ?? null;
+        unset($idpData['x509_certificate']);
+        $key = $idpData['entity_id'] ?: $idpData['entity_short_id'] ?: $idpData['host'];
+        $newIdps[$key] = $idpData;
+    }
+    unset($idpData);
+    $settings->set('singlesignon_idps', $newIdps);
+
+    $message = new PsrMessage(
+        'A new option allows to store the certificate used to encrypt process, not only to sign in.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    if (!empty($settings->get('singlesignon_federation'))) {
+        $message = new PsrMessage(
+            'To upgrade the config, you must go to the {link}config form{link_end} and submit it manually.', // @translate
+            [
+                'link' => '<a href="' . $url('admin/default', ['controller' => 'module', 'action' => 'configure'], ['query' => ['id' => 'SingleSignOn']]) . '">',
+                'link_end' => '</a>',
+            ]
+        );
+        $message->setEscapeHtml(false);
+        $messenger->addWarning($message);
+    }
 }

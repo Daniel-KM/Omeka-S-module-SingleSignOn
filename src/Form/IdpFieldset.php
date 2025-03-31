@@ -78,14 +78,14 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 ],
             ])
             ->add([
-                'name' => 'x509_certificate',
+                'name' => 'sign_x509_certificate',
                 'type' => Element\Textarea::class,
                 'options' => [
-                    'label' => 'Public X.509 certificate of the IdP', // @translate
+                    'label' => 'Public X.509 certificate of the IdP (signing)', // @translate
                     'info' => 'If not set, it will be fetched from the IdP url, if available.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'idp_x509_certificate',
+                    'id' => 'idp_sign_x509_certificate',
                     'rows' => 5,
                 ],
             ])

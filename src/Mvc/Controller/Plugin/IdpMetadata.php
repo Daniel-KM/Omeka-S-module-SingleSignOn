@@ -96,7 +96,7 @@ class IdpMetadata extends AbstractPlugin
             $ssoUrl = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
             $sloUrl = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
             // Prefer the certificate used for encryption, not signing.
-            $x509Certificate = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
+            $signX509Certificate = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
                 ?: (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
         } else {
             $entityName = (string) ($xml->xpath('//IDPSSODescriptor/Extensions/UIInfo/DisplayName[1]')[0] ?? '')
@@ -105,7 +105,7 @@ class IdpMetadata extends AbstractPlugin
             $ssoUrl = (string) ($xml->xpath('//IDPSSODescriptor/SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
             $sloUrl = (string) ($xml->xpath('//IDPSSODescriptor/SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
             // Prefer the certificate used for encryption, not signing.
-            $x509Certificate = (string) ($xml->xpath('//IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '')
+            $signX509Certificate = (string) ($xml->xpath('//IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '')
                 ?: (string) ($xml->xpath('//IDPSSODescriptor/KeyDescriptor/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '');
         }
 
@@ -126,7 +126,7 @@ class IdpMetadata extends AbstractPlugin
             'sso_url' => trim($ssoUrl),
             'slo_url' => trim($sloUrl),
             // The xml may add tabulations and spaces, to be removed.
-            'x509_certificate' => trim(str_replace(["\t", ' '], '', $x509Certificate)),
+            'sign_x509_certificate' => trim(str_replace(["\t", ' '], '', $signX509Certificate)),
             'date' => (new \DateTime('now'))->format(\DateTime::ISO8601),
         ];
     }

@@ -96,10 +96,10 @@ return [
             'singlesignon_sp_metadata_disposition' => 'inline',
             'singlesignon_sp_metadata_mode' => 'standard',
             'singlesignon_sp_name_id_format' => '',
-            'singlesignon_sp_cert_path' => '',
-            'singlesignon_sp_x509_certificate' => '',
-            'singlesignon_sp_x509_private_key' => '',
-            'singlesignon_sp_x509_certificate_data' => '',
+            'singlesignon_sp_sign_x509_path' => '',
+            'singlesignon_sp_sign_x509_certificate' => '',
+            'singlesignon_sp_sign_x509_private_key' => '',
+            'singlesignon_sp_sign_x509_certificate_data' => '',
 
             // The config of the federation is merged with the single idps in
             // "singlesignon_idps".
@@ -119,7 +119,7 @@ return [
                     // 'host' => '',
                     'sso_url' => '',
                     'slo_url' => '',
-                    'x509_certificate' => '',
+                    'sign_x509_certificate' => '',
                     'attributes_map' => [
                         'mail' => 'email',
                         'displayName' => 'name',

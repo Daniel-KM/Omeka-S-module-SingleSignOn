@@ -212,7 +212,7 @@ class ConfigForm extends Form
             ])
 
             ->add([
-                'name' => 'singlesignon_sp_cert_path',
+                'name' => 'singlesignon_sp_sign_x509_path',
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'Path for SP certificates (outside of webserver or protected)', // @translate
@@ -220,54 +220,54 @@ class ConfigForm extends Form
                     'documentation' => 'https://github.com/SAML-Toolkits/php-saml/tree/master/certs',
                 ],
                 'attributes' => [
-                    'id' => 'singlesignon_sp_cert_path',
+                    'id' => 'singlesignon_sp_sign_x509_path',
                 ],
             ])
             ->add([
-                'name' => 'singlesignon_sp_x509_certificate',
+                'name' => 'singlesignon_sp_sign_x509_certificate',
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'SP public certificate (x509)', // @translate
                     'info' => 'Some idp require certificates. If needed and if not set via a path, paste public certificate here. Take care to renew them when needed.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'singlesignon_sp_x509_certificate',
+                    'id' => 'singlesignon_sp_sign_x509_certificate',
                     'rows' => 5,
                 ],
             ])
             ->add([
-                'name' => 'singlesignon_sp_x509_private_key',
+                'name' => 'singlesignon_sp_sign_x509_private_key',
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'SP private key (x509)', // @translate
                     'info' => 'Some idp require certificates. If needed and not set via a path, paste private key here. Take care to renew them when needed.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'singlesignon_sp_x509_private_key',
+                    'id' => 'singlesignon_sp_sign_x509_private_key',
                     'rows' => 5,
                 ],
             ])
 
             ->add([
-                'name' => 'singlesignon_sp_create_certificate',
+                'name' => 'singlesignon_sp_sign_create_certificate',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
-                    'label' => 'Create an x509 certificate for the SP (require the three previous fields be empty)', // @translate
+                    'label' => 'Create an x509 certificate for the SP signature (require the three previous fields be empty)', // @translate
                     'info' => 'The certificate is generated for a century with the default data of the server or the data below.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'singlesignon_sp_create_certificate',
+                    'id' => 'singlesignon_sp_sign_create_certificate',
                 ],
             ])
             ->add([
-                'name' => 'singlesignon_sp_x509_certificate_data',
+                'name' => 'singlesignon_sp_sign_x509_certificate_data',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Data to store in the certificate to create (optional)', // @translate
                     'info' => 'The optional data keys are: countryName, stateOrProvinceName, localityName, organizationName, organizationalUnitName, commonName, and emailAddress.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'singlesignon_sp_x509_certificate_data',
+                    'id' => 'singlesignon_sp_sign_x509_certificate_data',
                     'placeholder' => <<<'TXT'
                         countryName = FR
                         stateOrProvinceName =

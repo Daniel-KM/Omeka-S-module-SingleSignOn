@@ -53,7 +53,7 @@ class SsoController extends AbstractActionController
         'host' => '',
         'sso_url' => '',
         'slo_url' => '',
-        'x509_certificate' => '',
+        'sign_x509_certificate' => '',
         'date' => '',
         'attributes_map' => [],
         'roles_map' => [],
@@ -904,9 +904,9 @@ class SsoController extends AbstractActionController
         $url = $this->url();
         $settings = $this->settings();
 
-        $basePath = $settings->get('singlesignon_sp_cert_path');
-        if ($basePath) {
-            defined('ONELOGIN_CUSTOMPATH') || define('ONELOGIN_CUSTOMPATH', rtrim($basePath, '/') . '/');
+        $certsBasePath = $settings->get('singlesignon_sp_sign_x509_path');
+        if ($certsBasePath) {
+            defined('ONELOGIN_CUSTOMPATH') || define('ONELOGIN_CUSTOMPATH', rtrim($certsBasePath, '/') . '/');
         }
 
         $spHostName = $settings->get('singlesignon_sp_host_name');
@@ -918,12 +918,12 @@ class SsoController extends AbstractActionController
 
         $spEntityId = $settings->get('singlesignon_sp_entity_id') ?: $baseUrlSso;
 
-        $spX509cert = trim($settings->get('singlesignon_sp_x509_certificate') ?: '');
-        $spPrivateKey = trim($settings->get('singlesignon_sp_x509_private_key') ?: '');
-        if ($spX509cert && $spPrivateKey) {
+        $spSignX509cert = trim($settings->get('singlesignon_sp_sign_x509_certificate') ?: '');
+        $spSignPrivateKey = trim($settings->get('singlesignon_sp_sign_x509_private_key') ?: '');
+        if ($spSignX509cert && $spSignPrivateKey) {
             // Remove windows and apple issues (managed later anyway).
-            $spX509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $spX509cert);
-            $spPrivateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $spPrivateKey);
+            $spSignX509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $spSignX509cert);
+            $spSignPrivateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $spSignPrivateKey);
         }
 
         // When there is no idp name, get the config of the sp.
@@ -1005,8 +1005,8 @@ class SsoController extends AbstractActionController
 
                 // Usually x509cert and privateKey of the SP are provided by files placed at
                 // the certs folder. But we can also provide them with the following parameters
-                'x509cert' => $spX509cert,
-                'privateKey' => $spPrivateKey,
+                'x509cert' => $spSignX509cert,
+                'privateKey' => $spSignPrivateKey,
 
                 /*
                  * Key rollover
@@ -1047,7 +1047,7 @@ class SsoController extends AbstractActionController
                 ],
 
                 // Public x509 certificate of the IdP
-                'x509cert' => $idp['x509_certificate'],
+                'x509cert' => $idp['sign_x509_certificate'],
 
                 /*
                  *  Instead of use the whole x509cert you can use a fingerprint in

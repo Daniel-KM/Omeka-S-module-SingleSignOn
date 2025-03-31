@@ -179,12 +179,13 @@ class Module extends AbstractModule
         }
 
         // Normally, the value is not stored.
-        $createCertificate = !empty($_POST['singlesignon_sp_create_certificate']);
-        $settings->delete('singlesignon_sp_create_certificate');
+        $settings->delete('singlesignon_sp_sign_create_certificate');
+
+        $createCertificateSign = !empty($_POST['singlesignon_sp_sign_create_certificate']);
 
         // Messages are displayed, but data are stored in all cases.
 
-        $this->checkConfigSP($createCertificate);
+        $this->checkConfigSP($createCertificateSign);
 
         $this->checkConfigFederation();
 
@@ -243,7 +244,7 @@ class Module extends AbstractModule
 
             // Check if the idp is filled.
             $isFilled = !empty($idp['entity_name'])
-                && !empty($idp['x509_certificate'])
+                && !empty($idp['sign_x509_certificate'])
                 && (!in_array('sso', $ssoServices) || !empty($idp['sso_url']))
                 && (!in_array('sls', $ssoServices) || !empty($idp['slo_url']));
 
@@ -285,9 +286,9 @@ class Module extends AbstractModule
                 $entityName = $idp['entity_name'];
             }
 
-            $result = $this->checkX509Certificate($idp['x509_certificate'] ?? null, $idp['entity_name'] ?: $idp['entity_short_id']);
+            $result = $this->checkX509Certificate($idp['sign_x509_certificate'] ?? null, $idp['entity_name'] ?: $idp['entity_short_id']);
             if ($result) {
-                $idp['x509_certificate'] = $result;
+                $idp['sign_x509_certificate'] = $result;
             }
 
             // Normally not possible.
@@ -369,7 +370,7 @@ class Module extends AbstractModule
         return true;
     }
 
-    protected function checkConfigSP(?bool $createCertificate = false): bool
+    protected function checkConfigSP(?bool $createCertificateSign = false): bool
     {
         /**
          * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
@@ -381,42 +382,42 @@ class Module extends AbstractModule
         $settings = $services->get('Omeka\Settings');
         $messenger = $plugins->get('messenger');
 
-        $basePath = $settings->get('singlesignon_sp_cert_path');
-        $x509cert = trim($settings->get('singlesignon_sp_x509_certificate') ?: '');
-        $privateKey = trim($settings->get('singlesignon_sp_x509_private_key') ?: '');
+        $signCertsBasePath = $settings->get('singlesignon_sp_sign_x509_path');
+        $signX509cert = trim($settings->get('singlesignon_sp_sign_x509_certificate') ?: '');
+        $signPrivateKey = trim($settings->get('singlesignon_sp_sign_x509_private_key') ?: '');
 
-        if (!$x509cert && !$privateKey) {
-            if ($basePath) {
-                $x509certFilePath = $basePath . '/certs/sp.crt';
-                $x509cert = file_exists($x509certFilePath) || !is_readable($x509certFilePath) || !filesize($x509certFilePath)
-                    ? file_get_contents($x509certFilePath)
+        if (!$signX509cert && !$signPrivateKey) {
+            if ($signCertsBasePath) {
+                $signX509certFilePath = $signCertsBasePath . '/certs/sp.crt';
+                $signX509cert = file_exists($signX509certFilePath) || !is_readable($signX509certFilePath) || !filesize($signX509certFilePath)
+                    ? file_get_contents($signX509certFilePath)
                     : '';
-                $privateKeyPath = $basePath . '/certs/sp.key';
-                $privateKey = file_exists($privateKeyPath) || !is_readable($privateKeyPath) || !filesize($privateKeyPath)
-                    ? file_get_contents($privateKeyPath)
+                $signPrivateKeyPath = $signCertsBasePath . '/certs/sp.key';
+                $signPrivateKey = file_exists($signPrivateKeyPath) || !is_readable($signPrivateKeyPath) || !filesize($signPrivateKeyPath)
+                    ? file_get_contents($signPrivateKeyPath)
                     : '';
-                if (!$x509cert || !$privateKey) {
+                if (!$signX509cert || !$signPrivateKey) {
                     $message = new PsrMessage(
-                        'A path is set for the certificate, but it does not contain a directory "certs" with files "sp.crt" and "sp.key".' // @translate
+                        'A path is set for the signing certificate, but it does not contain a directory "certs" with files "sp.crt" and "sp.key".' // @translate
                     );
                     $messenger->addError($message);
                 }
-            } elseif (!$createCertificate) {
+            } elseif (!$createCertificateSign) {
                 return true;
             }
-        } elseif ($x509cert && !$privateKey) {
+        } elseif ($signX509cert && !$signPrivateKey) {
             $message = new PsrMessage(
-                'The SP public certificate is set, but not the private key.' // @translate
+                'The SP signing public certificate is set, but not the private key.' // @translate
             );
             $messenger->addError($message);
-        } elseif (!$x509cert && $privateKey) {
+        } elseif (!$signX509cert && $signPrivateKey) {
             $message = new PsrMessage(
-                'The SP private key is set, but not the public certificate.' // @translate
+                'The SP signing private key is set, but not the public certificate.' // @translate
             );
             $messenger->addError($message);
         }
 
-        if ($basePath && ($x509cert || $privateKey)) {
+        if ($signCertsBasePath && ($signX509cert || $signPrivateKey)) {
             $message = new PsrMessage(
                 'You cannot set a path to the certificate and provide them in fields at the same time.' // @translate
             );
@@ -424,24 +425,24 @@ class Module extends AbstractModule
             return false;
         }
 
-        if ($createCertificate) {
-            if ($basePath || $x509cert || $privateKey) {
+        if ($createCertificateSign) {
+            if ($signCertsBasePath || $signX509cert || $signPrivateKey) {
                 $message = new PsrMessage(
                     'The certicate cannot be created when fields "certificate path", "x509 certificate", or "x509 private key" are filled.' // @translate
                 );
                 $messenger->addError($message);
                 return false;
             }
-            [$x509cert, $privateKey] = $this->createCertificate();
-            if ($x509cert && $privateKey) {
+            [$signX509cert, $signPrivateKey] = $this->createCertificate();
+            if ($signX509cert && $signPrivateKey) {
                 $message = new PsrMessage(
-                    'The x509 certificate was created successfully.' // @translate
+                    'The x509 signing certificate was created successfully.' // @translate
                 );
                 $messenger->addSuccess($message);
             } else {
                 $message = openssl_error_string();
                 $message = new PsrMessage(
-                    'An error occurred during creation of the x509 certificate: {msg}', // @translate
+                    'An error occurred during creation of the x509 signing certificate: {msg}', // @translate
                     ['message' => $message ?: 'Unknown error']
                 );
                 $messenger->addError($message);
@@ -450,35 +451,35 @@ class Module extends AbstractModule
         }
 
         // Remove windows and apple issues.
-        $x509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $x509cert);
-        $privateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $privateKey);
+        $signX509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $signX509cert);
+        $signPrivateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $signPrivateKey);
 
         // Clean keys.
-        $x509cert = Utils::formatCert($x509cert, true);
-        $privateKey = Utils::formatPrivateKey($privateKey, true);
-        $settings->set('singlesignon_sp_x509_certificate', $x509cert);
-        $settings->set('singlesignon_sp_x509_private_key', $privateKey);
+        $signX509cert = Utils::formatCert($signX509cert, true);
+        $signPrivateKey = Utils::formatPrivateKey($signPrivateKey, true);
+        $settings->set('singlesignon_sp_sign_x509_certificate', $signX509cert);
+        $settings->set('singlesignon_sp_sign_x509_private_key', $signPrivateKey);
 
-        $x509cert = Utils::formatCert($x509cert);
-        $privateKey = Utils::formatPrivateKey($privateKey);
+        $signX509cert = Utils::formatCert($signX509cert);
+        $signPrivateKey = Utils::formatPrivateKey($signPrivateKey);
 
-        $sslX509cert = openssl_pkey_get_public($x509cert);
+        $sslX509cert = openssl_pkey_get_public($signX509cert);
         if (!$sslX509cert) {
             $message = new PsrMessage(
-                'The SP public certificate is not valid.' // @translate
+                'The SP signing public certificate is not valid.' // @translate
             );
             $messenger->addError($message);
         }
 
-        $sslPrivateKey = openssl_pkey_get_private($privateKey);
-        if (!$sslPrivateKey) {
+        $signSslPrivateKey = openssl_pkey_get_private($signPrivateKey);
+        if (!$signSslPrivateKey) {
             $message = new PsrMessage(
-                'The SP private key is not valid.' // @translate
+                'The SP signing private key is not valid.' // @translate
             );
             $messenger->addError($message);
         }
 
-        if (!$sslX509cert || !$sslPrivateKey) {
+        if (!$sslX509cert || !$signSslPrivateKey) {
             return false;
         }
 
@@ -488,15 +489,15 @@ class Module extends AbstractModule
 
         if (!openssl_public_encrypt($plain, $encrypted, $sslX509cert)) {
             $message = new PsrMessage(
-                'Unable to encrypt message with SP public certificate.' // @translate
+                'Unable to encrypt message with SP signing public certificate.' // @translate
             );
             $messenger->addError($message);
             return false;
         }
 
-        if (!openssl_private_decrypt($encrypted, $decrypted, $sslPrivateKey)) {
+        if (!openssl_private_decrypt($encrypted, $decrypted, $signSslPrivateKey)) {
             $message = new PsrMessage(
-                'Unable to decrypt message with SP private key.' // @translate
+                'Unable to decrypt message with SP signing private key.' // @translate
             );
             $messenger->addError($message);
             return false;
@@ -504,27 +505,27 @@ class Module extends AbstractModule
 
         if ($decrypted !== $plain) {
             $message = new PsrMessage(
-                'An issue occurred during decryption with SP private key. It may not the good one.' // @translate
+                'An issue occurred during decryption with SP signing private key. It may not the good one.' // @translate
             );
             $messenger->addError($message);
             return false;
         }
 
         $message = new PsrMessage(
-            'No issue found on SP public certificate and private key.' // @translate
+            'No issue found on SP signing public certificate and private key.' // @translate
         );
         $messenger->addSuccess($message);
 
         return true;
     }
 
-    protected function checkX509Certificate(?string $x509Certificate, ?string $entityName = null): ?string
+    protected function checkX509Certificate(?string $x509certificate, ?string $entityName = null): ?string
     {
-        if (!$x509Certificate) {
+        if (!$x509certificate) {
             return null;
         }
 
-        $x509cert = trim($x509Certificate);
+        $x509cert = trim($x509certificate);
         if (!$x509cert) {
             return true;
         }
@@ -634,7 +635,7 @@ class Module extends AbstractModule
             'commonName' => '',
             'emailAddress' => '',
         ];
-        $certificateData = $settings->get('singlesignon_sp_x509_certificate_data') ?: [];
+        $certificateData = $settings->get('singlesignon_sp_sign_x509_certificate_data') ?: [];
         $dn = array_intersect_key($certificateData, $dn);
         if (empty($dn['commonName'])) {
             $commonName = $settings->get('singlesignon_sp_host_name');

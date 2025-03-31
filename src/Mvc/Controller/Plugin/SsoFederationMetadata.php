@@ -113,7 +113,7 @@ class SsoFederationMetadata extends AbstractPlugin
                 $ssoUrl = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
                 $sloUrl = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
                 // Prefer the certificate used for encryption, not signing.
-                $x509Certificate = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
+                $signX509Certificate = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
                     ?: (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
                 $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
@@ -128,7 +128,7 @@ class SsoFederationMetadata extends AbstractPlugin
                     'sso_url' => trim($ssoUrl),
                     'slo_url' => trim($sloUrl),
                     // The xml may add tabulations and spaces, to be removed.
-                    'x509_certificate' => trim(str_replace(["\t", ' '], '', $x509Certificate)),
+                    'sign_x509_certificate' => trim(str_replace(["\t", ' '], '', $signX509Certificate)),
                     'date' => $date,
                 ];
             }
@@ -145,7 +145,7 @@ class SsoFederationMetadata extends AbstractPlugin
                 $ssoUrl = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
                 $sloUrl = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
                 // Prefer the certificate used for encryption, not signing.
-                $x509Certificate = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
+                $signX509Certificate = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
                     ?: (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
                 $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
@@ -160,7 +160,7 @@ class SsoFederationMetadata extends AbstractPlugin
                     'sso_url' => trim($ssoUrl),
                     'slo_url' => trim($sloUrl),
                     // The xml may add tabulations and spaces, to be removed.
-                    'x509_certificate' => trim(str_replace(["\t", ' '], '', $x509Certificate)),
+                    'sign_x509_certificate' => trim(str_replace(["\t", ' '], '', $signX509Certificate)),
                     'date' => $date,
                 ];
             }

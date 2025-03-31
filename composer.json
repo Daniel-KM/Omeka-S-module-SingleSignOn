@@ -1,5 +1,28 @@
 {
+    "name": "daniel-km/omeka-s-module-single-sign-on",
+    "description": "Module for Omeka S that authenticates automatically on Omeka S via single sign-on (SSO) through SAML or Shibboleth and manage multiple identity providers automatically.",
+    "type": "library",
+    "license": "CECILL-2.1",
+    "authors": [
+        {
+            "name": "Daniel Berthereau",
+            "email": "Daniel.packagist@Berthereau.net"
+        }
+    ],
+    "homepage": "https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn",
+    "support": {
+        "issues": "https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/issues",
+        "forum": "https://forum.omeka.org/"
+    },
+    "keywords": [
+        "Omeka S",
+        "module",
+        "authentication",
+        "single sign-on",
+        "saml",
+        "shibboleth"
+    ],
     "require": {
-        "onelogin/php-saml": "^4.1"
+        "onelogin/php-saml": "^4.2"
     }
 }

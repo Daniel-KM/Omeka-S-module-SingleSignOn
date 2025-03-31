@@ -1236,7 +1236,7 @@ class SsoController extends AbstractActionController
                 // 'http://www.w3.org/2009/xmlenc11#aes192-gcm'
                 // 'http://www.w3.org/2009/xmlenc11#aes256-gcm';
                 // Notice that aes-cbc are not consider secure anymore so should not be used
-                'encryption_algorithm' => 'http://www.w3.org/2009/xmlenc11#aes128-gcm',
+                'encryption_algorithm' => 'http://www.w3.org/2009/xmlenc11#aes256-gcm',
 
                 // ADFS URL-Encodes SAML data as lowercase, and the toolkit by default uses
                 // uppercase. Turn it True for ADFS compatibility on signature verification

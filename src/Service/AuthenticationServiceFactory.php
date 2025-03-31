@@ -26,6 +26,7 @@ class AuthenticationServiceFactory implements FactoryInterface
      */
     public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
+        /** @var \Omeka\Mvc\Status $status */
         $entityManager = $services->get('Omeka\EntityManager');
         $status = $services->get('Omeka\Status');
 
@@ -38,11 +39,17 @@ class AuthenticationServiceFactory implements FactoryInterface
         } else {
             $config = $services->get('Config');
             $userRepository = $entityManager->getRepository('Omeka\Entity\User');
-            if ($status->isKeyauthRequest()) {
+            // Keep old Api check to simplify upgrade/migration.
+            if (method_exists($status, 'isKeyauthRequest') && $status->isKeyauthRequest()) {
                 // Authenticate using key for requests that require key authentication.
                 $keyRepository = $entityManager->getRepository('Omeka\Entity\ApiKey');
                 $storage = new DoctrineWrapper(new NonPersistent, $userRepository);
                 $adapter = new KeyAdapter($keyRepository, $entityManager);
+            } elseif (!method_exists($status, 'isKeyauthRequest') && $status->isApiRequest()) {
+                    // Authenticate using key for requests that require key authentication.
+                    $keyRepository = $entityManager->getRepository('Omeka\Entity\ApiKey');
+                    $storage = new DoctrineWrapper(new NonPersistent, $userRepository);
+                    $adapter = new KeyAdapter($keyRepository, $entityManager);
             } elseif ($config['authentication']['forbid_local_login']) {
                 // Disallow local login and log out logged users if wanted.
                 $storage = $config['authentication']['logout_logged_users']

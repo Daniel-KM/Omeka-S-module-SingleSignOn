@@ -295,7 +295,7 @@ class SsoController extends AbstractActionController
                 );
             }
             $this->messenger()->addError($message);
-            $this->logger()->err($message);
+            $this->logger()->err($message->getMessage(), $message->getContext());
             // Since this is a config or idp error, redirect to local login.
             return $this->redirect()->toRoute('login');
         }
@@ -325,7 +325,7 @@ class SsoController extends AbstractActionController
                     'keys_2' => implode(', ', array_keys($samlAttributesFriendly)),
                 ]
             );
-            $this->logger()->err($message);
+            $this->logger()->err($message->getMessage(), $message->getContext());
             // Since this is a config or idp error, redirect to local login.
             return $this->redirect()->toRoute('login');
         }
@@ -372,7 +372,7 @@ class SsoController extends AbstractActionController
                         'keys_2' => implode('", "', array_keys($samlAttributesFriendly)),
                     ]
                 );
-                $this->logger()->warn($message);
+                $this->logger()->warn($message->getMessage(), $message->getContext());
                 $name = $email;
             }
 
@@ -444,7 +444,7 @@ class SsoController extends AbstractActionController
                 ['email' => $email]
             );
             $this->messenger()->addError($message);
-            $this->logger()->warn($message);
+            $this->logger()->warn($message->getMessage(), $message->getContext());
             // Since this is a non-authorized user, return to redirect url.
             return $this->redirect()->toUrl($redirectUrl);
         } elseif (in_array('update_user_name', $activeSsoServices)) {
@@ -562,7 +562,7 @@ class SsoController extends AbstractActionController
                 );
             }
             $this->messenger()->addError($message);
-            $this->logger()->err($message);
+            $this->logger()->err($message->getMessage(), $message->getContext());
             return $this->redirect()->toUrl($redirectUrl);
         }
 
@@ -869,7 +869,7 @@ class SsoController extends AbstractActionController
                 'SSO service has an error in configuration: {exception}', // @translate
                 ['exception' => $e]
             );
-            $this->logger()->err($message);
+            $this->logger()->err($message->getMessage(), $message->getContext());
             if (!$throw) {
                 return null;
             }

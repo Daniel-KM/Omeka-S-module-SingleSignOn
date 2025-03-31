@@ -98,8 +98,9 @@ url, for example https://idp.example.org/idp/shibboleth.
     does not work, try to change  the format of the name to set in element `<md:NameIDFormat>`,
     for example "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified".
   - SP certificates:
-    Some IdPs require certificates. There are three ways to define it: a path to
-    the certificate and private key, a copy-paste in fields or a creation.
+    Some IdPs require certificates to sign and to encrypt responses. There are
+    three ways to define them for signature and encryption: a path to the
+    certificate and private key, a  copy-paste in fields or a creation.
     - SP certificate path: The path should contains a directory "certs/" with at
       least the files `sp.crt` and `sp.key`. It must be outside of the web
       server or protected, for example with a .htaccess.
@@ -134,7 +135,8 @@ url, for example https://idp.example.org/idp/shibboleth.
   - IdP single log out (SLO)  endpoint: Full url set in attribute `Location` of xml
     element `<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`,
     for example "https://idp.example.org/idp/profile/SAML2/Redirect/SLO".
-  - Public X.509 certificate of the IdP: it is required.
+  - Public X.509 certificate of the IdP (signature): it is required.
+  - Public X.509 certificate of the IdP (encryption): it is optional.
   - Map between IdP and Omeka keys: used to indicate the keys to use to create
     and authenticate the good user data (name, email, role). Other keys, for
     example "locale" or "userprofile_param", will be stored in user settings.
@@ -275,7 +277,7 @@ and the [Université de Strasbourg] (UNISTRA). New features were implemented for
 [SAML]: https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language
 [Shibboleth]: https://www.shibboleth.net
 [module Shibboleth]: https://gitlab.com/Daniel-KM/Omeka-S-module-Shibboleth
-[onelogin/php-saml]: https://github.com/SAML-Toolkits/php-saml
+[onelogin/php-saml]: https://packagist.org/packages/onelogin/php-saml
 [Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [SingleSignOn.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/releases

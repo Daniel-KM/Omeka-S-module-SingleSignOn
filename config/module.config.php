@@ -100,6 +100,10 @@ return [
             'singlesignon_sp_sign_x509_certificate' => '',
             'singlesignon_sp_sign_x509_private_key' => '',
             'singlesignon_sp_sign_x509_certificate_data' => '',
+            'singlesignon_sp_crypt_x509_path' => '',
+            'singlesignon_sp_crypt_x509_certificate' => '',
+            'singlesignon_sp_crypt_x509_private_key' => '',
+            'singlesignon_sp_crypt_x509_certificate_data' => '',
 
             // The config of the federation is merged with the single idps in
             // "singlesignon_idps".

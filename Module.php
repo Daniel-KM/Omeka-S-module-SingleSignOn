@@ -178,14 +178,16 @@ class Module extends AbstractModule
             $messenger->addWarning($message);
         }
 
-        // Normally, the value is not stored.
+        // Normally, these values are not stored.
         $settings->delete('singlesignon_sp_sign_create_certificate');
+        $settings->delete('singlesignon_sp_crypt_create_certificate');
 
         $createCertificateSign = !empty($_POST['singlesignon_sp_sign_create_certificate']);
+        $createCertificateCrypt = !empty($_POST['singlesignon_sp_crypt_create_certificate']);
 
         // Messages are displayed, but data are stored in all cases.
 
-        $this->checkConfigSP($createCertificateSign);
+        $this->checkConfigSP($createCertificateSign, $createCertificateCrypt);
 
         $this->checkConfigFederation();
 
@@ -370,8 +372,37 @@ class Module extends AbstractModule
         return true;
     }
 
-    protected function checkConfigSP(?bool $createCertificateSign = false): bool
-    {
+    protected function checkConfigSP(
+        ?bool $createCertificateSign = false,
+        ?bool $createCertificateCrypt = false
+    ): bool {
+        /**
+         * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
+         * @var \Omeka\Settings\Settings $settings
+         */
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+
+        $signCertsBasePath = $settings->get('singlesignon_sp_sign_x509_path');
+        $signX509cert = trim($settings->get('singlesignon_sp_sign_x509_certificate') ?: '');
+        $signPrivateKey = trim($settings->get('singlesignon_sp_sign_x509_private_key') ?: '');
+        $signResult = $this->checkOrCreateCerfificate($signCertsBasePath, $signX509cert, $signPrivateKey, (bool) $createCertificateSign, 'sign');
+
+        $cryptCertsBasePath = $settings->get('singlesignon_sp_crypt_x509_path');
+        $cryptX509cert = trim($settings->get('singlesignon_sp_crypt_x509_certificate') ?: '');
+        $cryptPrivateKey = trim($settings->get('singlesignon_sp_crypt_x509_private_key') ?: '');
+        $cryptResult = $this->checkOrCreateCerfificate($cryptCertsBasePath, $cryptX509cert, $cryptPrivateKey, (bool) $createCertificateCrypt, 'crypt');
+
+        return $signResult && $cryptResult;
+    }
+
+    protected function checkOrCreateCerfificate(
+        ?string $certsBasePath,
+        ?string $x509cert,
+        ?string $privateKey,
+        bool $createCertificate,
+        string $certificateUse
+    ): bool {
         /**
          * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
          * @var \Omeka\Settings\Settings $settings
@@ -382,68 +413,71 @@ class Module extends AbstractModule
         $settings = $services->get('Omeka\Settings');
         $messenger = $plugins->get('messenger');
 
-        $signCertsBasePath = $settings->get('singlesignon_sp_sign_x509_path');
-        $signX509cert = trim($settings->get('singlesignon_sp_sign_x509_certificate') ?: '');
-        $signPrivateKey = trim($settings->get('singlesignon_sp_sign_x509_private_key') ?: '');
-
-        if (!$signX509cert && !$signPrivateKey) {
-            if ($signCertsBasePath) {
-                $signX509certFilePath = $signCertsBasePath . '/certs/sp.crt';
-                $signX509cert = file_exists($signX509certFilePath) || !is_readable($signX509certFilePath) || !filesize($signX509certFilePath)
-                    ? file_get_contents($signX509certFilePath)
+        if (!$x509cert && !$privateKey) {
+            if ($certsBasePath) {
+                $x509certFilePath = $certsBasePath . '/certs/sp.crt';
+                $x509cert = file_exists($x509certFilePath) || !is_readable($x509certFilePath) || !filesize($x509certFilePath)
+                    ? file_get_contents($x509certFilePath)
                     : '';
-                $signPrivateKeyPath = $signCertsBasePath . '/certs/sp.key';
-                $signPrivateKey = file_exists($signPrivateKeyPath) || !is_readable($signPrivateKeyPath) || !filesize($signPrivateKeyPath)
-                    ? file_get_contents($signPrivateKeyPath)
+                $privateKeyPath = $certsBasePath . '/certs/sp.key';
+                $privateKey = file_exists($privateKeyPath) || !is_readable($privateKeyPath) || !filesize($privateKeyPath)
+                    ? file_get_contents($privateKeyPath)
                     : '';
-                if (!$signX509cert || !$signPrivateKey) {
+                if (!$x509cert || !$privateKey) {
                     $message = new PsrMessage(
-                        'A path is set for the signing certificate, but it does not contain a directory "certs" with files "sp.crt" and "sp.key".' // @translate
+                        'A path is set for the certificate ({use}), but it does not contain a directory "certs" with files "sp.crt" and "sp.key".', // @translate
+                        ['use' => $certificateUse]
                     );
                     $messenger->addError($message);
                 }
-            } elseif (!$createCertificateSign) {
+            } elseif (!$createCertificate) {
                 return true;
             }
-        } elseif ($signX509cert && !$signPrivateKey) {
+        } elseif ($x509cert && !$privateKey) {
             $message = new PsrMessage(
-                'The SP signing public certificate is set, but not the private key.' // @translate
+                'The SP public certificate is set, but not the private key ({use}).', // @translate
+                ['use' => $certificateUse]
             );
             $messenger->addError($message);
-        } elseif (!$signX509cert && $signPrivateKey) {
+        } elseif (!$x509cert && $privateKey) {
             $message = new PsrMessage(
-                'The SP signing private key is set, but not the public certificate.' // @translate
+                'The SP private key is set, but not the public certificate ({use}).', // @translate
+                ['use' => $certificateUse]
             );
             $messenger->addError($message);
         }
 
-        if ($signCertsBasePath && ($signX509cert || $signPrivateKey)) {
+        if ($certsBasePath && ($x509cert || $privateKey)) {
             $message = new PsrMessage(
-                'You cannot set a path to the certificate and provide them in fields at the same time.' // @translate
+                'You cannot set a path to the certificate ({use}) and provide them in fields at the same time.', // @translate
+                ['use' => $certificateUse]
             );
             $messenger->addError($message);
             return false;
         }
 
-        if ($createCertificateSign) {
-            if ($signCertsBasePath || $signX509cert || $signPrivateKey) {
+        if ($createCertificate) {
+            if ($certsBasePath || $x509cert || $privateKey) {
                 $message = new PsrMessage(
-                    'The certicate cannot be created when fields "certificate path", "x509 certificate", or "x509 private key" are filled.' // @translate
+                    'The certicate ({use}) cannot be created when fields "certificate path", "x509 certificate", or "x509 private key" are filled.', // @translate
+                    ['use' => $certificateUse]
                 );
                 $messenger->addError($message);
                 return false;
             }
-            [$signX509cert, $signPrivateKey] = $this->createCertificate();
-            if ($signX509cert && $signPrivateKey) {
+            $certificateData = $settings->get('singlesignon_sp_{$certificateUse}_x509_certificate_data') ?: [];
+            [$x509cert, $privateKey] = $this->createCertificate($certificateData);
+            if ($x509cert && $privateKey) {
                 $message = new PsrMessage(
-                    'The x509 signing certificate was created successfully.' // @translate
+                    'The x509 certificate ({use}) was created successfully.', // @translate
+                    ['use' => $certificateUse]
                 );
                 $messenger->addSuccess($message);
             } else {
                 $message = openssl_error_string();
                 $message = new PsrMessage(
-                    'An error occurred during creation of the x509 signing certificate: {msg}', // @translate
-                    ['message' => $message ?: 'Unknown error']
+                    'An error occurred during creation of the x509 certificate ({use}): {msg}', // @translate
+                    ['use' => $certificateUse, 'message' => $message ?: 'Unknown error']
                 );
                 $messenger->addError($message);
                 return false;
@@ -451,35 +485,37 @@ class Module extends AbstractModule
         }
 
         // Remove windows and apple issues.
-        $signX509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $signX509cert);
-        $signPrivateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $signPrivateKey);
+        $x509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $x509cert);
+        $privateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $privateKey);
 
         // Clean keys.
-        $signX509cert = Utils::formatCert($signX509cert, true);
-        $signPrivateKey = Utils::formatPrivateKey($signPrivateKey, true);
-        $settings->set('singlesignon_sp_sign_x509_certificate', $signX509cert);
-        $settings->set('singlesignon_sp_sign_x509_private_key', $signPrivateKey);
+        $x509cert = Utils::formatCert($x509cert, true);
+        $privateKey = Utils::formatPrivateKey($privateKey, true);
+        $settings->set("singlesignon_sp_{$certificateUse}_x509_certificate", $x509cert);
+        $settings->set("singlesignon_sp_{$certificateUse}_x509_private_key", $privateKey);
 
-        $signX509cert = Utils::formatCert($signX509cert);
-        $signPrivateKey = Utils::formatPrivateKey($signPrivateKey);
+        $x509cert = Utils::formatCert($x509cert);
+        $privateKey = Utils::formatPrivateKey($privateKey);
 
-        $sslX509cert = openssl_pkey_get_public($signX509cert);
+        $sslX509cert = openssl_pkey_get_public($x509cert);
         if (!$sslX509cert) {
             $message = new PsrMessage(
-                'The SP signing public certificate is not valid.' // @translate
+                'The SP public certificate ({use}) is not valid.', // @translate
+                ['use' => $certificateUse]
             );
             $messenger->addError($message);
         }
 
-        $signSslPrivateKey = openssl_pkey_get_private($signPrivateKey);
-        if (!$signSslPrivateKey) {
+        $sslPrivateKey = openssl_pkey_get_private($privateKey);
+        if (!$sslPrivateKey) {
             $message = new PsrMessage(
-                'The SP signing private key is not valid.' // @translate
+                'The SP private key ({use}) is not valid.', // @translate
+                ['use' => $certificateUse]
             );
             $messenger->addError($message);
         }
 
-        if (!$sslX509cert || !$signSslPrivateKey) {
+        if (!$sslX509cert || !$sslPrivateKey) {
             return false;
         }
 
@@ -489,15 +525,17 @@ class Module extends AbstractModule
 
         if (!openssl_public_encrypt($plain, $encrypted, $sslX509cert)) {
             $message = new PsrMessage(
-                'Unable to encrypt message with SP signing public certificate.' // @translate
+                'Unable to encrypt message with SP public certificate ({use}).', // @translate
+                ['use' => $certificateUse]
             );
             $messenger->addError($message);
             return false;
         }
 
-        if (!openssl_private_decrypt($encrypted, $decrypted, $signSslPrivateKey)) {
+        if (!openssl_private_decrypt($encrypted, $decrypted, $sslPrivateKey)) {
             $message = new PsrMessage(
-                'Unable to decrypt message with SP signing private key.' // @translate
+                'Unable to decrypt message with SP private key ({use}).', // @translate
+                ['use' => $certificateUse]
             );
             $messenger->addError($message);
             return false;
@@ -505,14 +543,16 @@ class Module extends AbstractModule
 
         if ($decrypted !== $plain) {
             $message = new PsrMessage(
-                'An issue occurred during decryption with SP signing private key. It may not the good one.' // @translate
+                'An issue occurred during decryption with SP private key ({use}). It may not the good one.', // @translate
+                ['use' => $certificateUse]
             );
             $messenger->addError($message);
             return false;
         }
 
         $message = new PsrMessage(
-            'No issue found on SP signing public certificate and private key.' // @translate
+            'No issue found on SP public certificate and private key ({use}).', // @translate
+            ['use' => $certificateUse]
         );
         $messenger->addSuccess($message);
 
@@ -617,7 +657,7 @@ class Module extends AbstractModule
      *
      * @see https://www.php.net/manual/en/function.openssl-csr-new.php
      */
-    protected function createCertificate(): array
+    protected function createCertificate(array $certificateData): array
     {
         /**
          * @var \Omeka\Settings\Settings $settings
@@ -635,7 +675,6 @@ class Module extends AbstractModule
             'commonName' => '',
             'emailAddress' => '',
         ];
-        $certificateData = $settings->get('singlesignon_sp_sign_x509_certificate_data') ?: [];
         $dn = array_intersect_key($certificateData, $dn);
         if (empty($dn['commonName'])) {
             $commonName = $settings->get('singlesignon_sp_host_name');

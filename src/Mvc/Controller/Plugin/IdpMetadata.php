@@ -115,13 +115,13 @@ class IdpMetadata extends AbstractPlugin
 
         // The idpName is used to get metadata with a short url.
         $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
-        $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+        $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
 
         return [
             'metadata_url' => $idpUrl,
             'entity_id' => trim($entityId),
             'entity_name' => trim($entityName),
-            'entity_short_id' => $idpName,
+            'entity_short_id' => $entityShortId,
             'host' => $idpHost,
             'sso_url' => trim($ssoUrl),
             'slo_url' => trim($sloUrl),

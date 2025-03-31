@@ -197,13 +197,17 @@ class Module extends AbstractModule
         // Check and finalize idps.
         $idps = $settings->get('singlesignon_idps');
 
+        // Entity id and name are defined by idp. Entity short id is derivated
+        // from the domain. The entity id is used as key. If not set, this is
+        // the domain of the idp url.
+
         $hasError = false;
         $cleanIdps = [];
         foreach (array_values($idps) as $key => $idp) {
             ++$key;
-            $federationUrl = $idp['federation_url'] ?? '';
-            $entityUrl = $idp['metadata_url'] ?? '';
-            $entityId = $idp['entity_id'] ?? '';
+            $federationUrl = trim($idp['federation_url'] ?? '');
+            $entityUrl = trim($idp['metadata_url'] ?? '');
+            $entityId = trim($idp['entity_id'] ?? '');
             if ($federationUrl) {
                 if (!$entityId) {
                     $hasError = true;
@@ -225,7 +229,7 @@ class Module extends AbstractModule
             }
 
             $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
-            $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+            $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
 
             // Don't check the idps of the federation.
             if ($federationUrl) {
@@ -244,10 +248,11 @@ class Module extends AbstractModule
                 && (!in_array('sls', $ssoServices) || !empty($idp['slo_url']));
 
             if ($isFilled && $updateMode === 'manual') {
-                $cleanIdps[$entityId ?: $idpName] = $idp;
+                $idp = $this->completeIdpData($idp) + $idp;
+                $cleanIdps[$entityId ?: $idp['entity_short_id'] ?: $idp['host']] = $idp;
                 $message = new PsrMessage(
                     'The idp "{idp}" was manually filled and is not checked neither updated.', // @translate
-                    ['idp' => $idpName]
+                    ['idp' => $entityShortId]
                 );
                 $messenger->addWarning($message);
                 continue;
@@ -257,7 +262,7 @@ class Module extends AbstractModule
                 $idpMeta = $idpMetadata($entityUrl, true);
                 if (!$idpMeta) {
                     // Message is already prepared.
-                    $cleanIdps[$entityId ?: $idpName] = $idp;
+                    $cleanIdps[$entityId ?: $entityShortId ?: $idp['host']] = $idp;
                     continue;
                 }
                 // Keep some data.
@@ -272,20 +277,25 @@ class Module extends AbstractModule
                 $idp = $idpMeta;
                 $entityId = $idp['entity_id'];
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
-                $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+                $entityName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+            } else {
+                $idp['metadata_url'] = null;
+                $idp = $this->completeIdpData($idp) + $idp;
+                $entityId = $idp['entity_id'];
+                $entityName = $idp['entity_name'];
             }
 
-            $result = $this->checkX509Certificate($idp['x509_certificate'] ?? null, $idpName);
+            $result = $this->checkX509Certificate($idp['x509_certificate'] ?? null, $idp['entity_name'] ?: $idp['entity_short_id']);
             if ($result) {
                 $idp['x509_certificate'] = $result;
             }
 
             // Normally not possible.
             if (!$entityId) {
-                $cleanIdps[$idpName] = $idp;
+                $cleanIdps[$entityName] = $idp;
                 $message = new PsrMessage(
                     'The idp "{idp}" seems to be invalid and has no id.', // @translate
-                    ['idp' => $idpName]
+                    ['idp' => $entityName]
                 );
                 $messenger->addWarning($message);
                 continue;
@@ -320,6 +330,23 @@ class Module extends AbstractModule
         /** @var \Laminas\View\Renderer\PhpRenderer $view */
         $view = $event->getTarget();
         echo $view->ssoLoginLinks(['selector' => $selector]);
+    }
+
+    protected function completeIdpData(array $idp): array
+    {
+        $entityId = trim($idp['entity_id'] ?? '');
+        $entityName = trim($idp['entity_name'] ?? '');
+        $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
+        $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+        $ssoUrl = trim($idp['idp_sso_url'] ?? '');
+        $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
+        return [
+            'entity_id' => $entityId,
+            'entity_name' => $entityName ?: $entityShortId,
+            'entity_short_id' => $entityShortId,
+            'host' => $idpHost,
+            'date' => (new \DateTime('now'))->format(\DateTime::ISO8601),
+        ];
     }
 
     protected function checkConfigFederation(): bool
@@ -491,7 +518,7 @@ class Module extends AbstractModule
         return true;
     }
 
-    protected function checkX509Certificate(?string $x509Certificate, ?string $idpName = null): ?string
+    protected function checkX509Certificate(?string $x509Certificate, ?string $entityName = null): ?string
     {
         if (!$x509Certificate) {
             return null;
@@ -515,7 +542,7 @@ class Module extends AbstractModule
         if (!$sslX509cert) {
             $message = new PsrMessage(
                 'The IdP public certificate of "{idp}" is not valid.', // @translate
-                ['idp' => $idpName]
+                ['idp' => $entityName]
             );
             $messenger->addError($message);
             return null;
@@ -527,7 +554,7 @@ class Module extends AbstractModule
         if (!openssl_public_encrypt($plain, $encrypted, $sslX509cert)) {
             $message = new PsrMessage(
                 'Unable to encrypt message with IdP public certificate of "{idp}".', // @translate
-                ['idp' => $idpName]
+                ['idp' => $entityName]
             );
             $messenger->addError($message);
             return null;
@@ -535,7 +562,7 @@ class Module extends AbstractModule
 
         $message = new PsrMessage(
             'No issue found on IdP public certificate of "{idp}".', // @translate
-            ['idp' => $idpName]
+            ['idp' => $entityName]
         );
         $messenger->addSuccess($message);
 

@@ -518,9 +518,7 @@ class SsoController extends AbstractActionController
             ? $this->idpData($idpName, true)
             : $this->providerData;
         if (!$idp['entity_id']) {
-            $this->messenger()->addError(new PsrMessage(
-                'No IdP with this name.' // @translate
-            ));
+            $this->messenger()->addError(new PsrMessage('No IdP with this name.')); // @translate
             return $this->redirect()->toRoute('login', [], ['query' => ['redirect_url' => $redirectUrl]]);
         }
 

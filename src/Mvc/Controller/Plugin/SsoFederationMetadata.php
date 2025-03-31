@@ -116,14 +116,14 @@ class SsoFederationMetadata extends AbstractPlugin
                 $x509Certificate = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
                     ?: (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
-                $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+                $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
                 $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
                 $list[$entityId] = [
                     'federation_url' => $federationUrl,
                     'metadata_url' => null,
                     'entity_id' => $entityId,
                     'entity_name' => trim($entityName),
-                    'entity_short_id' => $idpName,
+                    'entity_short_id' => $entityShortId,
                     'host' => $idpHost,
                     'sso_url' => trim($ssoUrl),
                     'slo_url' => trim($sloUrl),
@@ -148,14 +148,14 @@ class SsoFederationMetadata extends AbstractPlugin
                 $x509Certificate = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
                     ?: (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
-                $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
+                $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
                 $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
                 $list[$entityId] = [
                     'federation_url' => $federationUrl,
                     'metadata_url' => null,
                     'entity_id' => $entityId,
                     'entity_name' => trim($entityName),
-                    'entity_short_id' => $idpName,
+                    'entity_short_id' => $entityShortId,
                     'host' => $idpHost,
                     'sso_url' => trim($ssoUrl),
                     'slo_url' => trim($sloUrl),

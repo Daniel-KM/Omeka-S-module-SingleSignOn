@@ -76,11 +76,11 @@ return [
                 // Login.
                 'sso',
                 // Logout.
-                // 'sls',
+                'sls',
                 // Register.
-                // 'jit',
+                'jit',
                 // Update user name.
-                // 'update',
+                'update',
             ],
 
             // Default role is the lowest one (guest or researcher).

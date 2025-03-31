@@ -124,6 +124,7 @@ return [
                     'sso_url' => '',
                     'slo_url' => '',
                     'sign_x509_certificate' => '',
+                    'crypt_x509_certificate' => '',
                     'attributes_map' => [
                         'mail' => 'email',
                         'displayName' => 'name',

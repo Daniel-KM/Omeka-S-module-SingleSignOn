@@ -54,6 +54,7 @@ class SsoController extends AbstractActionController
         'sso_url' => '',
         'slo_url' => '',
         'sign_x509_certificate' => '',
+        'crypt_x509_certificate' => '',
         'date' => '',
         'attributes_map' => [],
         'roles_map' => [],
@@ -84,7 +85,11 @@ class SsoController extends AbstractActionController
             // Check for metadata of the current sp (option true of SamlSettings).
             $configSso = $this->validConfigSso(null, false) ?: [];
             $samlSettings = new SamlSettings($configSso, true);
-            $metadata = $samlSettings->getSPMetadata();
+            $settings = $this->settings();
+            $spCryptX509cert = trim($settings->get('singlesignon_sp_crypt_x509_certificate') ?: '');
+            $spCryptPrivateKey = trim($settings->get('singlesignon_sp_crypt_x509_private_key') ?: '');
+            $alwaysPublishEncryptionCert = $spCryptX509cert && $spCryptPrivateKey;
+            $metadata = $samlSettings->getSPMetadata($alwaysPublishEncryptionCert);
         } else {
             $metadata = $this->idpMetadataXml($idpName);
             if (!$metadata) {
@@ -926,6 +931,14 @@ class SsoController extends AbstractActionController
             $spSignPrivateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $spSignPrivateKey);
         }
 
+        $spCryptX509cert = trim($settings->get('singlesignon_sp_crypt_x509_certificate') ?: '');
+        $spCryptPrivateKey = trim($settings->get('singlesignon_sp_crypt_x509_private_key') ?: '');
+        if ($spCryptX509cert && $spCryptPrivateKey) {
+            // Remove windows and apple issues (managed later anyway).
+            $spCryptX509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $spCryptX509cert);
+            $spCryptPrivateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $spCryptPrivateKey);
+        }
+
         // When there is no idp name, get the config of the sp.
         $idp = $idpEntityId
             ? $this->idpData($idpEntityId, true)
@@ -935,7 +948,7 @@ class SsoController extends AbstractActionController
          * @see vendor/onelogin/php-saml/settings_example.php
          * @see vendor/onelogin/php-saml/advanced_settings_example.php
          */
-        return $settings = [
+        $providerSettings = [
             // If 'strict' is True, then the PHP Toolkit will reject unsigned
             // or unencrypted messages if it expects them signed or encrypted
             // Also will reject the messages if not strictly follow the SAML
@@ -1047,7 +1060,7 @@ class SsoController extends AbstractActionController
                 ],
 
                 // Public x509 certificate of the IdP
-                'x509cert' => $idp['sign_x509_certificate'],
+                'x509cert' => $idp['sign_x509_certificate'] ?: $idp['crypt_x509_certificate'],
 
                 /*
                  *  Instead of use the whole x509cert you can use a fingerprint in
@@ -1218,5 +1231,25 @@ class SsoController extends AbstractActionController
             */
 
         ];
+
+        if ($spCryptX509cert && $spSignPrivateKey) {
+            $providerSettings['sp']['x509certNew'] = $spCryptX509cert;
+        }
+
+        if (!empty($idp['sign_x509_certificate'])
+            && !empty($idp['crypt_x509_certificate'])
+            && $idp['sign_x509_certificate'] !== $idp['crypt_x509_certificate']
+        ) {
+            $providerSettings['idp']['x509certMulti'] = [
+                 'signing' => [
+                     $idp['sign_x509_certificate'],
+                 ],
+                 'encryption' => [
+                     $idp['crypt_x509_certificate'],
+                 ],
+            ];
+        }
+
+        return $providerSettings;
     }
 }

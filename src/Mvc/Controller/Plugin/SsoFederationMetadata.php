@@ -112,9 +112,9 @@ class SsoFederationMetadata extends AbstractPlugin
                 // The One-Login library supports "Redirect" only.
                 $ssoUrl = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
                 $sloUrl = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
-                // Prefer the certificate used for encryption, not signing.
-                $signX509Certificate = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
+                $signX509Certificate = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:KeyDescriptor[@use = "signing"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
                     ?: (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
+                $cryptX509Certificate = (string) ($registerXpathNamespaces($xml)->xpath($baseXpath . '/md:IDPSSODescriptor/md:KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
                 $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
                 $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
@@ -129,6 +129,7 @@ class SsoFederationMetadata extends AbstractPlugin
                     'slo_url' => trim($sloUrl),
                     // The xml may add tabulations and spaces, to be removed.
                     'sign_x509_certificate' => trim(str_replace(["\t", ' '], '', $signX509Certificate)),
+                    'crypt_x509_certificate' => trim(str_replace(["\t", ' '], '', $cryptX509Certificate)),
                     'date' => $date,
                 ];
             }
@@ -144,9 +145,9 @@ class SsoFederationMetadata extends AbstractPlugin
                 // The One-Login library supports "Redirect" only.
                 $ssoUrl = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
                 $sloUrl = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
-                // Prefer the certificate used for encryption, not signing.
-                $signX509Certificate = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
+                $signX509Certificate = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor[@use = "signing"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
                     ?: (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
+                $signX509Certificate = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
                 $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
                 $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;
@@ -161,6 +162,7 @@ class SsoFederationMetadata extends AbstractPlugin
                     'slo_url' => trim($sloUrl),
                     // The xml may add tabulations and spaces, to be removed.
                     'sign_x509_certificate' => trim(str_replace(["\t", ' '], '', $signX509Certificate)),
+                    'crypt_x509_certificate' => trim(str_replace(["\t", ' '], '', $cryptX509Certificate)),
                     'date' => $date,
                 ];
             }

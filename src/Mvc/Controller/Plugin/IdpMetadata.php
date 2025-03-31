@@ -95,18 +95,18 @@ class IdpMetadata extends AbstractPlugin
             // The One-Login library supports "Redirect" only.
             $ssoUrl = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
             $sloUrl = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
-            // Prefer the certificate used for encryption, not signing.
-            $signX509Certificate = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
+            $signX509Certificate = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:KeyDescriptor[@use = "signing"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '')
                 ?: (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
+            $cryptX509Certificate = (string) ($registerXpathNamespaces($xml)->xpath('//samlmetadata:IDPSSODescriptor/samlmetadata:KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate[1]')[0] ?? '');
         } else {
             $entityName = (string) ($xml->xpath('//IDPSSODescriptor/Extensions/UIInfo/DisplayName[1]')[0] ?? '')
                 ?: (string) ($xml->xpath('//Organization/OrganizationName[1]')[0] ?? '');
             // The One-Login library supports "Redirect" only.
             $ssoUrl = (string) ($xml->xpath('//IDPSSODescriptor/SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
             $sloUrl = (string) ($xml->xpath('//IDPSSODescriptor/SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
-            // Prefer the certificate used for encryption, not signing.
-            $signX509Certificate = (string) ($xml->xpath('//IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '')
+            $signX509Certificate = (string) ($xml->xpath('//IDPSSODescriptor/KeyDescriptor[@use = "signing"]/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '')
                 ?: (string) ($xml->xpath('//IDPSSODescriptor/KeyDescriptor/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '');
+            $cryptX509Certificate = (string) ($xml->xpath('//IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/KeyInfo/X509Data/X509Certificate[1]')[0] ?? '');
         }
 
         // This value is stored automatically from the sso url in order to
@@ -127,6 +127,7 @@ class IdpMetadata extends AbstractPlugin
             'slo_url' => trim($sloUrl),
             // The xml may add tabulations and spaces, to be removed.
             'sign_x509_certificate' => trim(str_replace(["\t", ' '], '', $signX509Certificate)),
+            'crypt_x509_certificate' => trim(str_replace(["\t", ' '], '', $cryptX509Certificate)),
             'date' => (new \DateTime('now'))->format(\DateTime::ISO8601),
         ];
     }

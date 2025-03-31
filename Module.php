@@ -293,6 +293,11 @@ class Module extends AbstractModule
                 $idp['sign_x509_certificate'] = $result;
             }
 
+            $result = $this->checkX509Certificate($idp['crypt_x509_certificate'] ?? null, $idp['entity_name'] ?: $idp['entity_short_id']);
+            if ($result) {
+                $idp['crypt_x509_certificate'] = $result;
+            }
+
             // Normally not possible.
             if (!$entityId) {
                 $cleanIdps[$entityName] = $idp;

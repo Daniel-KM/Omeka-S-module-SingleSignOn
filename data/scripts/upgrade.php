@@ -307,16 +307,31 @@ if (version_compare($oldVersion, '3.4.17', '<')) {
         'A new option allows to store the certificate used to encrypt process, not only to sign in.' // @translate
     );
     $messenger->addSuccess($message);
+}
 
-    if (!empty($settings->get('singlesignon_federation'))) {
-        $message = new PsrMessage(
-            'To upgrade the config, you must go to the {link}config form{link_end} and submit it manually.', // @translate
-            [
-                'link' => '<a href="' . $url('admin/default', ['controller' => 'module', 'action' => 'configure'], ['query' => ['id' => 'SingleSignOn']]) . '">',
-                'link_end' => '</a>',
-            ]
-        );
-        $message->setEscapeHtml(false);
-        $messenger->addWarning($message);
+if (version_compare($oldVersion, '3.4.18', '<')) {
+    $idps = $settings->get('singlesignon_idps', []);
+    $newIdps = [];
+    foreach ($idps as $idpName => $idpData) {
+        $idpData['sign_x509_certificates'] ??= empty($idpData['sign_x509_certificate']) ? [] : [$idpData['sign_x509_certificate']];
+        $idpData['crypt_x509_certificates'] ??= empty($idpData['crypt_x509_certificate']) ? [] : [$idpData['crypt_x509_certificate']];
+        $newIdps[$idpName] = $idpData;
     }
+    unset($idpData);
+    $settings->set('singlesignon_idps', $newIdps);
+
+    $message = new PsrMessage(
+        'Multiple signing and encryption certificates are now managed. The compatibility with Shibboleth was improved. For Shibboleth, you may need to set an encryption certificate for the sp.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'To upgrade the config, you must go to the {link}config form{link_end} and submit it manually.', // @translate
+        [
+            'link' => '<a href="' . $url('admin/default', ['controller' => 'module', 'action' => 'configure'], ['query' => ['id' => 'SingleSignOn']]) . '">',
+            'link_end' => '</a>',
+        ]
+    );
+    $message->setEscapeHtml(false);
+    $messenger->addWarning($message);
 }

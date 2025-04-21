@@ -112,6 +112,8 @@ url, for example https://idp.example.org/idp/shibboleth.
     - Creation of an self-signed certificate. Check the box and fill the
       optional keys: countryName, stateOrProvinceName, localityName,
       organizationName, organizationalUnitName, commonName, and emailAddress.
+    - Shibboleth may require a signing certificate and an encryption certificate,
+      so set the two fields and copy them in the config of Shibboleth.
 
 - Identity Provider:
   - The identity provider can be a federation of identity providers, in which

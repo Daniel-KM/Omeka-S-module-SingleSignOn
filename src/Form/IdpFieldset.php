@@ -81,7 +81,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'name' => 'sign_x509_certificate',
                 'type' => Element\Textarea::class,
                 'options' => [
-                    'label' => 'Public X.509 certificate of the IdP (signing)', // @translate
+                    'label' => 'Public X.509 certificate of the IdP (first, signing)', // @translate
                     'info' => 'If not set, it will be fetched from the IdP url, if available.', // @translate
                 ],
                 'attributes' => [
@@ -93,7 +93,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'name' => 'crypt_x509_certificate',
                 'type' => Element\Textarea::class,
                 'options' => [
-                    'label' => 'Public X.509 certificate of the IdP (encryption)', // @translate
+                    'label' => 'Public X.509 certificate of the IdP (first, encryption)', // @translate
                     'info' => 'If not set, it will be fetched from the IdP url, if available.', // @translate
                 ],
                 'attributes' => [

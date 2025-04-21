@@ -123,6 +123,12 @@ return [
                     // 'host' => '',
                     'sso_url' => '',
                     'slo_url' => '',
+                    // Shibboleth may use multiple signing certificates: back channel,
+                    // front channel, etc. So they should be all stored and checked.
+                    'sign_x509_certificates' => [],
+                    'crypt_x509_certificates' => [],
+                    // The two following keys are kept to manage the form, but
+                    // values are moved to array.
                     'sign_x509_certificate' => '',
                     'crypt_x509_certificate' => '',
                     'attributes_map' => [

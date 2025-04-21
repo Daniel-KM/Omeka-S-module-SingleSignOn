@@ -90,7 +90,13 @@ class Module extends AbstractModule
 
         // Remove the federated idps from the list of idps to keep only the
         // manually defined ones.
-        $data['singlesignon_idps'] = array_filter($data['singlesignon_idps'], fn ($v) => empty($v['federation_url']));
+        $data['singlesignon_idps'] = array_filter($data['singlesignon_idps'] ?: [], fn ($v) => empty($v['federation_url']));
+        // Append the first certificate for manual idp.
+        $data['singlesignon_idps'] = array_map(function($v) {
+            $v['sign_x509_certificate'] = empty($v['sign_x509_certificates']) ? null : reset($v['sign_x509_certificates']);
+            $v['crypt_x509_certificate'] = empty($v['crypt_x509_certificates']) ? null : reset($v['crypt_x509_certificates']);
+            return $v;
+        }, $data['singlesignon_idps']);
 
         /** @var \SingleSignOn\Form\ConfigForm $form */
         $form = $services->get('FormElementManager')->get(\SingleSignOn\Form\ConfigForm::class);
@@ -234,7 +240,7 @@ class Module extends AbstractModule
             $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
             $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
 
-            // Don't check the idps of the federation.
+            // Don't check the idps of the federation, already prepared above.
             if ($federationUrl) {
                 // Warning: a federated idp should not override a manual one.
                 // Normally, single idps are checked first in the list.
@@ -246,9 +252,17 @@ class Module extends AbstractModule
 
             $updateMode = $idp['metadata_update_mode'] ?? 'auto';
 
+            // Only the first cerfificate for signing and crypting is stored.
+            // So fill all of them when a url is set or not.
+            // These values are overridden when a metadata url is provided.
+            $idp['sign_x509_certificates'] = empty($idp['sign_x509_certificate']) ? [] : [$idp['sign_x509_certificate']];
+            $idp['crypt_x509_certificates'] = empty($idp['crypt_x509_certificate']) ? [] : [$idp['crypt_x509_certificate']];
+            unset($idp['sign_x509_certificate']);
+            unset($idp['crypt_x509_certificate']);
+
             // Check if the idp is filled.
             $isFilled = !empty($idp['entity_name'])
-                && !empty($idp['sign_x509_certificate'])
+                && !empty($idp['sign_x509_certificates'])
                 && (!in_array('sso', $ssoServices) || !empty($idp['sso_url']))
                 && (!in_array('sls', $ssoServices) || !empty($idp['slo_url']));
 
@@ -293,15 +307,17 @@ class Module extends AbstractModule
                 $entityName = $idp['entity_name'];
             }
 
-            $result = $this->checkX509Certificate($idp['sign_x509_certificate'] ?? null, $idp['entity_name'] ?: $idp['entity_short_id']);
-            if ($result) {
-                $idp['sign_x509_certificate'] = $result;
+            $certificates = [];
+            foreach ($idp['sign_x509_certificates'] ?? [] as $key => $cerficate) {
+                $certificates[] = $this->checkX509Certificate($cerficate, $idp['entity_name'] ?: $idp['entity_short_id']);
             }
+            $idp['sign_x509_certificates'] = array_values(array_unique(array_filter($certificates)));
 
-            $result = $this->checkX509Certificate($idp['crypt_x509_certificate'] ?? null, $idp['entity_name'] ?: $idp['entity_short_id']);
-            if ($result) {
-                $idp['crypt_x509_certificate'] = $result;
+            $certificates = [];
+            foreach ($idp['crypt_x509_certificates'] ?? [] as $key => $cerficate) {
+                $certificates[] = $this->checkX509Certificate($cerficate, $idp['entity_name'] ?: $idp['entity_short_id']);
             }
+            $idp['crypt_x509_certificates'] = array_values(array_unique(array_filter($certificates)));
 
             // Normally not possible.
             if (!$entityId) {
@@ -577,7 +593,7 @@ class Module extends AbstractModule
 
         $x509cert = trim($x509certificate);
         if (!$x509cert) {
-            return true;
+            return null;
         }
 
         /** @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger */
@@ -587,6 +603,7 @@ class Module extends AbstractModule
         // Remove windows and apple issues.
         $x509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $x509cert);
 
+        // Anyway, openssl remove header, footer and end of lines automatically.
         $x509cert = Utils::formatCert($x509cert);
 
         $sslX509cert = openssl_pkey_get_public($x509cert);

@@ -53,8 +53,8 @@ class SsoController extends AbstractActionController
         'host' => '',
         'sso_url' => '',
         'slo_url' => '',
-        'sign_x509_certificate' => '',
-        'crypt_x509_certificate' => '',
+        'sign_x509_certificates' => [],
+        'crypt_x509_certificates' => [],
         'date' => '',
         'attributes_map' => [],
         'roles_map' => [],
@@ -943,6 +943,7 @@ class SsoController extends AbstractActionController
             $spSignPrivateKey = null;
         }
 
+        // Openssl remove header, footer and end of lines automatically.
         $spCryptX509cert = trim($settings->get('singlesignon_sp_crypt_x509_certificate') ?: '');
         $spCryptPrivateKey = trim($settings->get('singlesignon_sp_crypt_x509_private_key') ?: '');
         if ($spCryptX509cert && $spCryptPrivateKey) {
@@ -1078,7 +1079,7 @@ class SsoController extends AbstractActionController
                 ],
 
                 // Public x509 certificate of the IdP
-                'x509cert' => $idp['sign_x509_certificate'] ?: $idp['crypt_x509_certificate'],
+                'x509cert' => empty($idp['sign_x509_certificates']) ? null : reset($idp['sign_x509_certificates']),
 
                 /*
                  *  Instead of use the whole x509cert you can use a fingerprint in
@@ -1283,17 +1284,12 @@ class SsoController extends AbstractActionController
             $providerSettings['sp']['x509certNew'] = $spCryptX509cert;
         }
 
-        if (!empty($idp['sign_x509_certificate'])
-            && !empty($idp['crypt_x509_certificate'])
-            && $idp['sign_x509_certificate'] !== $idp['crypt_x509_certificate']
+        if (count($idp['sign_x509_certificates'] ?? []) > 1
+            || !empty($idp['crypt_x509_certificates'])
         ) {
             $providerSettings['idp']['x509certMulti'] = [
-                 'signing' => [
-                     $idp['sign_x509_certificate'],
-                 ],
-                 'encryption' => [
-                     $idp['crypt_x509_certificate'],
-                 ],
+                'signing' => $idp['sign_x509_certificates'] ?? [],
+                'encryption' => $idp['crypt_x509_certificates'] ?? [],
             ];
         }
 

@@ -46,10 +46,10 @@ class AuthenticationServiceFactory implements FactoryInterface
                 $storage = new DoctrineWrapper(new NonPersistent, $userRepository);
                 $adapter = new KeyAdapter($keyRepository, $entityManager);
             } elseif (!method_exists($status, 'isKeyauthRequest') && $status->isApiRequest()) {
-                    // Authenticate using key for requests that require key authentication.
-                    $keyRepository = $entityManager->getRepository('Omeka\Entity\ApiKey');
-                    $storage = new DoctrineWrapper(new NonPersistent, $userRepository);
-                    $adapter = new KeyAdapter($keyRepository, $entityManager);
+                // Authenticate using key for requests that require key authentication.
+                $keyRepository = $entityManager->getRepository('Omeka\Entity\ApiKey');
+                $storage = new DoctrineWrapper(new NonPersistent, $userRepository);
+                $adapter = new KeyAdapter($keyRepository, $entityManager);
             } elseif ($config['authentication']['forbid_local_login']) {
                 // Disallow local login and log out logged users if wanted.
                 $storage = $config['authentication']['logout_logged_users']

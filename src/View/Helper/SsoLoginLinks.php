@@ -38,13 +38,13 @@ class SsoLoginLinks extends AbstractHelper
                 foreach ($options['idps'] as &$idp) {
                     $idp['idp_entity_id'] = $idp['entity_id'] ?? '';
                     $idp['idp_entity_name'] = $idp['entity_name'] ?? '';
-                    $idp['idp_entity_short_id']  = $idp['entity_short_id'] ?? '';
+                    $idp['idp_entity_short_id'] = $idp['entity_short_id'] ?? '';
                 }
             } else {
                 foreach ($options['idps'] as &$idp) {
                     $idp['entity_id'] = $idp['idp_entity_id'] ?? '';
                     $idp['entity_name'] = $idp['idp_entity_name'] ?? '';
-                    $idp['entity_short_id']  = $idp['idp_entity_short_id'] ?? '';
+                    $idp['entity_short_id'] = $idp['idp_entity_short_id'] ?? '';
                 }
             }
             unset($idp);

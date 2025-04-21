@@ -92,7 +92,7 @@ class Module extends AbstractModule
         // manually defined ones.
         $data['singlesignon_idps'] = array_filter($data['singlesignon_idps'] ?: [], fn ($v) => empty($v['federation_url']));
         // Append the first certificate for manual idp.
-        $data['singlesignon_idps'] = array_map(function($v) {
+        $data['singlesignon_idps'] = array_map(function ($v) {
             $v['sign_x509_certificate'] = empty($v['sign_x509_certificates']) ? null : reset($v['sign_x509_certificates']);
             $v['crypt_x509_certificate'] = empty($v['crypt_x509_certificates']) ? null : reset($v['crypt_x509_certificates']);
             return $v;
@@ -725,13 +725,13 @@ class Module extends AbstractModule
 
         // Create the Certificate Signing Request.
         $csr = openssl_csr_new($dn, $privateKey, [
-            'digest_alg' => 'sha256'
+            'digest_alg' => 'sha256',
         ]);
 
         // Self-sign the CSR to create a certificate.
         // The certificate is valid for a century.
         $certificate = openssl_csr_sign($csr, null, $privateKey, 36525, [
-            'digest_alg' => 'sha256'
+            'digest_alg' => 'sha256',
         ]);
 
         // Export private key and certificate.

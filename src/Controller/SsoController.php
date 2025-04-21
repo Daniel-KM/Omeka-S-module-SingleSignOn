@@ -418,7 +418,6 @@ class SsoController extends AbstractActionController
                 $settings = $this->settings();
                 $groups = $settings->get('singlesignon_groups_default', []);
                 if ($groups) {
-
                     $groupsToAssign = $this->api()->search(
                         'groups',
                         ['name' => $groups],

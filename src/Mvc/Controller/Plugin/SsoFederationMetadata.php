@@ -3,11 +3,23 @@
 namespace SingleSignOn\Mvc\Controller\Plugin;
 
 use Common\Stdlib\PsrMessage;
+use Laminas\Http\Client as HttpClient;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use SimpleXMLElement;
 
 class SsoFederationMetadata extends AbstractPlugin
 {
+    /**
+     * @var \Laminas\Http\Client
+     */
+    protected $httpClient;
+
+    public function __construct(
+        HttpClient $httpClient
+    ) {
+        $this->httpClient = $httpClient;
+    }
+
     /**
      * Get metadata from a federation url.
      *
@@ -51,7 +63,20 @@ class SsoFederationMetadata extends AbstractPlugin
             return null;
         }
 
-        $federationString = @file_get_contents($federationUrl);
+        // Sometime, the file is not available via file_get_contents() because
+        // the configuration does not use the Omeka http Client config.
+        $this->httpClient->setUri($federationUrl);
+        $response = $this->httpClient->send();
+        if ($response->isSuccess()) {
+            try {
+                $federationString = $response->getBody();
+            } catch (\Laminas\Http\Exception\RuntimeException $e) {
+                $federationString = $response->getContent();
+            }
+        } else {
+            $federationString = @file_get_contents($federationUrl);
+        }
+
         if (!$federationString) {
             $message = new PsrMessage(
                 'The federation url {url} does not return any metadata.', // @translate

@@ -13,7 +13,8 @@ class SsoControllerFactory implements FactoryInterface
         return new SsoController(
             $services->get('Omeka\Acl'),
             $services->get('Omeka\AuthenticationService'),
-            $services->get('Omeka\EntityManager')
+            $services->get('Omeka\EntityManager'),
+            $services->get('Omeka\HttpClient')
         );
     }
 }

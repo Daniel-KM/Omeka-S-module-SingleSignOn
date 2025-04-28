@@ -3,11 +3,23 @@
 namespace SingleSignOn\Mvc\Controller\Plugin;
 
 use Common\Stdlib\PsrMessage;
+use Laminas\Http\Client as HttpClient;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use SimpleXMLElement;
 
 class IdpMetadata extends AbstractPlugin
 {
+    /**
+     * @var \Laminas\Http\Client
+     */
+    protected $httpClient;
+
+    public function __construct(
+        HttpClient $httpClient
+    ) {
+        $this->httpClient = $httpClient;
+    }
+
     /**
      * Get metadata from an idp url.
      *
@@ -38,7 +50,20 @@ class IdpMetadata extends AbstractPlugin
             return null;
         }
 
-        $idpString = @file_get_contents($idpUrl);
+        // Sometime, the file is not available via file_get_contents() because
+        // the configuration does not use the Omeka http Client config.
+        $this->httpClient->setUri($idpUrl);
+        $response = $this->httpClient->send();
+        if ($response->isSuccess()) {
+            try {
+                $idpString = $response->getBody();
+            } catch (\Laminas\Http\Exception\RuntimeException $e) {
+                $idpString = $response->getContent();
+            }
+        } else {
+            $idpString = @file_get_contents($idpUrl);
+        }
+
         if (!$idpString) {
             $message = new PsrMessage(
                 'The IdP url {url} does not return any metadata.', // @translate

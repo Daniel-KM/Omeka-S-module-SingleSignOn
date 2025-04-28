@@ -6,6 +6,7 @@ use Common\Stdlib\PsrMessage;
 use DateTime;
 use Doctrine\ORM\EntityManager;
 use Laminas\Authentication\AuthenticationService;
+use Laminas\Http\Client as HttpClient;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\Session\Container;
 use Omeka\Entity\User;
@@ -19,19 +20,24 @@ use SimpleXMLElement;
 class SsoController extends AbstractActionController
 {
     /**
-     * @var Acl
+     * @var \Omeka\Permissions\Acl
      */
     protected $acl;
 
     /**
-     * @var AuthenticationService
+     * @var \Laminas\Authentication\AuthenticationService
      */
     protected $authentication;
 
     /**
-     * @var EntityManager
+     * @var \Doctrine\ORM\EntityManager
      */
     protected $entityManager;
+
+    /**
+     * @var \Laminas\Http\Client
+     */
+    protected $httpClient;
 
     /**
      * @var array
@@ -65,11 +71,13 @@ class SsoController extends AbstractActionController
     public function __construct(
         Acl $acl,
         AuthenticationService $authenticationService,
-        EntityManager $entityManager
+        EntityManager $entityManager,
+        HttpClient $httpClient
     ) {
         $this->acl = $acl;
         $this->authentication = $authenticationService;
         $this->entityManager = $entityManager;
+        $this->httpClient = $httpClient;
     }
 
     /**
@@ -720,7 +728,7 @@ class SsoController extends AbstractActionController
         if (empty($idp['metadata_url'])) {
             // <md:EntityDescriptor entityID="http://adfs.devinci.fr/adfs/services/trust">
             $federationUrl = $idp['federation_url'];
-            $federationString = @file_get_contents($federationUrl);
+            $federationString = $this->downloadUrl($federationUrl);
             if (!$federationString) {
                 $this->messenger()->addError(new PsrMessage(
                     'The IdP "{idp}" has no available metadata.', // @translate
@@ -853,6 +861,22 @@ class SsoController extends AbstractActionController
             default:
                 return $redirect;
         }
+    }
+
+    protected function downloadUrl(string $url): ?string
+    {
+        // Sometime, the file is not available via file_get_contents() because
+        // the configuration does not use the Omeka http Client config.
+        $this->httpClient->setUri($url);
+        $response = $this->httpClient->send();
+        if ($response->isSuccess()) {
+            try {
+                return $response->getBody();
+            } catch (\Laminas\Http\Exception\RuntimeException $e) {
+                return $response->getContent();
+            }
+        }
+        return @file_get_contents($url);
     }
 
     /**

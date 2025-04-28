@@ -43,12 +43,10 @@ return [
         ],
     ],
     'controller_plugins' => [
-        'invokables' => [
-            'idpMetadata' => Mvc\Controller\Plugin\IdpMetadata::class,
-            'ssoFederationMetadata' => Mvc\Controller\Plugin\SsoFederationMetadata::class,
-        ],
         'factories' => [
+            'idpMetadata' => Service\ControllerPlugin\IdpMetadataFactory::class,
             'isSsoUser' => Service\ControllerPlugin\IsSsoUserFactory::class,
+            'ssoFederationMetadata' => Service\ControllerPlugin\SsoFederationMetadataFactory::class,
         ],
     ],
     'router' => [

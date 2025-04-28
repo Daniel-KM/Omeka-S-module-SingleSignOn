@@ -50,18 +50,16 @@ class IdpMetadata extends AbstractPlugin
             return null;
         }
 
-        // Sometime, the file is not available via file_get_contents() because
-        // the configuration does not use the Omeka http Client config.
         $this->httpClient->setUri($idpUrl);
         $response = $this->httpClient->send();
         if ($response->isSuccess()) {
             try {
                 $idpString = $response->getBody();
             } catch (\Laminas\Http\Exception\RuntimeException $e) {
-                $idpString = $response->getContent();
+                $idpString = null;
             }
         } else {
-            $idpString = @file_get_contents($idpUrl);
+            $idpString = null;
         }
 
         if (!$idpString) {

@@ -63,18 +63,16 @@ class SsoFederationMetadata extends AbstractPlugin
             return null;
         }
 
-        // Sometime, the file is not available via file_get_contents() because
-        // the configuration does not use the Omeka http Client config.
         $this->httpClient->setUri($federationUrl);
         $response = $this->httpClient->send();
         if ($response->isSuccess()) {
             try {
                 $federationString = $response->getBody();
             } catch (\Laminas\Http\Exception\RuntimeException $e) {
-                $federationString = $response->getContent();
+                $federationString = null;
             }
         } else {
-            $federationString = @file_get_contents($federationUrl);
+            $federationString = null;
         }
 
         if (!$federationString) {

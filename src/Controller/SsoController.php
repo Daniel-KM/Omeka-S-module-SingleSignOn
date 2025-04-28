@@ -779,7 +779,7 @@ class SsoController extends AbstractActionController
                 . $idpString;
         }
 
-        $idpString = @file_get_contents($idp['metadata_url']);
+        $idpString = $this->downloadUrl($idp['metadata_url']);
         if (!$idpString) {
             $this->messenger()->addError(new PsrMessage(
                 'The IdP "{idp}" has no available metadata.', // @translate
@@ -865,18 +865,16 @@ class SsoController extends AbstractActionController
 
     protected function downloadUrl(string $url): ?string
     {
-        // Sometime, the file is not available via file_get_contents() because
-        // the configuration does not use the Omeka http Client config.
         $this->httpClient->setUri($url);
         $response = $this->httpClient->send();
         if ($response->isSuccess()) {
             try {
                 return $response->getBody();
             } catch (\Laminas\Http\Exception\RuntimeException $e) {
-                return $response->getContent();
+                return null;
             }
         }
-        return @file_get_contents($url);
+        return null;
     }
 
     /**

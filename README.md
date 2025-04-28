@@ -208,7 +208,7 @@ TODO
 - [x] Force sso login (with dynamic check of config first).
 - [-] Allow to log in without registering SP in the IdP (Unsolicited Login Initiator), but may be a security issue.
 - [ ] Use a Laminas SSO adapter instead of a specific url.
-- [ ] Use gz version of xml files from renater after checking if it is quicker.
+- [-] Use gz version of xml files from renater after checking if it is quicker. Useless: the http client automatically uses gz.
 - [ ] Future certs and metadata cert to sign (see directory certs in vendor one-login).
 
 

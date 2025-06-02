@@ -65,7 +65,8 @@ Then, users will be able to log in at https://example.org/sso/login.
 
 Params available to config SP and IdP in Omeka, and that should be updated when
 the IdP is updated. To get the metadata from the saml idp server, just go to its
-url, for example https://idp.example.org/idp/shibboleth.
+url, for example https://idp.example.org/idp/shibboleth. And most of the times,
+you just need to feel this url, other idp fields will be automatically filled.
 
 - Services:
   - log in (sso): required.
@@ -154,15 +155,48 @@ url, for example https://idp.example.org/idp/shibboleth.
   - Update mode: define if the config will be updated automatically. It is
     useful, in particular for the certificate, that may have a limited lifetime.
 
-For the main map, in most of the cases (Shibboleth), use:
+Most of the times, the default config is fine, included Shibboleth. If needed,
+you may set something like:
 
 ```
 mail = email
 displayName = name
 ```
 
-The role can be added, generally: `role = role`. If not set, the default role is
-used.
+Example with more fields (idp attribute = omeka setting name):
+
+```
+mail = email
+displayName = name
+role = role
+memberOf = role
+language = locale
+anAttribute = singlesignon_xxx
+anotherAttribute = userprofile_yyy
+yetAnotherAttribute = user_setting_zzz
+```
+
+The role can be added in the next field, generally. If not set, the default role
+is used. Example for the roles (idp role = omeka role):
+
+```
+director = global_admin
+supervisor = site_admin
+librarian = editor
+```
+
+The last field is used for static settings (omeka setting name = value):
+
+```
+locale = fr
+guest_agreed_terms = 1
+userprofile_xxx = value x
+user_setting_yyy = value y
+```
+
+Warning: The keys in the first fields are updated only when the options to
+update user name and to update user settings are enabled. The last field is
+never updated.
 
 ### Testing on SamlTest.id
 

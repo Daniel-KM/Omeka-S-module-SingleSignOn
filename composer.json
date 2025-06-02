@@ -23,6 +23,6 @@
         "shibboleth"
     ],
     "require": {
-        "onelogin/php-saml": "^4.2"
+        "onelogin/php-saml": "^4.3"
     }
 }

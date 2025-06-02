@@ -77,8 +77,9 @@ return [
                 'sls',
                 // Register.
                 'jit',
-                // Update user name.
-                'update',
+                // Update user name and settings on login.
+                'update_user_name',
+                'update_user_settings',
             ],
 
             // Default role is the lowest one (guest or researcher).

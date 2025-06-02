@@ -312,6 +312,7 @@ class SsoController extends AbstractActionController
         $nameId = $samlAuth->getNameId();
         $samlAttributesFriendly = $samlAuth->getAttributesWithFriendlyName();
         $samlAttributesCanonical = $samlAuth->getAttributes();
+        $samlAttributes = array_merge($samlAttributesFriendly, $samlAttributesCanonical);
 
         // The map is already checked.
         $attributesMap = $idp['attributes_map'];
@@ -365,6 +366,46 @@ class SsoController extends AbstractActionController
 
         $activeSsoServices = $this->settings()->get('singlesignon_services', ['sso']);
 
+        // Other settings.
+        $updateUserSettings = function (User $user) use ($attributesMap, $samlAttributes): void {
+            /** @var \Omeka\Settings\UserSettings $userSettings */
+            $userSettings = $this->userSettings();
+            $userSettings->setTargetId($user->getId());
+            foreach ($attributesMap as $idpKey => $key) {
+                if (in_array($key, ['email', 'name', 'role'])) {
+                    continue;
+                }
+                // The value is an array with multiple values.
+                // Delete the value when it is empty to remove existing values.
+                $value = $samlAttributes[$idpKey] ?? null;
+                if ($value === null || $value === '' || $value === []) {
+                    $userSettings->delete($key);
+                } else {
+                    $userSettings->set($key, $value);
+                }
+            }
+        };
+
+        // Group Module Settings to apply groups.
+        $addUserGroups = function ($user) {
+            if (class_exists(\Group\Module::class, false)) {
+                $settings = $this->settings();
+                $groups = $settings->get('singlesignon_groups_default', []);
+                if ($groups) {
+                    $groupsToAssign = $this->api()->search(
+                        'groups',
+                        ['name' => $groups],
+                        ['responseContent' => 'resource']
+                    )->getContent();
+                    foreach ($groupsToAssign as $group) {
+                        $groupEntity = new \Group\Entity\GroupUser($group, $user);
+                        $this->entityManager->persist($groupEntity);
+                    }
+                    $this->entityManager->flush();
+                }
+            }
+        };
+
         if (empty($user)) {
             if (!in_array('jit', $activeSsoServices)) {
                 $message = new PsrMessage('Automatic registering is disabled.'); // @translate
@@ -405,40 +446,9 @@ class SsoController extends AbstractActionController
             // Useful?
             $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
-            // Other settings.
-            /** @var \Omeka\Settings\UserSettings $userSettings */
-            $userSettings = $this->userSettings();
-            $userSettings->setTargetId($user->getId());
-            foreach ($attributesMap as $idpKey => $key) {
-                if (in_array($key, ['email', 'name', 'role'])) {
-                    continue;
-                }
-                $value = $samlAttributesFriendly[$idpKey][0]
-                    ?? $samlAttributesCanonical[$idpKey][0]
-                    ?? null;
-                if ($value !== null) {
-                    $userSettings->set($key, $value);
-                }
-            }
+            $updateUserSettings($user);
 
-            //Group Module Settings to apply default groups
-            if (class_exists(\Group\Module::class, false)) {
-                $settings = $this->settings();
-                $groups = $settings->get('singlesignon_groups_default', []);
-                if ($groups) {
-                    $groupsToAssign = $this->api()->search(
-                        'groups',
-                        ['name' => $groups],
-                        ['responseContent' => 'resource']
-                    )->getContent();
-
-                    foreach ($groupsToAssign as $group) {
-                        $groupEntity = new \Group\Entity\GroupUser($group, $user);
-                        $this->entityManager->persist($groupEntity);
-                    }
-                    $this->entityManager->flush();
-                }
-            }
+            $addUserGroups($user);
 
             // Static settings.
             $staticSettings = $idp['user_settings'];
@@ -454,21 +464,26 @@ class SsoController extends AbstractActionController
             $this->logger()->warn($message->getMessage(), $message->getContext());
             // Since this is a non-authorized user, return to redirect url.
             return $this->redirect()->toUrl($redirectUrl);
-        } elseif (in_array('update_user_name', $activeSsoServices)) {
-            $update = false;
-            if ($name && $name !== $user->getName()) {
-                $update = true;
-                $user->setName($name);
+        } else {
+            if (in_array('update_user_name', $activeSsoServices)) {
+                $update = false;
+                if ($name && $name !== $user->getName()) {
+                    $update = true;
+                    $user->setName($name);
+                }
+                /* Update role via admin interface only for now.
+                if ($role && $role !== $user->getRole) {
+                    $update = true;
+                    $user->setRole($role);
+                }
+                */
+                if ($update) {
+                    $this->entityManager->persist($user);
+                    $this->entityManager->flush();
+                }
             }
-            /* Update role via admin interface only for now.
-            if ($role && $role !== $user->getRole) {
-                $update = true;
-                $user->setRole($role);
-            }
-            */
-            if ($update) {
-                $this->entityManager->persist($user);
-                $this->entityManager->flush();
+            if (in_array('update_user_settings', $activeSsoServices)) {
+                $updateUserSettings($user);
             }
         }
 

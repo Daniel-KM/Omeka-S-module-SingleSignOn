@@ -42,6 +42,7 @@ class ConfigForm extends Form
                         'sls' => 'Log out (SLS)', // @translate
                         'jit' => 'Register (JIT)', // @translate
                         'update_user_name' => 'Update user name', // @translate
+                        'update_user_settings' => 'Update user settings', // @translate
                     ],
                 ],
                 'attributes' => [

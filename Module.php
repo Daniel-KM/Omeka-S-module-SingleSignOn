@@ -2,7 +2,7 @@
 
 namespace SingleSignOn;
 
-if (!class_exists(\Common\TraitModule::class)) {
+if (!class_exists('Common\TraitModule', false)) {
     require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
@@ -78,9 +78,7 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
 
         $settings = $services->get('Omeka\Settings');
-        // TODO getConfigModule
-        $config = $this->getConfig();
-        $defaultSettings = $config['singlesignon']['config'];
+        $defaultSettings = $this->getModuleConfig('config');
 
         $data = [];
         foreach ($defaultSettings as $name => $value) {
@@ -511,8 +509,8 @@ class Module extends AbstractModule
         }
 
         // Remove windows and apple issues.
-        $x509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $x509cert);
-        $privateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $privateKey);
+        $x509cert = strtr($x509cert, ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n"]);
+        $privateKey = strtr($privateKey, ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n"]);
 
         // Clean keys.
         $x509cert = Utils::formatCert($x509cert, true);
@@ -601,7 +599,7 @@ class Module extends AbstractModule
         $messenger = $services->get('ControllerPluginManager')->get('messenger');
 
         // Remove windows and apple issues.
-        $x509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $x509cert);
+        $x509cert = strtr($x509cert, ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n"]);
 
         // Anyway, openssl remove header, footer and end of lines automatically.
         $x509cert = Utils::formatCert($x509cert);

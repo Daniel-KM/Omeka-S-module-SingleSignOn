@@ -848,9 +848,8 @@ class SsoController extends AbstractActionController
     /**
      * Redirect to admin or site according to the role of the user and setting.
      *
-     * @return \Laminas\Http\Response
-     *
      * Adapted:
+     * @see \Contribute\Controller\Site\ContributionController::redirectAfterSubmit()
      * @see \Guest\Controller\Site\AbstractGuestController::redirectToAdminOrSite()
      * @see \Guest\Site\BlockLayout\TraitGuest::redirectToAdminOrSite()
      * @see \SingleSignOn\Controller\SsoController::redirectToAdminOrSite()
@@ -866,7 +865,7 @@ class SsoController extends AbstractActionController
                 }
                 // no break.
             case 'site':
-            case 'me' && class_exists(\Guest\Module::class, false):
+            case 'me' && class_exists('Guest\Module', false):
                 $siteSlug = $this->params()->fromRoute('site-slug') ?: $this->viewHelpers()->get('defaultSite')('slug');
                 return $siteSlug
                     ? $this->url()->fromRoute($redirect === 'me' ? 'site/guest' : 'site', ['site-slug' => $siteSlug])
@@ -969,8 +968,8 @@ class SsoController extends AbstractActionController
         $spSignPrivateKey = trim($settings->get('singlesignon_sp_sign_x509_private_key') ?: '');
         if ($spSignX509cert && $spSignPrivateKey) {
             // Remove windows and apple issues (managed later anyway).
-            $spSignX509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $spSignX509cert);
-            $spSignPrivateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $spSignPrivateKey);
+            $spSignX509cert = strtr($spSignX509cert, ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n"]);
+            $spSignPrivateKey = strtr($spSignPrivateKey, ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n"]);
         } else {
             if ($spSignX509cert || $spSignPrivateKey) {
                 $this->logger()->err('The cerificate for the signature is incomplete.'); // @translate
@@ -984,8 +983,8 @@ class SsoController extends AbstractActionController
         $spCryptPrivateKey = trim($settings->get('singlesignon_sp_crypt_x509_private_key') ?: '');
         if ($spCryptX509cert && $spCryptPrivateKey) {
             // Remove windows and apple issues (managed later anyway).
-            $spCryptX509cert = str_replace(["\r\n", "\n\r", "\r"], "\n", $spCryptX509cert);
-            $spCryptPrivateKey = str_replace(["\r\n", "\n\r", "\r"], "\n", $spCryptPrivateKey);
+            $spCryptX509cert = strtr($spCryptX509cert, ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n"]);
+            $spCryptPrivateKey = strtr($spCryptPrivateKey, ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n"]);
         } else {
             if ($spCryptX509cert && $spCryptPrivateKey) {
                 $this->logger()->err('The cerificate for the encryption is incomplete.'); // @translate

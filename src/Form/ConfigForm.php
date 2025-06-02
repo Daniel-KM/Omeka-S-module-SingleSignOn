@@ -66,7 +66,7 @@ class ConfigForm extends Form
             ]);
 
         // Check if group module is installed
-        if (class_exists(\Group\Form\Element\GroupSelect::class)) {
+        if (class_exists('Group\Module', false)) {
             $this->add([
                 'name' => 'singlesignon_groups_default',
                 'type' => \Group\Form\Element\GroupSelect::class,

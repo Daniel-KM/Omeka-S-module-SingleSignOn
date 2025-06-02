@@ -2,7 +2,7 @@
 
 namespace SingleSignOn;
 
-if (!class_exists(\Common\TraitModule::class)) {
+if (!class_exists('Common\TraitModule', false)) {
     require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
@@ -78,9 +78,7 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
 
         $settings = $services->get('Omeka\Settings');
-        // TODO getConfigModule
-        $config = $this->getConfig();
-        $defaultSettings = $config['singlesignon']['config'];
+        $defaultSettings = $this->getModuleConfig('config');
 
         $data = [];
         foreach ($defaultSettings as $name => $value) {

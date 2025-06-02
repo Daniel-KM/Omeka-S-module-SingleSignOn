@@ -328,7 +328,7 @@ if (version_compare($oldVersion, '3.4.18', '<')) {
     $message = new PsrMessage(
         'To upgrade the config, you must go to the {link}config form{link_end} and submit it manually.', // @translate
         [
-            'link' => '<a href="' . $url('admin/default', ['controller' => 'module', 'action' => 'configure'], ['query' => ['id' => 'SingleSignOn']]) . '">',
+            'link' => sprintf('<a href="%s">', $url('admin/default', ['controller' => 'module', 'action' => 'configure'], ['query' => ['id' => 'SingleSignOn']])),
             'link_end' => '</a>',
         ]
     );

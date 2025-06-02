@@ -109,7 +109,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Attributes map between IdP and Omeka', // @translate
-                    'info' => 'List of IdP and Omeka keys separated by "=". IdP keys can be canonical or friendly ones. Managed Omeka keys are "email", "name" and "role". Other options, like "locale", "userprofile_param", are stored in user settings.', // @translate
+                    'info' => 'Format: IdP attribute = Omeka key or user setting. IdP keys can be the canonical or friendly ones. Managed Omeka keys are "email", "name" and "role". Other options, like "locale", "singlesignon_xxx", "userprofile_yyy", are stored in user settings.', // @translate
                     'as_key_value' => true,
                 ],
                 'attributes' => [
@@ -119,6 +119,9 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                         mail = email
                         displayName = name
                         role = role
+                        anAttribute = singlesignon_xxx
+                        anotherAttribute = userprofile_yyy
+                        yetAnotherAttribute = user_setting_zzz
                         TXT,
                 ],
             ])
@@ -127,7 +130,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Roles map between IdP and Omeka', // @translate
-                    'info' => 'Allows to get a more precise role than the default "researcher" or "guest". List of IdP and Omeka roles separated by "=". For security, admin roles are disabled: update the user manually once created.', // @translate
+                    'info' => 'Format: IdP role = Omeka role. It allows to get a more precise role than the default "researcher" or "guest". For security, admin roles are disabled: update the user manually once created.', // @translate
                     'as_key_value' => true,
                 ],
                 'attributes' => [
@@ -144,6 +147,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Static user settings for new users', // @translate
+                    'info' => 'Format: Omeka user setting key = value.', // @translate
                     'as_key_value' => true,
                 ],
                 'attributes' => [
@@ -152,7 +156,8 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                     'placeholder' => <<<'TXT'
                         locale = fr
                         guest_agreed_terms = 1
-                        userprofile_key = value
+                        userprofile_xxx = value x
+                        user_setting_yyy = value y
                         TXT,
                 ],
             ])

@@ -96,7 +96,7 @@ if (version_compare($oldVersion, '3.4.11', '<')) {
     if ($updatePos !== false) {
         unset($activeSsoServices[$updatePos]);
         $activeSsoServices[] = 'update_user_name';
-        $settings->get('singlesignon_services', $activeSsoServices);
+        $settings->set('singlesignon_services', $activeSsoServices);
     }
 
     $message = new PsrMessage(
@@ -334,4 +334,11 @@ if (version_compare($oldVersion, '3.4.18', '<')) {
     );
     $message->setEscapeHtml(false);
     $messenger->addWarning($message);
+}
+
+if (version_compare($oldVersion, '3.4.20', '<')) {
+    $message = new PsrMessage(
+        'A new option allows to update settings from idp attributes on login.' // @translate
+    );
+    $messenger->addSuccess($message);
 }

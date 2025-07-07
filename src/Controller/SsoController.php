@@ -122,7 +122,7 @@ class SsoController extends AbstractActionController
                 '<ds:' => '<',
                 '</ds:' => '</',
             ];
-            $metadata = str_replace(array_keys($replace), array_values($replace), $metadata);
+            $metadata = strtr($metadata, $replace);
         }
 
         /**

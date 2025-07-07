@@ -185,11 +185,16 @@ return [
             'connection_last' => null,
         ],
         'federations' => [
-            // File "main idps" is the most useful for the module.
-            'Renater'
-                => 'https://pub.federation.renater.fr/metadata/renater/main/main-idps-renater-metadata.xml',
-            'Test: Renater'
-                => 'https://pub.federation.renater.fr/metadata/test/preview/preview-idps-test-metadata.xml',
+            /**
+             * @see https://services.renater.fr/federation/documentation/generale/metadata/index
+             * @see https://pub.federation.renater.fr/metadata
+             */
+            'Renater (Fédération enseignement-recherche)'
+                => 'https://pub.federation.renater.fr/metadata/fer/idps.xml',
+            'Renater (Qualification)'
+                => 'https://pub.federation.renater.fr/metadata/qualif/idps.xml',
+            'Renater (Test)'
+                => 'https://pub.federation.renater.fr/metadata/test/idps.xml',
             // Urls and local paths are allowed.
         ],
     ],

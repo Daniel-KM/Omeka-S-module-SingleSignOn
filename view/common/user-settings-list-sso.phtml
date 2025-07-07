@@ -1,0 +1,31 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Entity\User $user
+ * @var \Omeka\Settings\UserSettings $userSettings
+ * @var array $idpAttributesToSettingsKeys
+ */
+
+$plugins = $this->getHelperPluginManager();
+$escape = $plugins->get('escapeHtml');
+$translate = $plugins->get('translate');
+?>
+
+<dl>
+    <div class="property sso-profile">
+        <dt><?= $translate('Single Sign-On') ?></dt>
+        <dd class="value sso-account">
+	        <ul>
+        <?php foreach ($idpAttributesToSettingsKeys as $idpAttribute => $settingKey):
+            $vals = $userSettings->get($settingKey);
+            if ($vals === null || $vals === '' || $vals === []) continue;
+            if (!is_array($vals)) $vals = [$vals];
+            ?>
+            <li>
+                <?= sprintf($translate('%1$s: %2$s'), '<span class="value-key">' . $escape($idpAttribute) . '</span>', '<span class="value-value">' . implode('</span>, <span class="value-value">', array_map($escape, $vals)) . '</span>') ?>
+            </li>
+        <?php endforeach; ?>
+	        </ul>
+        </dd>
+    </div>
+</dl>

@@ -14,6 +14,7 @@ use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\Controller\AbstractController;
 use Laminas\Mvc\MvcEvent;
 use Laminas\View\Renderer\PhpRenderer;
+use Omeka\Api\Representation\UserRepresentation;
 use Omeka\Module\AbstractModule;
 use OneLogin\Saml2\Utils;
 
@@ -70,6 +71,18 @@ class Module extends AbstractModule
             '*',
             'view.login.after',
             [$this, 'handleViewLogin']
+        );
+
+        // Add the guest main infos to the user show admin pages.
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\User',
+            'view.details',
+            [$this, 'viewUserDetails']
+        );
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\User',
+            'view.show.after',
+            [$this, 'viewUserShowAfter']
         );
     }
 
@@ -262,6 +275,46 @@ class Module extends AbstractModule
         /** @var \Laminas\View\Renderer\PhpRenderer $view */
         $view = $event->getTarget();
         echo $view->ssoLoginLinks(['selector' => $selector]);
+    }
+
+    public function viewUserDetails(Event $event): void
+    {
+        $view = $event->getTarget();
+        $user = $view->resource;
+        $this->viewUserData($view, $user, 'common/user-settings-sso');
+    }
+
+    public function viewUserShowAfter(Event $event): void
+    {
+        $view = $event->getTarget();
+        $user = $view->vars()->user;
+        $this->viewUserData($view, $user, 'common/user-settings-list-sso');
+    }
+
+    protected function viewUserData(PhpRenderer $view, UserRepresentation $user, $template): void
+    {
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+        $userSettings = $services->get('Omeka\Settings\User');
+        $userSettings->setTargetId($user->id());
+
+        // Get all idps with user settings, then get all these settings.
+        // Get the idp of the user.
+        $connectionIdp  = $userSettings->get('connection_idp');
+        if (!$connectionIdp) {
+            return;
+        }
+
+        $idps = $settings->get('singlesignon_idps') ?: [];
+        if (!isset($idps[$connectionIdp]) || empty($idps[$connectionIdp]['attributes_map'])) {
+            return;
+        }
+
+        echo $view->partial($template,[
+            'user' => $user,
+            'userSettings' => $userSettings,
+            'idpAttributesToSettingsKeys' => $idps[$connectionIdp]['attributes_map'],
+        ]);
     }
 
     protected function prepareFederation(string $federation): array

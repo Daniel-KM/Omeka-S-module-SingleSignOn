@@ -2,6 +2,7 @@
 
 namespace SingleSignOn\Form;
 
+use Common\Form\Element as CommonElement;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
 use Laminas\InputFilter\InputFilterProviderInterface;
@@ -152,6 +153,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'options' => [
                     'label' => 'Attributes map between IdP and Omeka', // @translate
                     'info' => 'Format: IdP attribute = Omeka key or user setting. IdP keys can be the canonical or friendly ones. Managed Omeka keys are "email", "name" and "role". Other options, like "locale", "singlesignon_xxx", "userprofile_yyy", are stored in user settings.', // @translate
+                    'documentation' => 'https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/#managing-idp-attributes-and-omeka-settings',
                     'as_key_value' => true,
                 ],
                 'attributes' => [
@@ -161,7 +163,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                         mail = email
                         displayName = name
                         role = role
-                        anAttribute = singlesignon_xxx
+                        anIdpAttribute = singlesignon_xxx
                         anotherAttribute = userprofile_yyy
                         yetAnotherAttribute = user_setting_zzz
                         TXT,
@@ -173,6 +175,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'options' => [
                     'label' => 'Roles map between IdP and Omeka', // @translate
                     'info' => 'Format: IdP role = Omeka role. It allows to get a more precise role than the default "researcher" or "guest". For security, admin roles are disabled: update the user manually once created.', // @translate
+                    'documentation' => 'https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/#managing-idp-attributes-and-omeka-settings',
                     'as_key_value' => true,
                 ],
                 'attributes' => [
@@ -190,6 +193,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'options' => [
                     'label' => 'Static user settings for new users', // @translate
                     'info' => 'Format: Omeka user setting key = value.', // @translate
+                    'documentation' => 'https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/#managing-idp-attributes-and-omeka-settings',
                     'as_key_value' => true,
                 ],
                 'attributes' => [
@@ -200,6 +204,21 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                         guest_agreed_terms = 1
                         userprofile_xxx = value x
                         user_setting_yyy = value y
+                        TXT,
+                ],
+            ])
+            ->add([
+                'name' => 'attributes_map_hide',
+                'type' => CommonElement\ArrayText::class,
+                'options' => [
+                    'label' => 'Attributes to hide in user account page', // @translate
+                    'info' => 'Allow to hide some attributes for security or privacy. Separe multiple attributes with a space.', // @translate
+                    'value_separator' => ' ',
+                ],
+                'attributes' => [
+                    'id' => 'attributes_map_hide',
+                    'placeholder' => <<<'TXT'
+                        eduPersonPrincipalName
                         TXT,
                 ],
             ])
@@ -217,7 +236,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                     ],
                 ],
                 'attributes' => [
-                    // Don't use o-icon-delete.
+                    // Don't use o-icon-.
                     'class' => 'config-fieldset-action config-fieldset-minus fa fa-minus remove-value button',
                     'aria-label' => 'Remove this idp', // @translate
                 ],
@@ -235,7 +254,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                     ],
                 ],
                 'attributes' => [
-                    // Don't use o-icon-delete.
+                    // Don't use o-icon-.
                     'class' => 'config-fieldset-action config-fieldset-up fa fa-arrow-up button',
                     'aria-label' => 'Move this idp up', // @translate
                 ],
@@ -253,7 +272,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                     ],
                 ],
                 'attributes' => [
-                    // Don't use o-icon-delete.
+                    // Don't use o-icon-.
                     'class' => 'config-fieldset-action config-fieldset-down fa fa-arrow-down button',
                     'aria-label' => 'Move this idp down', // @translate
                 ],

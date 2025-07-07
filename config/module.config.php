@@ -140,7 +140,7 @@ return [
                         'role' => 'role',
                         'memberOf' => 'role',
                         'language' => 'locale',
-                        'anotherKey' => 'userprofile_param',
+                        'anotherIdpKey' => 'userprofile_param',
                         'yetAnotherKey' => 'a_user_setting_key',
                         */
                     ],
@@ -164,6 +164,9 @@ return [
                         // 'locale' => 'fr',
                         // 'guest_agreed_terms' => true,
                         // 'userprofile_key' => 'value',
+                    ],
+                    'attributes_map_hide' => [
+                        // 'anotherIdpKey',
                     ],
                 ],
             ],

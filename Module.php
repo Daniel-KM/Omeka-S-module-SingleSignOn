@@ -310,10 +310,17 @@ class Module extends AbstractModule
             return;
         }
 
+        $attributesMap = empty($idps[$connectionIdp]['attributes_map_hide'])
+            ? $idps[$connectionIdp]['attributes_map']
+            : array_diff_key($idps[$connectionIdp]['attributes_map'], array_flip($idps[$connectionIdp]['attributes_map_hide']));
+        if (!$attributesMap) {
+            return;
+        }
+
         echo $view->partial($template,[
             'user' => $user,
             'userSettings' => $userSettings,
-            'idpAttributesToSettingsKeys' => $idps[$connectionIdp]['attributes_map'],
+            'idpAttributesToSettingsKeys' => $attributesMap,
         ]);
     }
 

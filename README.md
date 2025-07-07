@@ -68,6 +68,8 @@ the IdP is updated. To get the metadata from the saml idp server, just go to its
 url, for example https://idp.example.org/idp/shibboleth. And most of the times,
 you just need to feel this url, other idp fields will be automatically filled.
 
+#### Main options
+
 - Services:
   - log in (sso): required.
   - log out (sls): Log out is not recommended, because it can have bad side
@@ -85,114 +87,147 @@ you just need to feel this url, other idp fields will be automatically filled.
 
 - Redirect page after log in
 
-- Service provider:
-  - Specific entity id, in particular when behind a proxy. Defaut is the url of
-    the host.
-  - Specific host, in particular when behind a proxy.
-  - Metadata content type
-  - Metadata content disposition: these two options allow to fix some badly
-    configured IdP. To display the metadata directly in a browser, use "application/xml"
-    and "inline".
-  - Metadata mode: some IdP don't manage xml fully, so a basic mode is provided
-    that removes the prefixes of the xml metadata.
-  - Name ID format of the service provider: If the default config (unspecified)
-    does not work, try to change  the format of the name to set in element `<md:NameIDFormat>`,
-    for example "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified".
-  - SP certificates:
-    Some IdPs require certificates to sign and to encrypt responses. There are
-    three ways to define them for signature and encryption: a path to the
-    certificate and private key, a  copy-paste in fields or a creation.
-    - SP certificate path: The path should contains a directory "certs/" with at
-      least the files `sp.crt` and `sp.key`. It must be outside of the web
-      server or protected, for example with a .htaccess.
-    - SP public certificate and SP private key: you can fill the public
-      certificate and the private key. The format should be x509.
-      **Warning**: All keys have an expiration date, so add them into your
-      planning (anyway your users will warn you), even if such keys are usually
-      long term (more than 10 years).
-    - Creation of an self-signed certificate. Check the box and fill the
-      optional keys: countryName, stateOrProvinceName, localityName,
-      organizationName, organizationalUnitName, commonName, and emailAddress.
-    - Shibboleth may require a signing certificate and an encryption certificate,
-      so set the two fields and copy them in the config of Shibboleth.
+#### Service provider (SP)
 
-- Identity Provider:
-  - The identity provider can be a federation of identity providers, in which
-    case the config is automatic. If you have a federation not implemented in
-    the module, you can set it in the Omeka config/local.config.php under key
-    `[singlesignon][federations]`.
-    When a federation is set, the locally defined idps are still available,
-    merged in a single list.
-  - Identity provider metadata url: When set, the form will be automatically
-    filled and updated each day, in particular for the certificate. It is
-    recommended to fill it. When enable, there is a shortcut to get these public
-    metadata of the IdP: https://example.org/sso/metadata/idp.external.example.org.
-  - Identity provider id: this is the url set in attribute `entityID` of xml
-    element `<md:EntityDescriptor>`, for example `https://idp.example.org`.
-    Important: for some IdP, the scheme must not be set, so try `idp.example.org`
-    too. Just fill the content of the attribute.
-  - Identity provider name: the display name of the IdP, used for the links.
-  - IdP single sign-on (SSO) endpoint: Full url set in attribute `Location` of xml
-    element `<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`,
-    for example "https://idp.example.org/idp/profile/SAML2/Redirect/SSO".
-  - IdP single log out (SLO)  endpoint: Full url set in attribute `Location` of xml
-    element `<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`,
-    for example "https://idp.example.org/idp/profile/SAML2/Redirect/SLO".
-  - Public X.509 certificate of the IdP (signature): it is required.
-  - Public X.509 certificate of the IdP (encryption): it is optional.
-  - Map between IdP and Omeka keys: used to indicate the keys to use to create
-    and authenticate the good user data (name, email, role). Other keys, for
-    example "locale" or "userprofile_param", will be stored in user settings.
-  - Map between IdP and Omeka roles: List of IdP and Omeka roles separated by "=".
-    It is not recommended to set admin roles in mapping, but to update the role
-    manually in admin part once created. "guest" is used only when module
-    [Guest] or [Guest Role] is active, or another module that creates this role.
-    For security, don't set an admin role. Of course, an admin can update the
-    role after the first authentication. If not set, new users will be "researcher"
-    or "guest", if the role exists.
-  - User settings: list of keys and values that will be stored in user settings
-    when a user is created. Values are not updated next times the user logs in.
-  - Update mode: define if the config will be updated automatically. It is
-    useful, in particular for the certificate, that may have a limited lifetime.
+The site (Omeka) is the service provider.
+
+- Specific entity id, in particular when behind a proxy. Defaut is the url of
+  the host.
+- Specific host, in particular when behind a proxy.
+- Metadata content type
+- Metadata content disposition: these two options allow to fix some badly
+  configured IdP. To display the metadata directly in a browser, use "application/xml"
+  and "inline".
+- Metadata mode: some IdP don't manage xml fully, so a basic mode is provided
+  that removes the prefixes of the xml metadata.
+- Name ID format of the service provider: If the default config (unspecified)
+  does not work, try to change  the format of the name to set in element `<md:NameIDFormat>`,
+  for example "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified".
+- SP certificates:
+  Some IdPs require certificates to sign and to encrypt responses. There are
+  three ways to define them for signature and encryption: a path to the
+  certificate and private key, a  copy-paste in fields or a creation.
+  - SP certificate path: The path should contains a directory "certs/" with at
+    least the files `sp.crt` and `sp.key`. It must be outside of the web server
+    or protected, for example with a .htaccess.
+  - SP public certificate and SP private key: you can fill the public
+    certificate and the private key. The format should be x509.
+    **Warning**: All keys have an expiration date, so add them into your
+    planning (anyway your users will warn you), even if such keys are usually
+    long term (more than 10 years).
+  - Creation of an self-signed certificate. Check the box and fill the optional
+    keys: countryName, stateOrProvinceName, localityName, organizationName,
+    organizationalUnitName, commonName, and emailAddress.
+  - Shibboleth may require a signing certificate and an encryption certificate,
+    so set the two fields and copy them in the config of Shibboleth.
+
+#### Identity provider (IdP)
+
+The identity provider can be a federation of identity providers, in which case
+the config is automatic. If you have a federation not implemented in the module,
+you can set it in the Omeka config/local.config.php under key `[singlesignon][federations]`.
+
+When a federation is set, the locally defined idps override the params of the
+same idps managed by the federation. Each idp can have a specific config.
+
+- Update mode: define if the config will be updated automatically. It is useful,
+  in particular for the certificate, that may have a limited lifetime.
+  In some cases, two options are needed.
+  - skip update of the entity id: allow to fix possible issue with reverse
+    proxies.
+  - use the certificates provided by the federation, not the idp ones: may fixes
+    issues when the certificates included in the federation are not the same
+    than the local idp.
+- Identity provider metadata url: When set, the form will be automatically
+  filled and updated each day, in particular for the certificate. It is
+  recommended to fill it. When enable, there is a shortcut to get these public
+  metadata of the IdP: https://example.org/sso/metadata/idp.external.example.org.
+- Identity provider id: this is the url set in attribute `entityID` of xml
+  element `<md:EntityDescriptor>`, for example `https://idp.example.org`.
+  Important: for some IdP, the scheme must not be set, so try `idp.example.org`
+  too. Just fill the content of the attribute.
+- Identity provider name: the display name of the IdP, used for the links.
+- IdP single sign-on (SSO) endpoint: Full url set in attribute `Location` of xml
+  element `<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`,
+  for example "https://idp.example.org/idp/profile/SAML2/Redirect/SSO".
+- IdP single log out (SLO)  endpoint: Full url set in attribute `Location` of xml
+  element `<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">`,
+  for example "https://idp.example.org/idp/profile/SAML2/Redirect/SLO".
+- Public X.509 certificate of the IdP (signature): it is required.
+- Public X.509 certificate of the IdP (encryption): it is optional.
+- Maps between IdP and Omeka
+
+#### Managing IdP attributes and Omeka settings
 
 Most of the times, the default config is fine, included Shibboleth. If needed,
-you may set something like:
+three fields allow to manage links between an idp and Omeka and specific
+settings.
 
-```
-mail = email
-displayName = name
-```
+- Map between IdP and Omeka keys: It is used to indicate the keys to use to
+  create and authenticate the good user data (name, email, role). Other keys,
+  for example "locale" or "userprofile_param", will be stored in user settings.
 
-Example with more fields (idp attribute = omeka setting name):
+  Simple example:
 
-```
-mail = email
-displayName = name
-role = role
-memberOf = role
-language = locale
-anAttribute = singlesignon_xxx
-anotherAttribute = userprofile_yyy
-yetAnotherAttribute = user_setting_zzz
-```
+  ```
+  mail = email
+  displayName = name
+  ```
 
-The role can be added in the next field, generally. If not set, the default role
-is used. Example for the roles (idp role = omeka role):
+  Example with more fields (idp attribute = omeka setting name):
 
-```
-director = global_admin
-supervisor = site_admin
-librarian = editor
-```
+  ```
+  mail = email
+  displayName = name
+  role = role
+  memberOf = role
+  language = locale
+  anAttribute = singlesignon_xxx
+  anotherAttribute = userprofile_yyy
+  yetAnotherAttribute = user_setting_zzz
+  ```
 
-The last field is used for static settings (omeka setting name = value):
+  A living config for a federation and specific rights for some idps, used by
+  modules [Access] and [Contribute]:
 
-```
-locale = fr
-guest_agreed_terms = 1
-userprofile_xxx = value x
-user_setting_yyy = value y
-```
+  ```
+  eduPersonAffiliation = singlesignon_person_affiliation
+  supannEntiteAffectation = singlesignon_entite_affectation
+  eduPersonPrincipalName = singlesignon_eppn
+  givenName = singlesignon_given_name
+  surName = singlesignon_sur_name
+  ```
+
+- Map between IdP and Omeka roles: List of IdP and Omeka roles separated by "=".
+  It is not recommended to set admin roles in mapping, but to update the role
+  manually in admin part once created. "guest" is used only when module
+  [Guest] or [Guest Role] is active, or another module that creates this role.
+  For security, don't set an admin role. Of course, an admin can update the
+  role after the first authentication. If not set, new users will be "researcher"
+  or "guest", if the role exists.
+
+  Example for the roles (idp role = omeka role):
+
+  ```
+  director = global_admin
+  supervisor = site_admin
+  librarian = editor
+  ```
+
+- User settings: This field is not a mapping between the IdP and Omeka, but a
+  simple list of keys/values pairs that will be stored in user settings when a
+  user is created.
+
+  Values are not updated next times the user logs in.
+
+  The format is "omeka setting name = value":
+
+  ```
+  locale = fr
+  guest_agreed_terms = 1
+  userprofile_xxx = value x
+  user_setting_yyy = value y
+  ```
 
 Warning: The keys in the first fields are updated only when the options to
 update user name and to update user settings are enabled. The last field is
@@ -237,14 +272,17 @@ TODO
 - [x] Mapping roles (see module Shibboleth).
 - [x] Extra settings, in particular locale (see module Shibboleth).
 - [ ] Add logo and site name (see onelogin config and https://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-metadata-ui/v1.0/os/sstc-saml-metadata-ui-v1.0-os.html).
-- [ ] Add discovery login (two steps login, to avoid selecting the idp).
 - [x] Store user idp in user settings instead of a new table!
 - [x] Force sso login (with dynamic check of config first).
-- [-] Allow to log in without registering SP in the IdP (Unsolicited Login Initiator), but may be a security issue.
 - [ ] Use a Laminas SSO adapter instead of a specific url.
-- [-] Use gz version of xml files from renater after checking if it is quicker. Useless: the http client automatically uses gz.
 - [ ] Future certs and metadata cert to sign (see directory certs in vendor one-login).
-
+- [ ] Integrate the discovery protocol for login (two steps login, to avoid selecting the idp of the federation).
+- [ ] Integrate the protocol MDQ for federation (see https://mdq.federation.renater.fr/)
+- [ ] Manage change of email by the user when the unique id is not the email, or the university change its domain.
+- [ ] Manage given and family names separately.
+- [ ] Add options to get attributes and maps for the federated idps.
+- [-] Allow to log in without registering SP in the IdP (Unsolicited Login Initiator), but may be a security issue.
+- [-] Use gz version of xml files from renater after checking if it is quicker. Useless: the http client automatically uses gz.
 
 Warning
 -------
@@ -319,6 +357,8 @@ and the [Université de Strasbourg] (UNISTRA). New features were implemented for
 [SingleSignOn.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/releases
 [Guest]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest
 [Guest Role]: https://github.com/biblibre/omeka-s-module-GuestRole
+[Access]: https://gitlab.com/Daniel-KM/Omeka-S-module-Access
+[Contribute]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/issues
 [SamlTest.id]: https://samltest.id
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html

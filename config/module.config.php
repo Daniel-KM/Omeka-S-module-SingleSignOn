@@ -143,6 +143,7 @@ return [
                     // values are moved to array.
                     'sign_x509_certificate' => '',
                     'crypt_x509_certificate' => '',
+                    'date' => '',
                     'attributes_map' => [
                         'mail' => 'email',
                         'displayName' => 'name',

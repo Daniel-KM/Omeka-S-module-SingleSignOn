@@ -342,3 +342,38 @@ if (version_compare($oldVersion, '3.4.20', '<')) {
     );
     $messenger->addSuccess($message);
 }
+
+if (version_compare($oldVersion, '3.4.21', '<')) {
+    $idps = $settings->get('singlesignon_idps', []);
+    $newIdps = [];
+    $newFederations = [
+        'Renater' => 'Renater (Fédération enseignement-recherche)',
+        'Test: Renater' => 'Renater (Test)',
+        'https://pub.federation.renater.fr/metadata/renater/main/main-idps-renater-metadata.xml'
+            => 'https://pub.federation.renater.fr/metadata/fer/idps.xml',
+        'https://pub.federation.renater.fr/metadata/test/preview/preview-idps-test-metadata.xml'
+            =>'https://pub.federation.renater.fr/metadata/test/idps.xml',
+    ];
+    foreach ($idps as $idpName => $idp) {
+        // Use the new url of idps for Renater.
+        $federationUrl = $idp['federation_url'] ?? null;
+        if (isset($newFederations[$federationUrl])) {
+            $idp['federation_url'] = $newFederations[$federationUrl];
+        }
+        // Use the new option management for update.
+        $updateMode = $idp['metadata_update_mode'] ?? 'auto';
+        $idp['metadata_update_mode'] = $updateMode === 'manual' ? 'manual' : 'auto';
+        $idp['metadata_keep_entity_id'] = $updateMode === 'auto_except_id';
+        $idp['metadata_use_federation_data'] = false;
+        $newIdps[$idpName] = $idp;
+    }
+    unset($idp);
+    $settings->set('singlesignon_idps', $newIdps);
+
+    $settings->delete('metadata_update_mode');
+
+    $message = new PsrMessage(
+        'A new option allows to config a specific idp and to use the federation certificates of it.' // @translate
+    );
+    $messenger->addSuccess($message);
+}

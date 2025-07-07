@@ -49,9 +49,14 @@ class SsoController extends AbstractActionController
     ];
 
     /**
+     * @see module.config.php
+     *
      * @var array
      */
     protected $providerData = [
+        'metadata_update_mode' => 'auto',
+        'metadata_use_federation_data' => false,
+        'metadata_keep_entity_id' => false,
         'metadata_url' => '',
         'entity_id' => '',
         'entity_name' => '',
@@ -65,7 +70,6 @@ class SsoController extends AbstractActionController
         'attributes_map' => [],
         'roles_map' => [],
         'user_settings' => [],
-        'metadata_update_mode' => 'auto',
     ];
 
     public function __construct(
@@ -664,11 +668,11 @@ class SsoController extends AbstractActionController
 
         $idp += $this->providerData;
 
-        $updateMode = $settings->get('metadata_update_mode') ?: 'auto';
+        $updateAuto = ($idp['metadata_update_mode'] ?? null) !== 'manual';
 
         // Update idp data when possible, once a day.
         $toUpdate = $update
-            && $updateMode !== 'manual'
+            && $updateAuto
             && $idpEntityId
             && $idp['entity_id']
             && (!empty($idp['federation_url']) || !empty($idp['metadata_url']))
@@ -691,13 +695,15 @@ class SsoController extends AbstractActionController
                 : $this->idpMetadata($idp['metadata_url'], false);
             if ($idpMeta) {
                 // Keep some data.
+                $idpMeta['metadata_update_mode'] = 'auto';
+                $idpMeta['metadata_use_federation_data'] = !empty($idp['metadata_use_federation_data']);
+                $idpMeta['metadata_keep_entity_id'] = !empty($idp['metadata_keep_entity_id']);
                 $idpMeta['entity_name'] = $idpMeta['entity_name'] ?: $idp['entity_name'];
                 $idpMeta['attributes_map'] = $idp['attributes_map'];
                 $idpMeta['roles_map'] = $idp['roles_map'];
                 $idpMeta['user_settings'] = $idp['user_settings'];
-                $idpMeta['metadata_update_mode'] = $idp['metadata_update_mode'];
                 // When defined manually.
-                if ($updateMode === 'auto_except_id' && !empty($idp['entity_id'])) {
+                if ($idp['metadata_keep_entity_id'] && !empty($idp['entity_id'])) {
                     $idpMeta['entity_id'] = $idp['entity_id'];
                 }
                 $idp = $idpMeta;

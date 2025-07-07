@@ -5,6 +5,7 @@ namespace SingleSignOn\Mvc\Controller\Plugin;
 use Common\Stdlib\PsrMessage;
 use Laminas\Http\Client as HttpClient;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
+use OneLogin\Saml2\Utils;
 use SimpleXMLElement;
 
 class IdpMetadata extends AbstractPlugin
@@ -141,6 +142,7 @@ class IdpMetadata extends AbstractPlugin
         $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
         $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
 
+        // Don't append specific options of the idp, in particular the mapping.
         return [
             'metadata_url' => $idpUrl,
             'entity_id' => trim($entityId),
@@ -149,9 +151,9 @@ class IdpMetadata extends AbstractPlugin
             'host' => $idpHost,
             'sso_url' => trim($ssoUrl),
             'slo_url' => trim($sloUrl),
-            // The xml may add tabulations and spaces, to be removed.
-            'sign_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => trim(str_replace(["\t", ' '], '', (string) $v)), $signX509Certificates)))),
-            'crypt_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => trim(str_replace(["\t", ' '], '', (string) $v)), $cryptX509Certificates)))),
+            // The xml may add tabulations and spaces, to be removed before Utils.
+            'sign_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => Utils::formatCert(trim(strtr((string) $v, ["\t" => '', ' ' => '']))), $signX509Certificates)))),
+            'crypt_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => Utils::formatCert(trim(strtr((string) $v, ["\t" => '', ' ' => '']))), $cryptX509Certificates)))),
             'date' => (new \DateTime('now'))->format(\DateTime::ISO8601),
         ];
     }

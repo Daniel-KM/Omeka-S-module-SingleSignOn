@@ -88,13 +88,17 @@ class Module extends AbstractModule
 
         // Remove the federated idps from the list of idps to keep only the
         // manually defined ones.
-        $data['singlesignon_idps'] = array_filter($data['singlesignon_idps'] ?: [], fn ($v) => empty($v['federation_url']));
+        $data['singlesignon_idps'] = array_filter($data['singlesignon_idps'] ?: [], fn ($v) => empty($v['federation_url']) || !empty($v['metadata_use_federation_data']));
         // Append the first certificate for manual idp.
         $data['singlesignon_idps'] = array_map(function ($v) {
             $v['sign_x509_certificate'] = empty($v['sign_x509_certificates']) ? null : reset($v['sign_x509_certificates']);
             $v['crypt_x509_certificate'] = empty($v['crypt_x509_certificates']) ? null : reset($v['crypt_x509_certificates']);
             return $v;
         }, $data['singlesignon_idps']);
+
+        // Data with empty key is always invalid and breaks form.
+        // Normally not present if the config form is well handled.
+        unset($data['singlesignon_idps']['']);
 
         /** @var \SingleSignOn\Form\ConfigForm $form */
         $form = $services->get('FormElementManager')->get(\SingleSignOn\Form\ConfigForm::class);
@@ -167,20 +171,7 @@ class Module extends AbstractModule
         $messenger = $plugins->get('messenger');
         $idpMetadata = $plugins->get('idpMetadata');
 
-        $ssoServices = $settings->get('singlesignon_services') ?: [];
-
-        // For security, forbid admin roles for new user.
-        $defaultRole = $settings->get('singlesignon_role_default');
-        if ($defaultRole && $acl->isAdminRole($defaultRole)) {
-            $roles = $acl->getRoles();
-            $role = in_array('guest', $roles) ? 'guest' : \Omeka\Permissions\Acl::ROLE_RESEARCHER;
-            $settings->set('singlesignon_role_default', $role);
-            $message = new PsrMessage(
-                'For security, the default role cannot be an admin one. The default role was set to {role}.', // @translate
-                ['role' => $role]
-            );
-            $messenger->addWarning($message);
-        }
+        $this->validateDefaultRole();
 
         // Normally, these values are not stored.
         $settings->delete('singlesignon_sp_sign_create_certificate');
@@ -193,147 +184,61 @@ class Module extends AbstractModule
 
         $this->checkConfigSP($createCertificateSign, $createCertificateCrypt);
 
+        // Check federation before filling it.
         $this->checkConfigFederation();
 
-        // Check and finalize federation.
         $federation = $settings->get('singlesignon_federation');
-        if ($federation) {
-            $this->prepareFederation($federation);
-        }
+        $federationIdps = $federation
+            ? $this->prepareFederation($federation)
+            : [];
 
         // Check and finalize idps.
-        $idps = $settings->get('singlesignon_idps');
-
-        // Entity id and name are defined by idp. Entity short id is derivated
-        // from the domain. The entity id is used as key. If not set, this is
-        // the domain of the idp url.
-
         $hasError = false;
-        $cleanIdps = [];
-        foreach (array_values($idps) as $key => $idp) {
-            ++$key;
-            $federationUrl = trim($idp['federation_url'] ?? '');
-            $entityUrl = trim($idp['metadata_url'] ?? '');
-            $entityId = trim($idp['entity_id'] ?? '');
-            if ($federationUrl) {
-                if (!$entityId) {
-                    $hasError = true;
-                    $message = new PsrMessage(
-                        'The federated IdP #{index} has no id and is not valid.', // @translate
-                        ['index' => $key]
-                    );
-                    $messenger->addError($message);
-                    continue;
-                }
-            } elseif (!$entityId && !$entityUrl) {
-                $hasError = true;
-                $message = new PsrMessage(
-                    'The IdP #{index} has no url and no id and is not valid.', // @translate
-                    ['index' => $key]
-                );
-                $messenger->addError($message);
-                continue;
-            }
-
-            $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
-            $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
-
-            // Don't check the idps of the federation, already prepared above.
-            if ($federationUrl) {
-                // Warning: a federated idp should not override a manual one.
-                // Normally, single idps are checked first in the list.
-                $cleanIdps[$entityId] ??= $idp;
-                continue;
-            }
-
-            unset($idp['minus'], $idp['up'], $idp['down']);
-
-            $updateMode = $idp['metadata_update_mode'] ?? 'auto';
-
-            // Only the first cerfificate for signing and crypting is stored.
-            // So fill all of them when a url is set or not.
-            // These values are overridden when a metadata url is provided.
-            $idp['sign_x509_certificates'] = empty($idp['sign_x509_certificate']) ? [] : [$idp['sign_x509_certificate']];
-            $idp['crypt_x509_certificates'] = empty($idp['crypt_x509_certificate']) ? [] : [$idp['crypt_x509_certificate']];
-            unset($idp['sign_x509_certificate']);
-            unset($idp['crypt_x509_certificate']);
-
-            // Check if the idp is filled.
-            $isFilled = !empty($idp['entity_name'])
-                && !empty($idp['sign_x509_certificates'])
-                && (!in_array('sso', $ssoServices) || !empty($idp['sso_url']))
-                && (!in_array('sls', $ssoServices) || !empty($idp['slo_url']));
-
-            if ($isFilled && $updateMode === 'manual') {
-                $idp = $this->completeIdpData($idp) + $idp;
-                // When an idp is not available, the key sshould not be empty,
-                // so use another key to keep track of it and to avoid an issue
-                // somewhere else, for example in form idp fieldset.
-                $cleanIdps[$entityId ?: $idp['entity_short_id'] ?: $idp['host'] ?: $idp['metadata_url']] = $idp;
-                $message = new PsrMessage(
-                    'The idp "{idp}" was manually filled and is not checked neither updated.', // @translate
-                    ['idp' => $entityShortId]
-                );
-                $messenger->addWarning($message);
-                continue;
-            }
-
-            if ($entityUrl) {
-                $idpMeta = $idpMetadata($entityUrl, true);
-                if (!$idpMeta) {
-                    // Message is already prepared.
-                    $cleanIdps[$entityId ?: $entityShortId ?: $idp['host']] = $idp;
-                    continue;
-                }
-                // Keep some data.
-                $idpMeta['entity_name'] = $idpMeta['entity_name'] ?: $idp['entity_name'];
-                $idpMeta['attributes_map'] = $idp['attributes_map'];
-                $idpMeta['roles_map'] = $idp['roles_map'];
-                $idpMeta['user_settings'] = $idp['user_settings'];
-                $idpMeta['metadata_update_mode'] = $idp['metadata_update_mode'];
-                if ($updateMode === 'auto_except_id') {
-                    $idpMeta['entity_id'] = $entityId;
-                }
-                $idp = $idpMeta;
-                $entityId = $idp['entity_id'];
-                $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
-                $entityName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
-            } else {
-                $idp['metadata_url'] = null;
-                $idp = $this->completeIdpData($idp) + $idp;
-                $entityId = $idp['entity_id'];
-                $entityName = $idp['entity_name'];
-            }
-
-            $certificates = [];
-            foreach ($idp['sign_x509_certificates'] ?? [] as $key => $cerficate) {
-                $certificates[] = $this->checkX509Certificate($cerficate, $idp['entity_name'] ?: $idp['entity_short_id']);
-            }
-            $idp['sign_x509_certificates'] = array_values(array_unique(array_filter($certificates)));
-
-            $certificates = [];
-            foreach ($idp['crypt_x509_certificates'] ?? [] as $key => $cerficate) {
-                $certificates[] = $this->checkX509Certificate($cerficate, $idp['entity_name'] ?: $idp['entity_short_id']);
-            }
-            $idp['crypt_x509_certificates'] = array_values(array_unique(array_filter($certificates)));
-
-            // Normally not possible.
-            if (!$entityId) {
-                $cleanIdps[$entityName ?: $idp['entity_short_id'] ?: $idp['host'] ?: $idp['metadata_url']] = $idp;
-                $message = new PsrMessage(
-                    'The idp "{idp}" seems to be invalid and has no id.', // @translate
-                    ['idp' => $entityName]
-                );
-                $messenger->addWarning($message);
-                continue;
-            }
-
-            $cleanIdps[$entityId] = $idp;
+        $specificIdps = $settings->get('singlesignon_idps') ?: [];
+        $cleanIdps = $this->prepareIdps($specificIdps, $federationIdps, $hasError);
+        if ($hasError) {
+            return false;
         }
 
-        $settings->set('singlesignon_idps', $cleanIdps);
+        // Store the federated idps and the locally defined idps in a single
+        // place to simplify interface and management.
+        // The local idps may override the federated ones.
+        // Keep them first.
 
-        return !$hasError;
+        $mergedIdps = $cleanIdps + $federationIdps;
+        $settings->set('singlesignon_idps', $mergedIdps);
+
+        return true;
+    }
+
+    /**
+     * For security, forbid admin roles for new user.
+     */
+    protected function validateDefaultRole(): void
+    {
+        /**
+         * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
+         * @var \Omeka\Settings\Settings $settings
+         * @var \Omeka\Permissions\Acl $acl
+         * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
+         */
+        $services = $this->getServiceLocator();
+        $plugins = $services->get('ControllerPluginManager');
+        $settings = $services->get('Omeka\Settings');
+        $acl = $services->get('Omeka\Acl');
+        $messenger = $plugins->get('messenger');
+
+        $defaultRole = $settings->get('singlesignon_role_default');
+        if ($defaultRole && $acl->isAdminRole($defaultRole)) {
+            $roles = $acl->getRoles();
+            $role = in_array('guest', $roles) ? 'guest' : \Omeka\Permissions\Acl::ROLE_RESEARCHER;
+            $settings->set('singlesignon_role_default', $role);
+            $message = new PsrMessage(
+                'For security, the default role cannot be an admin one. The default role was set to {role}.', // @translate
+                ['role' => $role]
+            );
+            $messenger->addWarning($message);
+        }
     }
 
     /**
@@ -359,6 +264,221 @@ class Module extends AbstractModule
         echo $view->ssoLoginLinks(['selector' => $selector]);
     }
 
+    protected function prepareFederation(string $federation): array
+    {
+        /**
+         * @var \SingleSignOn\Mvc\Controller\Plugin\SsoFederationMetadata $ssoFederationMetadata
+         */
+        $services = $this->getServiceLocator();
+        $config = $services->get('Config');
+
+        $federations = $config['singlesignon']['federations'];
+        if (!isset($federations[$federation])) {
+            return [];
+        }
+
+        $federationUrl = $federations[$federation];
+
+        $services = $this->getServiceLocator();
+        $plugins = $services->get('ControllerPluginManager');
+        $ssoFederationMetadata = $plugins->get('ssoFederationMetadata');
+
+        $result = $ssoFederationMetadata($federationUrl, null, true);
+        if ($result === null) {
+            return [];
+        }
+
+        uasort($result, fn ($idpA, $idpB) => strcasecmp($idpA['entity_name'], $idpB['entity_name']));
+
+        return $result;
+    }
+
+    /**
+     * Prepare specific idps.
+     *
+     * @param array $idps Specific idps.
+     * @param array $federationIdps Federated idps.
+     * @param bool $hasError Passed by reference to simplify config form handle.
+     * @return array Cleaned specific idps.
+     */
+    protected function prepareIdps(array $idps, array $federationIdps, bool &$hasError): array
+    {
+        $result = [];
+        // Here, the keys of idps are provided by the form and may be invalid.
+        $key = -1;
+        foreach ($idps as $idp) {
+            ++$key;
+            unset($idp['minus'], $idp['up'], $idp['down'], $idp['is_invalid']);
+            if ($idp) {
+                $idp = $this->checkConfigIdp($idp, $federationIdps);
+                $hasError = $hasError || !empty($idp['is_invalid']);
+                // Keep invalid idp for user fixing in the config form.
+                $entityId = empty($idp['entity_id']) ? "no-entity-id-$key" : $idp['entity_id'];
+                $result[$entityId] = $idp;
+            }
+        }
+        return $result;
+    }
+
+    protected function checkConfigFederation(): bool
+    {
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+
+        $federation = $settings->get('singlesignon_federation');
+        $idps = $settings->get('singlesignon_idps');
+        if (!empty($federation) && !empty($idps)) {
+            /**@var \Omeka\Mvc\Controller\Plugin\Messenger $messenger */
+            $plugins = $services->get('ControllerPluginManager');
+            $messenger = $plugins->get('messenger');
+            $messenger->addNotice(new PsrMessage(
+                'A federation is specified and a list of idps too. The idps defined manually overwrite the federation ones with the same name.' // @ŧranslate
+            ));
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check config of an idp. The key "is_invalid" is added for invalid config.
+     */
+    protected function checkConfigIdp(array $idp, array $federationIdps): array
+    {
+        /**
+         * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
+         * @var \Omeka\Settings\Settings $settings
+         * @var \Omeka\Permissions\Acl $acl
+         * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
+         * @var \SingleSignOn\Mvc\Controller\Plugin\IdpMetadata $idpMetadata
+         */
+        $services = $this->getServiceLocator();
+        $plugins = $services->get('ControllerPluginManager');
+        $settings = $services->get('Omeka\Settings');
+        $acl = $services->get('Omeka\Acl');
+        $messenger = $plugins->get('messenger');
+        $idpMetadata = $plugins->get('idpMetadata');
+
+        $ssoServices = $settings->get('singlesignon_services') ?: [];
+
+        $updateAuto = ($idp['metadata_update_mode'] ?? null) !== 'manual';
+        $useFederationData = !empty($idp['metadata_use_federation_data']);
+        $keepEntityId = !empty($idp['metadata_keep_entity_id']);
+        $entityId = trim($idp['entity_id'] ?? '');
+        $entityUrl = trim($idp['metadata_url'] ?? '');
+
+        // Store quick cleaning early in any case.
+        $idp['metadata_update_mode'] = $updateAuto ? 'auto' : 'manual';
+        $idp['metadata_use_federation_data'] = $useFederationData;
+        $idp['metadata_keep_entity_id'] = $keepEntityId;
+        $idp['metadata_url'] = $entityUrl;
+        $idp['entity_id'] = $entityId;
+        $idp['entity_name'] ??= null;
+        $idp['entity_short_id'] ??= null;
+
+        // Only the first cerfificate for signing and crypting is stored.
+        // So fill all of them when a url is set or not.
+        // The idp store multiple certificates, but the form has only one.
+        $idp['sign_x509_certificates'] = $this->checkX509Certificates(
+            empty($idp['sign_x509_certificate']) ? [] : [$idp['sign_x509_certificate']],
+            $idp['metadata_url'] ?: $idp['entity_id'] ?: $idp['entity_name'] ?: $idp['entity_short_id']
+        );
+        $idp['crypt_x509_certificates'] = $this->checkX509Certificates(
+            empty($idp['crypt_x509_certificate']) ? [] : [$idp['crypt_x509_certificate']],
+            $idp['metadata_url'] ?: $idp['entity_id'] ?: $idp['entity_name'] ?: $idp['entity_short_id']
+        );
+        unset($idp['sign_x509_certificate']);
+        unset($idp['crypt_x509_certificate']);
+
+        if (!$entityId && !$entityUrl) {
+            $idp['is_invalid'] = true;
+            $message = new PsrMessage(
+                'An IdP does not have url and no id and is not valid.', // @translate
+            );
+            $messenger->addError($message);
+            return $idp;
+        }
+
+        // Check if the idp is filled.
+        $isFilled = !empty($idp['entity_name'])
+            && !empty($idp['sign_x509_certificates'])
+            && (!in_array('sso', $ssoServices) || !empty($idp['sso_url']))
+            && (!in_array('sls', $ssoServices) || !empty($idp['slo_url']));
+
+        if ($isFilled && !$updateAuto) {
+            $idp = $this->completeIdpData($idp) + $idp;
+            // When an idp is not available, the key should not be empty,
+            // so use another key to keep track of it and to avoid an issue
+            // somewhere else, for example in form idp fieldset.
+            $message = new PsrMessage(
+                'The idp "{url}" was manually filled and is not checked neither updated.', // @translate
+                ['url' => $idp['metadata_url']]
+            );
+            $messenger->addWarning($message);
+            return $idp;
+        }
+
+        $idpMetaFederation = [];
+        if ($useFederationData) {
+            if (isset($federationIdps[$entityId])) {
+                // Unlike simple idp from federation, keep the metadata url.
+                $idpMetaFederation = $federationIdps[$entityId];
+                $newIdp = array_replace($idp, $idpMetaFederation);
+                $newIdp['metadata_url'] = $entityUrl;
+                if ($keepEntityId && $entityId) {
+                    $newIdp['entity_id'] = $entityId;
+                }
+                // No more check: this is the federated metadata.
+                return $newIdp;
+            }
+            $messenger->addWarning(new PsrMessage(
+                'The option to use metadata from federation for IdP "{url}" is set, but there is no such data.', // @translate
+                ['url' => $entityUrl]
+            ));
+        }
+
+        if ($entityUrl) {
+            $idpMeta = $idpMetadata($entityUrl, true);
+            if ($idpMeta) {
+                $originalIdp = $idp;
+                $idp = array_replace($idp, $idpMeta);
+                // Avoid issues: keep some data in any cases if something change
+                // somewhere else.
+                $idp['metadata_update_mode'] = $updateAuto ? 'auto' : 'manual';
+                $idp['metadata_use_federation_data'] = $useFederationData;
+                $idp['metadata_keep_entity_id'] = $keepEntityId;
+                $idp['entity_name'] = $idpMeta['entity_name'] ?: $originalIdp['entity_name'];
+                $idp['attributes_map'] = $originalIdp['attributes_map'];
+                $idp['roles_map'] = $originalIdp['roles_map'];
+                $idp['user_settings'] = $originalIdp['user_settings'];
+                if ($keepEntityId) {
+                    $idp['entity_id'] = $entityId;
+                }
+                return $idp;
+            }
+            $idp['is_invalid'] = true;
+            $messenger->addWarning(new PsrMessage(
+                'The metadata for IdP "{url}" could not be retrieved.', // @translate
+                ['url' => $entityUrl]
+            ));
+            // Keep going with the passed config.
+        }
+
+        $idp['metadata_url'] = null;
+        $idp = $this->completeIdpData($idp) + $idp;
+
+        if (empty($idp['entity_id'])) {
+            $idp['is_invalid'] = true;
+            $message = new PsrMessage(
+                'The idp "{url}" seems to be invalid and has no id.', // @translate
+                ['url' => $entityUrl]
+            );
+            $messenger->addWarning($message);
+        }
+
+        return $idp;
+    }
+
     protected function completeIdpData(array $idp): array
     {
         $entityId = trim($idp['entity_id'] ?? '');
@@ -374,26 +494,6 @@ class Module extends AbstractModule
             'host' => $idpHost,
             'date' => (new \DateTime('now'))->format(\DateTime::ISO8601),
         ];
-    }
-
-    protected function checkConfigFederation(): bool
-    {
-        $services = $this->getServiceLocator();
-        $settings = $services->get('Omeka\Settings');
-
-        $federation = $settings->get('singlesignon_federation');
-        $idps = $settings->get('singlesignon_idps');
-        if (!empty($federation) && !empty($idps)) {
-            /**@var \Omeka\Mvc\Controller\Plugin\Messenger $messenger */
-            $plugins = $services->get('ControllerPluginManager');
-            $messenger = $plugins->get('messenger');
-            $messenger->addNotice(new PsrMessage(
-                'A federation is specified and a list of idps too. The idps defined manually will overwrite the federation ones with the same name.', // @ŧranslate
-            ));
-            return false;
-        }
-
-        return true;
     }
 
     protected function checkConfigSP(
@@ -583,7 +683,16 @@ class Module extends AbstractModule
         return true;
     }
 
-    protected function checkX509Certificate(?string $x509certificate, ?string $entityName = null): ?string
+    protected function checkX509Certificates(array $x509certificates, ?string $entityUrl = null): array
+    {
+        $certificates = [];
+        foreach ($x509certificates ?? [] as $cerficate) {
+            $certificates[] = $this->checkX509Certificate($cerficate, $entityUrl);
+        }
+        return array_values(array_unique(array_filter($certificates)));
+    }
+
+    protected function checkX509Certificate(?string $x509certificate, ?string $entityUrl = null): ?string
     {
         if (!$x509certificate) {
             return null;
@@ -598,17 +707,16 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $messenger = $services->get('ControllerPluginManager')->get('messenger');
 
-        // Remove windows and apple issues.
-        $x509cert = strtr($x509cert, ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n"]);
-
+        // Remove windows and apple issues if not done already.
+        // Remove tabulations too, not managed by format cert.
         // Anyway, openssl remove header, footer and end of lines automatically.
-        $x509cert = Utils::formatCert($x509cert);
+        $x509cert = Utils::formatCert(strtr($x509cert, ["\t" => '']));
 
         $sslX509cert = openssl_pkey_get_public($x509cert);
         if (!$sslX509cert) {
             $message = new PsrMessage(
-                'The IdP public certificate of "{idp}" is not valid.', // @translate
-                ['idp' => $entityName]
+                'The IdP public certificate of "{url}" is not valid.', // @translate
+                ['url' => $entityUrl]
             );
             $messenger->addError($message);
             return null;
@@ -619,62 +727,20 @@ class Module extends AbstractModule
 
         if (!openssl_public_encrypt($plain, $encrypted, $sslX509cert)) {
             $message = new PsrMessage(
-                'Unable to encrypt message with IdP public certificate of "{idp}".', // @translate
-                ['idp' => $entityName]
+                'Unable to encrypt message with IdP public certificate of "{url}".', // @translate
+                ['url' => $entityUrl]
             );
             $messenger->addError($message);
             return null;
         }
 
         $message = new PsrMessage(
-            'No issue found on IdP public certificate of "{idp}".', // @translate
-            ['idp' => $entityName]
+            'No issue found on IdP public certificate of "{url}".', // @translate
+            ['url' => $entityUrl]
         );
         $messenger->addSuccess($message);
 
         return Utils::formatCert($x509cert, true);
-    }
-
-    protected function prepareFederation(string $federation): bool
-    {
-        $services = $this->getServiceLocator();
-        $config = $services->get('Config');
-        $settings = $services->get('Omeka\Settings');
-
-        $federations = $config['singlesignon']['federations'];
-        if (!isset($federations[$federation])) {
-            return false;
-        }
-
-        $federationUrl = $federations[$federation];
-
-        /**
-         * @var \SingleSignOn\Mvc\Controller\Plugin\SsoFederationMetadata $ssoFederationMetadata
-         */
-        $services = $this->getServiceLocator();
-        $plugins = $services->get('ControllerPluginManager');
-        $ssoFederationMetadata = $plugins->get('ssoFederationMetadata');
-
-        $result = $ssoFederationMetadata($federationUrl, null, true);
-        if ($result === null) {
-            return false;
-        }
-
-        usort($result, fn ($idpA, $idpB) => strcasecmp($idpA['entity_name'], $idpB['entity_name']));
-
-        // Store the federated idps and the locally defined idps in a single
-        // place to simplify interface and management.
-        // The local idps may override the federated ones.
-        // Keep them first.
-
-        $idps = $settings->get('singlesignon_idps');
-        $idps = array_filter($idps, fn ($v) => empty($v['federation_url']));
-
-        $idps = $idps + $result;
-
-        $settings->set('singlesignon_idps', $idps);
-
-        return true;
     }
 
     /**

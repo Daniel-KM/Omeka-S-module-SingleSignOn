@@ -114,6 +114,9 @@ return [
             // In Omeka, they are all stored in one setting for now.
             'singlesignon_idps' => [
                 [
+                    'metadata_update_mode' => 'auto',
+                    'metadata_use_federation_data' => false,
+                    'metadata_keep_entity_id' => false,
                     'metadata_url' => '',
                     'entity_id' => '',
                     'entity_name' => '',
@@ -162,7 +165,6 @@ return [
                         // 'guest_agreed_terms' => true,
                         // 'userprofile_key' => 'value',
                     ],
-                    'metadata_update_mode' => 'auto',
                 ],
             ],
         ],

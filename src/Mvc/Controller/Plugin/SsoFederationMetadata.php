@@ -5,6 +5,7 @@ namespace SingleSignOn\Mvc\Controller\Plugin;
 use Common\Stdlib\PsrMessage;
 use Laminas\Http\Client as HttpClient;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
+use OneLogin\Saml2\Utils;
 use SimpleXMLElement;
 
 class SsoFederationMetadata extends AbstractPlugin
@@ -151,8 +152,8 @@ class SsoFederationMetadata extends AbstractPlugin
                     'sso_url' => trim($ssoUrl),
                     'slo_url' => trim($sloUrl),
                     // The xml may add tabulations and spaces, to be removed.
-                    'sign_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => trim(str_replace(["\t", ' '], '', (string) $v)), $signX509Certificates)))),
-                    'crypt_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => trim(str_replace(["\t", ' '], '', (string) $v)), $cryptX509Certificates)))),
+                    'sign_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => Utils::formatCert(trim(strtr((string) $v, ["\t" => '', ' ' => '']))), $signX509Certificates)))),
+                    'crypt_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => Utils::formatCert(trim(strtr((string) $v, ["\t" => '', ' ' => '']))), $cryptX509Certificates)))),
                     'date' => $date,
                 ];
             }
@@ -182,8 +183,9 @@ class SsoFederationMetadata extends AbstractPlugin
                     'host' => $idpHost,
                     'sso_url' => trim($ssoUrl),
                     'slo_url' => trim($sloUrl),
-                    'sign_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => trim(str_replace(["\t", ' '], '', (string) $v)), $signX509Certificates)))),
-                    'crypt_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => trim(str_replace(["\t", ' '], '', (string) $v)), $cryptX509Certificates)))),
+                    // The xml may add tabulations and spaces, to be removed before Utils.
+                    'sign_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => Utils::formatCert(trim(strtr((string) $v, ["\t" => '', ' ' => '']))), $signX509Certificates)))),
+                    'crypt_x509_certificates' => array_values(array_unique(array_filter(array_map(fn ($v) => Utils::formatCert(trim(strtr((string) $v, ["\t" => '', ' ' => '']))), $cryptX509Certificates)))),
                     'date' => $date,
                 ];
             }

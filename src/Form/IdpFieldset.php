@@ -17,6 +17,48 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
             ->setName('idp')
 
             ->add([
+                'name' => 'metadata_update_mode',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Update mode', // @translate
+                    'label_attributes' => [
+                        'style' => 'display: block;',
+                    ],
+                    'value_options' => [
+                        'auto' => 'Automatic (set the url below and data will be automatically filled, checked and updated)', // @translate
+                        'manual' => 'Manual (not recommended when the certificate has a short expiration date)', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'idp_metadata_update_mode',
+                    'required' => false,
+                    'value' => 'auto',
+                ],
+            ])
+            ->add([
+                'name' => 'metadata_use_federation_data',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Use the metadata provided by the federation', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'metadata_use_federation_data',
+                    'required' => false,
+                ],
+            ])
+            ->add([
+                'name' => 'metadata_keep_entity_id',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Skip update of the entity id (fix possible issue with reverse proxies)', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'metadata_keep_entity_id',
+                    'required' => false,
+                ],
+            ])
+
+            ->add([
                 'name' => 'metadata_url',
                 'type' => Element\Url::class,
                 'options' => [
@@ -36,7 +78,7 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'IdP Entity Id', // @translate
-                    'info' => 'Full url set in attribute `entityID` of xml element `<md:EntityDescriptor>`, for example "https://idp.example.org". For some IdP, the scheme must not be set, so try "idp.example.org" too.', // @translate
+                    'info' => 'Generally, the id is the same than the url of the idp. This is the attribute `entityID` of xml element `<md:EntityDescriptor>`, for example "https://idp.example.org/sso". For some IdP, the url scheme must not be set, so try "idp.example.org" too.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'idp_entity_id',
@@ -163,27 +205,6 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
             ])
 
             ->add([
-                'name' => 'metadata_update_mode',
-                'type' => Element\Select::class,
-                'options' => [
-                    'label' => 'Update mode', // @translate
-                    'label_attributes' => [
-                        'style' => 'display: block;',
-                    ],
-                    'value_options' => [
-                        'auto' => 'Automatic (set the url and the id and data will be automatically filled, checked and updated)', // @translate
-                        'auto_except_id' => 'Automatic, except entity id (fix possible issue with reverse proxies)', // @translate
-                        'manual' => 'Manual (not recommended, because most certificates have a limited lifetime)', // @translate
-                    ],
-                ],
-                'attributes' => [
-                    'id' => 'idp_metadata_update_mode',
-                    'required' => false,
-                    'value' => 'auto',
-                ],
-            ])
-
-            ->add([
                 'name' => 'minus',
                 'type' => Element\Button::class,
                 'options' => [
@@ -250,6 +271,9 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
     public function getInputFilterSpecification()
     {
         return [
+            'metadata_update_mode' => [
+                'required' => false,
+            ],
             'metadata_url' => [
                 'required' => false,
             ],
@@ -257,9 +281,6 @@ class IdpFieldset extends Fieldset implements InputFilterProviderInterface
                 'required' => false,
             ],
             'slo_url' => [
-                'required' => false,
-            ],
-            'metadata_update_mode' => [
                 'required' => false,
             ],
         ];

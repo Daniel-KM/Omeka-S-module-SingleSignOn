@@ -219,28 +219,28 @@ if (version_compare($oldVersion, '3.4.14', '<')) {
 
 if (version_compare($oldVersion, '3.4.16', '<')) {
     $idps = $settings->get('singlesignon_idps', []);
-    foreach ($idps as $idpName => &$idpData) {
+    foreach ($idps as $idpName => &$idp) {
         // Set the short id.
-        $entityIdUrl = $idpData['idp_metadata_url'] ?: '';
-        $entityId = $idpData['idp_entity_id'] ?: $idpName;
+        $entityIdUrl = $idp['idp_metadata_url'] ?: '';
+        $entityId = $idp['idp_entity_id'] ?: $idpName;
         $idpName = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
-        $idpData['idp_entity_short_id'] = $idpName;
+        $idp['idp_entity_short_id'] = $idpName;
         // Set the host.
-        $ssoUrl = $idpData['idp_sso_url'] ?? null;
-        $idpData['idp_host'] = $ssoUrl
+        $ssoUrl = $idp['idp_sso_url'] ?? null;
+        $idp['idp_host'] = $ssoUrl
             ? parse_url($ssoUrl, PHP_URL_HOST)
             : null;
     }
-    unset($idpData);
+    unset($idp);
     $settings->set('singlesignon_idps', $idps);
 
     // Remove "idp_" from keys.
-    foreach ($idps as $idpName => $idpData) {
-        $idpDataNew = [];
-        foreach ($idpData as $key => $value) {
-            $idpDataNew[mb_substr($key, 0, 4) === 'idp_' ? mb_substr($key, 4) : $key] = $value;
+    foreach ($idps as $idpName => $idp) {
+        $idpNew = [];
+        foreach ($idp as $key => $value) {
+            $idpNew[mb_substr($key, 0, 4) === 'idp_' ? mb_substr($key, 4) : $key] = $value;
         }
-        $idps[$idpName] = $idpDataNew;
+        $idps[$idpName] = $idpNew;
     }
     $settings->set('singlesignon_idps', $idps);
 
@@ -291,16 +291,16 @@ if (version_compare($oldVersion, '3.4.17', '<')) {
 
     $idps = $settings->get('singlesignon_idps', []);
     $newIdps = [];
-    foreach ($idps as $idpName => $idpData) {
-        if (empty($idpData['federation_url'])) {
-            $idpData = $this->completeIdpData($idpData) + $idpData;
+    foreach ($idps as $idpName => $idp) {
+        if (empty($idp['federation_url'])) {
+            $idp = $this->completeIdpData($idp) + $idp;
         }
-        $idpData['sign_x509_certificate'] = $idpData['x509_certificate'] ?? $idpData['sign_x509_certificate'] ?? null;
-        unset($idpData['x509_certificate']);
-        $key = $idpData['entity_id'] ?: $idpData['entity_short_id'] ?: $idpData['host'];
-        $newIdps[$key] = $idpData;
+        $idp['sign_x509_certificate'] = $idp['x509_certificate'] ?? $idp['sign_x509_certificate'] ?? null;
+        unset($idp['x509_certificate']);
+        $key = $idp['entity_id'] ?: $idp['entity_short_id'] ?: $idp['host'];
+        $newIdps[$key] = $idp;
     }
-    unset($idpData);
+    unset($idp);
     $settings->set('singlesignon_idps', $newIdps);
 
     $message = new PsrMessage(
@@ -312,12 +312,12 @@ if (version_compare($oldVersion, '3.4.17', '<')) {
 if (version_compare($oldVersion, '3.4.18', '<')) {
     $idps = $settings->get('singlesignon_idps', []);
     $newIdps = [];
-    foreach ($idps as $idpName => $idpData) {
-        $idpData['sign_x509_certificates'] ??= empty($idpData['sign_x509_certificate']) ? [] : [$idpData['sign_x509_certificate']];
-        $idpData['crypt_x509_certificates'] ??= empty($idpData['crypt_x509_certificate']) ? [] : [$idpData['crypt_x509_certificate']];
-        $newIdps[$idpName] = $idpData;
+    foreach ($idps as $idpName => $idp) {
+        $idp['sign_x509_certificates'] ??= empty($idp['sign_x509_certificate']) ? [] : [$idp['sign_x509_certificate']];
+        $idp['crypt_x509_certificates'] ??= empty($idp['crypt_x509_certificate']) ? [] : [$idp['crypt_x509_certificate']];
+        $newIdps[$idpName] = $idp;
     }
-    unset($idpData);
+    unset($idp);
     $settings->set('singlesignon_idps', $newIdps);
 
     $message = new PsrMessage(

@@ -377,3 +377,28 @@ if (version_compare($oldVersion, '3.4.21', '<')) {
     );
     $messenger->addSuccess($message);
 }
+
+if (version_compare($oldVersion, '3.4.22', '<')) {
+    // Avoid double upgrade.
+    if ($settings->get('singlesignon_sp_security') === null) {
+        // Set the old default security, that are weaker than new ones.
+        // See old default options: see vendor/onelogin/php-saml/advanced_settings_example.php
+        $settings->set('singlesignon_sp_security', [
+            'signMetadata',
+            'authnRequestsSigned',
+            'logoutRequestSigned',
+            'logoutResponseSigned',
+            'nameIdEncrypted',
+            'wantNameId',
+        ]);
+    }
+    $message = new PsrMessage(
+        'A new option allows to improve the security measures. You should go to the {link}config form{link_end} to confirm them.', // @translate
+        [
+            'link' => sprintf('<a href="%s">', $url('admin/default', ['controller' => 'module', 'action' => 'configure'], ['query' => ['id' => 'SingleSignOn']])),
+            'link_end' => '</a>',
+        ]
+    );
+    $message->setEscapeHtml(false);
+    $messenger->addSuccess($message);
+}

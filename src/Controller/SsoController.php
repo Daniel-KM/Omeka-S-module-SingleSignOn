@@ -1172,19 +1172,19 @@ class SsoController extends AbstractActionController
 
                 // Indicates that the nameID of the <samlp:logoutRequest> sent by this SP
                 // will be encrypted.
-                'nameIdEncrypted' => false,
+                'nameIdEncrypted' => !empty($spCryptX509cert) && $settings->get('nameIdEncrypted'),
 
                 // Indicates whether the <samlp:AuthnRequest> messages sent by this SP
                 // will be signed.              [The Metadata of the SP will offer this info]
-                'authnRequestsSigned' => !empty($spSignX509cert),
+                'authnRequestsSigned' => !empty($spSignX509cert) && $settings->get('nameIdEncrypted'),
 
                 // Indicates whether the <samlp:logoutRequest> messages sent by this SP
                 // will be signed.
-                'logoutRequestSigned' => !empty($spSignX509cert),
+                'logoutRequestSigned' => !empty($spSignX509cert) && $settings->get('nameIdEncrypted'),
 
                 // Indicates whether the <samlp:logoutResponse> messages sent by this SP
                 // will be signed.
-                'logoutResponseSigned' => !empty($spSignX509cert),
+                'logoutResponseSigned' => !empty($spSignX509cert) && $settings->get('nameIdEncrypted'),
 
                 /* Sign the Metadata
                  False || True (use sp certs) || array (
@@ -1196,29 +1196,29 @@ class SsoController extends AbstractActionController
                         'privateKey' => ''
                     )
                  */
-                'signMetadata' => false,
+                'signMetadata' => !empty($spSignX509cert) && $settings->get('signMetadata'),
 
                 // signatures and encryptions required.
 
                 // Indicates a requirement for the <samlp:Response>, <samlp:LogoutRequest> and
                 // <samlp:LogoutResponse> elements received by this SP to be signed.
-                'wantMessagesSigned' => false,
+                'wantMessagesSigned' => (bool) $settings->get('wantMessagesSignedrs'),
 
                 // Indicates a requirement for the <saml:Assertion> elements received by
                 // this SP to be encrypted.
-                'wantAssertionsEncrypted' => false,
+                'wantAssertionsEncrypted' => (bool) $settings->get('wantAssertionsEncrypted'),
 
                 // Indicates a requirement for the <saml:Assertion> elements received by
                 // this SP to be signed.        [The Metadata of the SP will offer this info]
-                'wantAssertionsSigned' => !empty($spSignX509cert),
+                'wantAssertionsSigned' => (bool) $settings->get('wantAssertionsSigned'),
 
                 // Indicates a requirement for the NameID element on the SAMLResponse received
                 // by this SP to be present.
-                'wantNameId' => true,
+                'wantNameId' => (bool) $settings->get('wantNameId'),
 
                 // Indicates a requirement for the NameID received by
                 // this SP to be encrypted.
-                'wantNameIdEncrypted' => false,
+                'wantNameIdEncrypted' => (bool) $settings->get('wantNameIdEncrypted'),
 
                 // Authentication context.
                 // Set to false and no AuthContext will be sent in the AuthNRequest,
@@ -1321,9 +1321,12 @@ class SsoController extends AbstractActionController
 
         ];
 
-        if ($spCryptX509cert && $spSignPrivateKey) {
+        /*
+        // TODO Manage multiple certificates for renewal.
+        if ($spCryptX509cert && $spCryptPrivateKey) {
             $providerSettings['sp']['x509certNew'] = $spCryptX509cert;
         }
+        */
 
         if (count($idp['sign_x509_certificates'] ?? []) > 1
             || !empty($idp['crypt_x509_certificates'])

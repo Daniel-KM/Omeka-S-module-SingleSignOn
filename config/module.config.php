@@ -105,6 +105,26 @@ return [
             'singlesignon_sp_metadata_disposition' => 'inline',
             'singlesignon_sp_metadata_mode' => 'standard',
             'singlesignon_sp_name_id_format' => '',
+
+            // Default options: see vendor/onelogin/php-saml/advanced_settings_example.php
+            // In default options of library Saml, everything is false except "wantNameId".
+            // Here, everything is true by default for security.
+            'singlesignon_sp_security' => [
+                // Signatures and encryptions of the SP.
+                // This option may be an array with specific certificates.
+                'signMetadata',
+                'authnRequestsSigned',
+                'logoutRequestSigned',
+                'logoutResponseSigned',
+                'nameIdEncrypted',
+                // Signatures and encryptions required by the SP.
+                'wantMessagesSigned',
+                'wantAssertionsSigned',
+                'wantAssertionsEncrypted',
+                'wantNameId',
+                'wantNameIdEncrypted',
+            ],
+
             'singlesignon_sp_sign_x509_path' => '',
             'singlesignon_sp_sign_x509_certificate' => '',
             'singlesignon_sp_sign_x509_private_key' => '',

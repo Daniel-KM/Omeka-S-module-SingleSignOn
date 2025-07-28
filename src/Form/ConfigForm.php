@@ -190,7 +190,7 @@ class ConfigForm extends Form
                 'name' => 'singlesignon_sp_name_id_format',
                 'type' => Element\Select::class,
                 'options' => [
-                    'label' => 'SP name id format', // @translate
+                    'label' => 'Format of the name ID', // @translate
                     'info' => 'Value to set in xml element `<md:NameIDFormat>`. Let empty to use the default value (unspecified).', // @translate
                     'value_options' => [
                         SamlConstants::NAMEID_UNSPECIFIED => 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
@@ -209,6 +209,39 @@ class ConfigForm extends Form
                     'id' => 'singlesignon_sp_name_id_format',
                     'class' => 'chosen-select',
                     'data-placeholder' => 'Select name id format if needed', // @translate
+                ],
+            ])
+
+            // Mode for requirement of signatures and encryption.
+
+            ->add([
+                'name' => 'singlesignon_sp_security',
+                'type' => CommonElement\OptionalMultiCheckbox::class,
+                'options' => [
+                    'label' => 'Security', // @translate
+                    'info' => 'Disable a security measure when an IdP does not support it, for example "Sign assertions" for Renater. Conversely, some federations require some security measures, for example "Sign assertions" for Kantara.', // @translate
+                    'documentation' => 'https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn#service-provider-sp',
+                    'label_attributes' => [
+                        'style' => 'display: block;',
+                    ],
+                    'value_options' => [
+                        // Signatures and encryptions of the SP.
+                        // This option may be an array with specific certificates.
+                        'signMetadata' => 'SP: Sign metadata with certificate below', // @translate
+                        'authnRequestsSigned' => 'SP: Sign auth request messages with certificate below', // @translate
+                        'logoutRequestSigned' => 'SP: Sign logout request messages with certificate below', // @translate
+                        'logoutResponseSigned' => 'SP: Sign logout response messages with certificate below', // @translate
+                        'nameIdEncrypted' => 'SP: Encrypt Name ID of logout request with certificate below', // @translate
+                        // Signatures and encryptions required by the SP.
+                        'wantMessagesSigned' => 'Requirement for IdP: Sign response, logout request and response', // @translate
+                        'wantAssertionsSigned' => 'Requirement for IdP: Sign assertions', // @translate
+                        'wantAssertionsEncrypted' => 'Requirement for IdP: Encrypt assertions', // @translate
+                        'wantNameId' => 'Requirement for IdP: Include Name ID in response', // @translate
+                        'wantNameIdEncrypted' => 'Requirement for IdP: Encrypt Name ID', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'singlesignon_sp_security',
                 ],
             ])
 

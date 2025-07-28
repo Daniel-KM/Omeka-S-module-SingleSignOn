@@ -123,6 +123,8 @@ return [
                 'wantAssertionsEncrypted',
                 'wantNameId',
                 'wantNameIdEncrypted',
+                // Compatibility with Microsoft ADFS.
+                // 'lowercaseUrlencoding',
             ],
 
             'singlesignon_sp_sign_x509_path' => '',

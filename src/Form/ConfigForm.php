@@ -238,6 +238,9 @@ class ConfigForm extends Form
                         'wantAssertionsEncrypted' => 'Requirement for IdP: Encrypt assertions', // @translate
                         'wantNameId' => 'Requirement for IdP: Include Name ID in response', // @translate
                         'wantNameIdEncrypted' => 'Requirement for IdP: Encrypt Name ID', // @translate
+                        // Compatibility with Microsoft AD FS.
+                        // ADFS URL-Encodes SAML data as lowercase but the toolkit uses uppercase.
+                        'lowercaseUrlencoding' => 'Check signatures: Manage compatibility with Microsoft ADFS', // @translate
                     ],
                 ],
                 'attributes' => [

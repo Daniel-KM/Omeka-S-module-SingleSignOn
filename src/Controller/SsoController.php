@@ -1282,7 +1282,7 @@ class SsoController extends AbstractActionController
 
                 // ADFS URL-Encodes SAML data as lowercase, and the toolkit by default uses
                 // uppercase. Turn it True for ADFS compatibility on signature verification
-                'lowercaseUrlencoding' => false,
+                'lowercaseUrlencoding' => (bool) $settings->get('lowercaseUrlencoding'),
             ],
 
             /*

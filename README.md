@@ -9,7 +9,7 @@ Single Sign-On (module for Omeka S)
 automatically through single sign-on (SSO) via [SAML] and the identity provider
 (IdP) of your institution or any external service. To authenticate through
 multiple IdPs individually defined or defined via a federation of identity
-providers like Renater is possible too. The certificates of the IdP can be
+providers like [Renater] is possible too. The certificates of the IdP can be
 automatically updated each day too.
 
 Local users can still connect via the local passwords if they have one, but an
@@ -103,6 +103,21 @@ The site (Omeka) is the service provider.
 - Name ID format of the service provider: If the default config (unspecified)
   does not work, try to change  the format of the name to set in element `<md:NameIDFormat>`,
   for example "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified".
+- Security: by default, the security measures are all enabled. In the case where
+  an IdP does not respect one of the requirements, it is possible to disable it.
+  - [Renater]:
+    - Disable the requirement on signing assertions.
+  - [saml2int] (Interoperable SAML 2.0 Web Browser SSO Profile):
+    - Disable SP signing of auth request;
+    - Enable Require assertions signed by IdP;
+    - Enable Require assertions to be encrypted by IdP if the server is not https;
+    - Disable Require Name Id to be encrypted by IdP.
+  - [Kantara Initiative] (SAML V2.0 Deployment Profile for Federation Interoperability)
+    Kantara is a continuation and a rebrand of saml2int, so the previous options
+    may be used.
+  - Microsoft ADFS (Active Directory Federation Services):
+    - Enable the option for compatibility layer.
+    - Manage other options according to specific configurations and versions.
 - SP certificates:
   Some IdPs require certificates to sign and to encrypt responses. There are
   three ways to define them for signature and encryption: a path to the
@@ -118,8 +133,9 @@ The site (Omeka) is the service provider.
   - Creation of an self-signed certificate. Check the box and fill the optional
     keys: countryName, stateOrProvinceName, localityName, organizationName,
     organizationalUnitName, commonName, and emailAddress.
-  - Shibboleth may require a signing certificate and an encryption certificate,
-    so set the two fields and copy them in the config of Shibboleth.
+  - [Shibboleth] may require a signing certificate and an encryption certificate,
+    so set the two fields and copy them in the config of Shibboleth. The option
+    to require signing assertion may be disabled with [Renater].
 
 #### Identity provider (IdP)
 
@@ -359,6 +375,10 @@ and the [Université de Strasbourg] (UNISTRA). New features were implemented for
 [Guest Role]: https://github.com/biblibre/omeka-s-module-GuestRole
 [Access]: https://gitlab.com/Daniel-KM/Omeka-S-module-Access
 [Contribute]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute
+[Renater]: https://www.renater.fr
+[saml2int]: http://saml2int.org/profile/current
+[Kantara Initiative]: https://kantarainitiative.github.io/SAMLprofiles/saml2int.html
+[Shibboleth]: https://www.shibboleth.net
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/issues
 [SamlTest.id]: https://samltest.id
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html

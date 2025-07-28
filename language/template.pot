@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-07 00:00+0000\n"
+"POT-Creation-Date: 2025-07-28 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -172,6 +172,12 @@ msgstr ""
 msgid ""
 "A new option allows to config a specific idp and to use the federation "
 "certificates of it."
+msgstr ""
+
+#: data/scripts/upgrade.php:396
+msgid ""
+"A new option allows to improve the security measures. You should go to the "
+"{link}config form{link_end} to confirm them."
 msgstr ""
 
 #: Module.php:250
@@ -444,7 +450,7 @@ msgid "Basic (xml metadata without prefixes)"
 msgstr ""
 
 #: src/Form/ConfigForm.php:193
-msgid "SP name id format"
+msgid "Format of the name ID"
 msgstr ""
 
 #: src/Form/ConfigForm.php:194
@@ -457,11 +463,62 @@ msgstr ""
 msgid "Select name id format if needed"
 msgstr ""
 
-#: src/Form/ConfigForm.php:221
+#: src/Form/ConfigForm.php:222
+msgid ""
+"Disable a security measure when an IdP does not support it, for example "
+"\"Sign assertions\" for Renater. Conversely, some federations require some "
+"security measures, for example \"Sign assertions\" for Kantara."
+msgstr ""
+
+#: src/Form/ConfigForm.php:230
+msgid "SP: Sign metadata with certificate below"
+msgstr ""
+
+#: src/Form/ConfigForm.php:231
+msgid "SP: Sign auth request messages with certificate below"
+msgstr ""
+
+#: src/Form/ConfigForm.php:232
+msgid "SP: Sign logout request messages with certificate below"
+msgstr ""
+
+#: src/Form/ConfigForm.php:233
+msgid "SP: Sign logout response messages with certificate below"
+msgstr ""
+
+#: src/Form/ConfigForm.php:234
+msgid "SP: Encrypt Name ID of logout request with certificate below"
+msgstr ""
+
+#: src/Form/ConfigForm.php:236
+msgid "Requirement for IdP: Sign response, logout request and response"
+msgstr ""
+
+#: src/Form/ConfigForm.php:237
+msgid "Requirement for IdP: Sign assertions"
+msgstr ""
+
+#: src/Form/ConfigForm.php:238
+msgid "Requirement for IdP: Encrypt assertions"
+msgstr ""
+
+#: src/Form/ConfigForm.php:239
+msgid "Requirement for IdP: Include Name ID in response"
+msgstr ""
+
+#: src/Form/ConfigForm.php:240
+msgid "Requirement for IdP: Encrypt Name ID"
+msgstr ""
+
+#: src/Form/ConfigForm.php:243
+msgid "Check signatures: Manage compatibility with Microsoft ADFS"
+msgstr ""
+
+#: src/Form/ConfigForm.php:257
 msgid "Path for SP signing certificates (outside of webserver or protected)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:222 src/Form/ConfigForm.php:293
+#: src/Form/ConfigForm.php:258 src/Form/ConfigForm.php:329
 msgid ""
 "Some idp require certificates. If needed and not set in next fields, set the "
 "path to it. It should contains a directory \"certs/\" with at least \"sp."
@@ -469,83 +526,83 @@ msgid ""
 "Take care to renew them when needed."
 msgstr ""
 
-#: src/Form/ConfigForm.php:233
+#: src/Form/ConfigForm.php:269
 msgid "SP public signing certificate (x509)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:234 src/Form/ConfigForm.php:305
+#: src/Form/ConfigForm.php:270 src/Form/ConfigForm.php:341
 msgid ""
 "Some idp require certificates. If needed and if not set via a path, paste "
 "public certificate here. Take care to renew them when needed."
 msgstr ""
 
-#: src/Form/ConfigForm.php:245
+#: src/Form/ConfigForm.php:281
 msgid "SP signing private key (x509)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:246 src/Form/ConfigForm.php:317
+#: src/Form/ConfigForm.php:282 src/Form/ConfigForm.php:353
 msgid ""
 "Some idp require certificates. If needed and not set via a path, paste "
 "private key here. Take care to renew them when needed."
 msgstr ""
 
-#: src/Form/ConfigForm.php:258
+#: src/Form/ConfigForm.php:294
 msgid ""
 "Create an x509 certificate for the SP signature (require the three previous "
 "fields be empty)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:259 src/Form/ConfigForm.php:330
+#: src/Form/ConfigForm.php:295 src/Form/ConfigForm.php:366
 msgid ""
 "The certificate is generated for a century with the default data of the "
 "server or the data below."
 msgstr ""
 
-#: src/Form/ConfigForm.php:269
+#: src/Form/ConfigForm.php:305
 msgid "Data to store in the signing certificate to create (optional)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:270 src/Form/ConfigForm.php:341
+#: src/Form/ConfigForm.php:306 src/Form/ConfigForm.php:377
 msgid ""
 "The optional data keys are: countryName, stateOrProvinceName, localityName, "
 "organizationName, organizationalUnitName, commonName, and emailAddress."
 msgstr ""
 
-#: src/Form/ConfigForm.php:292
+#: src/Form/ConfigForm.php:328
 msgid "Path for SP encryption certificates (outside of webserver or protected)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:304
+#: src/Form/ConfigForm.php:340
 msgid "SP encryption public certificate (x509)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:316
+#: src/Form/ConfigForm.php:352
 msgid "SP encryption private key (x509)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:329
+#: src/Form/ConfigForm.php:365
 msgid ""
 "Create a, x509 certificate for the SP encryption (require the three previous "
 "fields be empty)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:340
+#: src/Form/ConfigForm.php:376
 msgid "Data to store in the crypting certificate to create (optional)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:363
+#: src/Form/ConfigForm.php:399
 msgid "Federation"
 msgstr ""
 
-#: src/Form/ConfigForm.php:371
+#: src/Form/ConfigForm.php:407
 msgid "Select a federation…"
 msgstr ""
 
-#: src/Form/ConfigForm.php:381
+#: src/Form/ConfigForm.php:417
 msgid "Identity providers (IdP)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:414
+#: src/Form/ConfigForm.php:450
 msgid "Add an idp"
 msgstr ""
 

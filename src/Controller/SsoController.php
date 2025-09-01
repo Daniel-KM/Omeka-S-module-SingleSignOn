@@ -494,8 +494,12 @@ class SsoController extends AbstractActionController
             }
         }
 
+        // Create a new session, avoiding the warning in case of error.
         $sessionManager = Container::getDefaultManager();
+        $errorReporting = error_reporting();
+        error_reporting($errorReporting & ~E_DEPRECATED & ~E_WARNING);
         $sessionManager->regenerateId();
+        error_reporting($errorReporting);
 
         $adapter = $this->authentication->getAdapter();
         $adapter->setIdentity($user->getEmail());

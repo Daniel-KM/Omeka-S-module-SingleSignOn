@@ -495,6 +495,7 @@ class SsoController extends AbstractActionController
         }
 
         // Create a new session, avoiding the warning in case of error.
+        // Avoid warning:  session_regenerate_id(): Session object destruction failed. ID: user (path: /home/mdb/tmp) in /home/mdb/public_html/vendor/laminas/laminas-session/src/SessionManager.php on line 337
         $sessionManager = Container::getDefaultManager();
         $errorReporting = error_reporting();
         error_reporting($errorReporting & ~E_DEPRECATED & ~E_WARNING);
@@ -962,6 +963,7 @@ class SsoController extends AbstractActionController
     {
         $url = $this->url();
         $settings = $this->settings();
+        $securitySettings = $settings->get('singlesignon_sp_security') ?: [];
 
         $certsBasePath = $settings->get('singlesignon_sp_sign_x509_path');
         if ($certsBasePath) {
@@ -1179,19 +1181,19 @@ class SsoController extends AbstractActionController
 
                 // Indicates that the nameID of the <samlp:logoutRequest> sent by this SP
                 // will be encrypted.
-                'nameIdEncrypted' => !empty($spCryptX509cert) && $settings->get('nameIdEncrypted'),
+                'nameIdEncrypted' => !empty($spCryptX509cert) && in_array('nameIdEncrypted', $securitySettings),
 
                 // Indicates whether the <samlp:AuthnRequest> messages sent by this SP
                 // will be signed.              [The Metadata of the SP will offer this info]
-                'authnRequestsSigned' => !empty($spSignX509cert) && $settings->get('nameIdEncrypted'),
+                'authnRequestsSigned' => !empty($spSignX509cert) && in_array('authnRequestsSigned', $securitySettings),
 
                 // Indicates whether the <samlp:logoutRequest> messages sent by this SP
                 // will be signed.
-                'logoutRequestSigned' => !empty($spSignX509cert) && $settings->get('nameIdEncrypted'),
+                'logoutRequestSigned' => !empty($spSignX509cert) && in_array('logoutRequestSigned', $securitySettings),
 
                 // Indicates whether the <samlp:logoutResponse> messages sent by this SP
                 // will be signed.
-                'logoutResponseSigned' => !empty($spSignX509cert) && $settings->get('nameIdEncrypted'),
+                'logoutResponseSigned' => !empty($spSignX509cert) && in_array('logoutResponseSigned', $securitySettings),
 
                 /* Sign the Metadata
                  False || True (use sp certs) || array (
@@ -1203,29 +1205,29 @@ class SsoController extends AbstractActionController
                         'privateKey' => ''
                     )
                  */
-                'signMetadata' => !empty($spSignX509cert) && $settings->get('signMetadata'),
+                'signMetadata' => !empty($spSignX509cert) && in_array('signMetadata', $securitySettings),
 
                 // signatures and encryptions required.
 
                 // Indicates a requirement for the <samlp:Response>, <samlp:LogoutRequest> and
                 // <samlp:LogoutResponse> elements received by this SP to be signed.
-                'wantMessagesSigned' => (bool) $settings->get('wantMessagesSignedrs'),
+                'wantMessagesSigned' => in_array('wantMessagesSigned', $securitySettings),
 
                 // Indicates a requirement for the <saml:Assertion> elements received by
                 // this SP to be encrypted.
-                'wantAssertionsEncrypted' => (bool) $settings->get('wantAssertionsEncrypted'),
+                'wantAssertionsEncrypted' => in_array('wantAssertionsEncrypted', $securitySettings),
 
                 // Indicates a requirement for the <saml:Assertion> elements received by
                 // this SP to be signed.        [The Metadata of the SP will offer this info]
-                'wantAssertionsSigned' => (bool) $settings->get('wantAssertionsSigned'),
+                'wantAssertionsSigned' => in_array('wantAssertionsSigned', $securitySettings),
 
                 // Indicates a requirement for the NameID element on the SAMLResponse received
                 // by this SP to be present.
-                'wantNameId' => (bool) $settings->get('wantNameId'),
+                'wantNameId' => in_array('wantNameId', $securitySettings),
 
                 // Indicates a requirement for the NameID received by
                 // this SP to be encrypted.
-                'wantNameIdEncrypted' => (bool) $settings->get('wantNameIdEncrypted'),
+                'wantNameIdEncrypted' => in_array('wantNameIdEncrypted', $securitySettings),
 
                 // Authentication context.
                 // Set to false and no AuthContext will be sent in the AuthNRequest,
@@ -1289,7 +1291,7 @@ class SsoController extends AbstractActionController
 
                 // ADFS URL-Encodes SAML data as lowercase, and the toolkit by default uses
                 // uppercase. Turn it True for ADFS compatibility on signature verification
-                'lowercaseUrlencoding' => (bool) $settings->get('lowercaseUrlencoding'),
+                'lowercaseUrlencoding' => in_array('lowercaseUrlencoding', $securitySettings),
             ],
 
             /*

@@ -90,6 +90,8 @@ class Module extends AbstractModule
     {
         $services = $this->getServiceLocator();
 
+        $this->checkSecurity();
+
         $settings = $services->get('Omeka\Settings');
         $defaultSettings = $this->getModuleConfig('config');
 
@@ -184,7 +186,7 @@ class Module extends AbstractModule
         $messenger = $plugins->get('messenger');
         $idpMetadata = $plugins->get('idpMetadata');
 
-        $this->validateDefaultRole();
+        $this->checkSecurity();
 
         // Normally, these values are not stored.
         $settings->delete('singlesignon_sp_sign_create_certificate');
@@ -227,7 +229,7 @@ class Module extends AbstractModule
     /**
      * For security, forbid admin roles for new user.
      */
-    protected function validateDefaultRole(): void
+    protected function checkSecurity(): void
     {
         /**
          * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
@@ -249,6 +251,15 @@ class Module extends AbstractModule
             $message = new PsrMessage(
                 'For security, the default role cannot be an admin one. The default role was set to {role}.', // @translate
                 ['role' => $role]
+            );
+            $messenger->addWarning($message);
+        }
+
+        $ssoServices = $settings->get('singlesignon_services', []);
+        if ($defaultRole && $defaultRole !== 'guest' && in_array('jit', $ssoServices)) {
+            $settings->set('singlesignon_services', array_diff($ssoServices, ['jit']));
+            $message = new PsrMessage(
+                'For security, when using automatic registration (JIT), it is recommended to set the default role to "Guest" and to update the role of the user manually after the first connection. Another possibility is to filter the user by role earlier via the config of the IdP. JIT was disabled.' // @translate
             );
             $messenger->addWarning($message);
         }

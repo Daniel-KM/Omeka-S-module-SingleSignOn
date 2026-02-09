@@ -509,7 +509,15 @@ class Module extends AbstractModule
         }
 
         if ($entityUrl) {
-            $idpMeta = $idpMetadata($entityUrl, true);
+            try {
+                $idpMeta = $idpMetadata($entityUrl, true);
+            } catch (\Exception $e) {
+                $idpMeta = null;
+                $messenger->addWarning(new PsrMessage(
+                    'The metadata for IdP "{url}" could not be retrieved: {error}', // @translate
+                    ['url' => $entityUrl, 'error' => $e->getMessage()]
+                ));
+            }
             if ($idpMeta) {
                 $originalIdp = $idp;
                 $idp = array_replace($idp, $idpMeta);
@@ -527,15 +535,21 @@ class Module extends AbstractModule
                 }
                 return $idp;
             }
-            $idp['is_invalid'] = true;
+            // When the IdP already has valid essential config, keep it
+            // and just warn. Mark invalid only for new/incomplete IdPs.
+            if (empty($idp['entity_id']) || empty($idp['sso_url'])) {
+                $idp['is_invalid'] = true;
+            }
             $messenger->addWarning(new PsrMessage(
-                'The metadata for IdP "{url}" could not be retrieved.', // @translate
+                'The metadata for IdP "{url}" could not be retrieved. Previous config was kept.', // @translate
                 ['url' => $entityUrl]
             ));
             // Keep going with the passed config.
         }
 
-        $idp['metadata_url'] = null;
+        if (!$entityUrl) {
+            $idp['metadata_url'] = null;
+        }
         $idp = $this->completeIdpData($idp) + $idp;
 
         if (empty($idp['entity_id'])) {

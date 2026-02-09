@@ -32,19 +32,25 @@ new users.
 The module uses an external library, [onelogin/php-saml], so use the release zip
 to install it, or use and init the source.
 
-* From the zip
-
-Download the last release [SingleSignOn.zip] from the list of releases
-(the "master" does not contain the dependency), and uncompress it in the `modules`
-directory.
-
-* From the source and for development
-
-If the module was installed from the source, rename the name of the folder of
-the module to `SingleSignOn`, go to the root module, and run:
+- Via composer (recommended)
 
 ```sh
 composer install --no-dev
+```
+
+- From the zip
+
+Download the last release [SingleSignOn.zip] from the list of releases, and
+uncompress it in the `modules` directory. Check for the name of the directory,
+that should be `SingleSignOn`.
+
+- For test
+
+The module includes a comprehensive test suite with unit and functional tests.
+Run them from the root of Omeka:
+
+```sh
+vendor/bin/phpunit -c modules/Urify/phpunit.xml --testdox
 ```
 
 
@@ -249,6 +255,12 @@ Warning: The keys in the first fields are updated only when the options to
 update user name and to update user settings are enabled. The last field is
 never updated.
 
+### Fix config
+
+The config of the security options may be complex. You may use the [Firefox]
+extension [SAML Message Decoder] extension to check the messages shared between
+the SP and the IdP.
+
 ### Testing on SamlTest.id
 
 For testing, you can use a free service like [SamlTest.id], that avoids to
@@ -263,6 +275,22 @@ tests are finished, you should disable all features of the module, then upload
 the new config to SamlTest.id, then reenable your features. Anyway, the validity
 of the service provider metadata is 48 hours, so the IdP will be disabled after
 that. And if the IdP is no more registered in Omeka, it won't be able to log in.
+
+### Fix when metadata cannot be retrieved for an IdP
+
+When saving the configuration, if the metadata for an IdP cannot be fetched
+(SSL certificate issue on the IdP side, network timeout, etc.), the existing
+configuration is preserved and a warning is displayed. The save proceeds
+normally for all IdPs. Users can still authenticate with the existing config.
+
+If the IdP has no existing config (new IdP with no entity id or SSO url), it
+will be marked as invalid and should be fixed or removed.
+
+To check a specific IdP SSL certificate chain, you can use:
+
+```sh
+curl -vI https://idp.example.org 2>&1
+```
 
 ### Local login
 
@@ -299,6 +327,7 @@ TODO
 - [ ] Add options to get attributes and maps for the federated idps.
 - [-] Allow to log in without registering SP in the IdP (Unsolicited Login Initiator), but may be a security issue.
 - [-] Use gz version of xml files from renater after checking if it is quicker. Useless: the http client automatically uses gz.
+
 
 Warning
 -------
@@ -379,8 +408,10 @@ and the [Université de Strasbourg] (UNISTRA). New features were implemented for
 [saml2int]: http://saml2int.org/profile/current
 [Kantara Initiative]: https://kantarainitiative.github.io/SAMLprofiles/saml2int.html
 [Shibboleth]: https://www.shibboleth.net
-[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/issues
+[Firefox]: https://www.firefox.com
+[SAML Message Decoder]: https://addons.mozilla.org/fr/firefox/addon/saml-message-decoder-extension
 [SamlTest.id]: https://samltest.id
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-28 00:00+0000\n"
+"POT-Creation-Date: 2026-02-09 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,18 +22,22 @@ msgstr ""
 msgid "The module %1$s should be upgraded to version %2$s or later."
 msgstr ""
 
-#: Module.php:147
+#: Module.php:149
 msgid ""
 "When the metadata url of an IdP is set, its form will be automatically "
 "filled and updated each day."
 msgstr ""
 
-#: Module.php:150
+#: Module.php:152
 msgid "Warning: some IdPs hide the name, so you may fill it yourself."
 msgstr ""
 
-#: Module.php:152
+#: Module.php:154
 msgid "Furthermore, IdP keys still need to be mapped, at least for name."
+msgstr ""
+
+#: src/Form/ConfigForm.php:432
+msgid "Idp {index}"
 msgstr ""
 
 #: src/View/Helper/SsoLoginLinks.php:62
@@ -42,6 +46,14 @@ msgstr ""
 
 #: view/common/sso-login-links.phtml:30
 msgid "Direct login"
+msgstr ""
+
+#: view/common/sso-login-links.phtml:64
+msgid "Select your identity provider…"
+msgstr ""
+
+#: view/common/sso-login-links.phtml:107
+msgid "No identity provider is available."
 msgstr ""
 
 #: view/common/user-settings-list-sso.phtml:16
@@ -180,105 +192,125 @@ msgid ""
 "{link}config form{link_end} to confirm them."
 msgstr ""
 
-#: Module.php:250
+#: Module.php:252
 msgid ""
 "For security, the default role cannot be an admin one. The default role was "
 "set to {role}."
 msgstr ""
 
-#: Module.php:456
+#: Module.php:262
+msgid ""
+"For security, when using automatic registration (JIT), it is recommended to "
+"set the default role to \"Guest\" and to update the role of the user "
+"manually after the first connection. Another possibility is to filter the "
+"user by role earlier via the config of the IdP. JIT was disabled."
+msgstr ""
+
+#: Module.php:406
+msgid ""
+"A federation is specified and a list of idps too. The idps defined manually "
+"overwrite the federation ones with the same name."
+msgstr ""
+
+#: Module.php:467
 msgid "An IdP does not have url and no id and is not valid."
 msgstr ""
 
-#: Module.php:474
+#: Module.php:485
 msgid ""
 "The idp \"{url}\" was manually filled and is not checked neither updated."
 msgstr ""
 
-#: Module.php:495
+#: Module.php:506
 msgid ""
 "The option to use metadata from federation for IdP \"{url}\" is set, but "
 "there is no such data."
 msgstr ""
 
-#: Module.php:521
-msgid "The metadata for IdP \"{url}\" could not be retrieved."
+#: Module.php:517
+msgid "The metadata for IdP \"{url}\" could not be retrieved: {error}"
 msgstr ""
 
-#: Module.php:533
+#: Module.php:544
+msgid ""
+"The metadata for IdP \"{url}\" could not be retrieved. Previous config was "
+"kept."
+msgstr ""
+
+#: Module.php:558
 msgid "The idp \"{url}\" seems to be invalid and has no id."
 msgstr ""
 
-#: Module.php:612
+#: Module.php:637
 msgid ""
 "A path is set for the certificate ({use}), but it does not contain a "
 "directory \"certs\" with files \"sp.crt\" and \"sp.key\"."
 msgstr ""
 
-#: Module.php:622
+#: Module.php:647
 msgid "The SP public certificate is set, but not the private key ({use})."
 msgstr ""
 
-#: Module.php:628
+#: Module.php:653
 msgid "The SP private key is set, but not the public certificate ({use})."
 msgstr ""
 
-#: Module.php:636
+#: Module.php:661
 msgid ""
 "You cannot set a path to the certificate ({use}) and provide them in fields "
 "at the same time."
 msgstr ""
 
-#: Module.php:646
+#: Module.php:671
 msgid ""
-"The certicate ({use}) cannot be created when fields \"certificate path\", "
+"The certificate ({use}) cannot be created when fields \"certificate path\", "
 "\"x509 certificate\", or \"x509 private key\" are filled."
 msgstr ""
 
-#: Module.php:656
+#: Module.php:681
 msgid "The x509 certificate ({use}) was created successfully."
 msgstr ""
 
-#: Module.php:663
+#: Module.php:688
 msgid ""
 "An error occurred during creation of the x509 certificate ({use}): {msg}"
 msgstr ""
 
-#: Module.php:687
+#: Module.php:712
 msgid "The SP public certificate ({use}) is not valid."
 msgstr ""
 
-#: Module.php:696
+#: Module.php:721
 msgid "The SP private key ({use}) is not valid."
 msgstr ""
 
-#: Module.php:712
+#: Module.php:737
 msgid "Unable to encrypt message with SP public certificate ({use})."
 msgstr ""
 
-#: Module.php:721
+#: Module.php:746
 msgid "Unable to decrypt message with SP private key ({use})."
 msgstr ""
 
-#: Module.php:730
+#: Module.php:755
 msgid ""
 "An issue occurred during decryption with SP private key ({use}). It may not "
 "the good one."
 msgstr ""
 
-#: Module.php:738
+#: Module.php:763
 msgid "No issue found on SP public certificate and private key ({use})."
 msgstr ""
 
-#: Module.php:778
+#: Module.php:803
 msgid "The IdP public certificate of \"{url}\" is not valid."
 msgstr ""
 
-#: Module.php:790
+#: Module.php:815
 msgid "Unable to encrypt message with IdP public certificate of \"{url}\"."
 msgstr ""
 
-#: Module.php:798
+#: Module.php:823
 msgid "No issue found on IdP public certificate of \"{url}\"."
 msgstr ""
 
@@ -295,7 +327,7 @@ msgid "The federation url {url} does not return any metadata."
 msgstr ""
 
 #: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:94
-#: src/Controller/SsoController.php:765
+#: src/Controller/SsoController.php:774
 msgid "The federation url {url} does not return valid xml metadata."
 msgstr ""
 
@@ -521,9 +553,9 @@ msgstr ""
 #: src/Form/ConfigForm.php:258 src/Form/ConfigForm.php:329
 msgid ""
 "Some idp require certificates. If needed and not set in next fields, set the "
-"path to it. It should contains a directory \"certs/\" with at least \"sp."
-"crt\" and \"sp.key\". It must be protected, for example with a .htaccess. "
-"Take care to renew them when needed."
+"path to it. It should contains a directory \"certs/\" with at least "
+"\"sp.crt\" and \"sp.key\". It must be protected, for example with "
+"a .htaccess. Take care to renew them when needed."
 msgstr ""
 
 #: src/Form/ConfigForm.php:269
@@ -582,8 +614,8 @@ msgstr ""
 
 #: src/Form/ConfigForm.php:365
 msgid ""
-"Create a, x509 certificate for the SP encryption (require the three previous "
-"fields be empty)"
+"Create an x509 certificate for the SP encryption (requires the three "
+"previous fields be empty)"
 msgstr ""
 
 #: src/Form/ConfigForm.php:376
@@ -592,6 +624,12 @@ msgstr ""
 
 #: src/Form/ConfigForm.php:399
 msgid "Federation"
+msgstr ""
+
+#: src/Form/ConfigForm.php:400
+msgid ""
+"The idps defined manually below will overwrite the federation ones with the "
+"same name. To add a federation, append it to the config."
 msgstr ""
 
 #: src/Form/ConfigForm.php:407
@@ -656,8 +694,8 @@ msgstr ""
 #: src/Form/IdpFieldset.php:82
 msgid ""
 "Generally, the id is the same than the url of the idp. This is the attribute "
-"`entityID` of xml element `<md:EntityDescriptor>`, for example \"https://idp."
-"example.org/sso\". For some IdP, the url scheme must not be set, so try "
+"`entityID` of xml element `<md:EntityDescriptor>`, for example \"https://"
+"idp.example.org/sso\". For some IdP, the url scheme must not be set, so try "
 "\"idp.example.org\" too."
 msgstr ""
 
@@ -752,94 +790,98 @@ msgstr ""
 msgid "Move this idp down"
 msgstr ""
 
-#: src/Controller/SsoController.php:193 src/Controller/SsoController.php:277
-#: src/Controller/SsoController.php:552 src/Controller/SsoController.php:731
-msgid "No IdP with this name."
+#: src/Controller/SsoController.php:194
+msgid "No IdP with this name: {idp}."
 msgstr ""
 
-#: src/Controller/SsoController.php:201 src/Controller/SsoController.php:285
+#: src/Controller/SsoController.php:204 src/Controller/SsoController.php:288
 msgid "Single sign-on is disabled."
 msgstr ""
 
-#: src/Controller/SsoController.php:297
+#: src/Controller/SsoController.php:280 src/Controller/SsoController.php:561
+#: src/Controller/SsoController.php:740
+msgid "No IdP with this name."
+msgstr ""
+
+#: src/Controller/SsoController.php:300
 msgid "Single sign-on failed: {errors}. {error_last}"
 msgstr ""
 
-#: src/Controller/SsoController.php:305
+#: src/Controller/SsoController.php:308
 msgid "Single sign-on failed: {errors}"
 msgstr ""
 
-#: src/Controller/SsoController.php:332
+#: src/Controller/SsoController.php:335
 msgid "No email provided to log in or register."
 msgstr ""
 
-#: src/Controller/SsoController.php:335
+#: src/Controller/SsoController.php:338
 msgid ""
 "No email provided or mapped. Available canonical attributes for this IdP: "
 "{keys}. Available friendly attributes for this IdP: {keys_2}."
 msgstr ""
 
-#: src/Controller/SsoController.php:415
+#: src/Controller/SsoController.php:418
 msgid "Automatic registering is disabled."
 msgstr ""
 
-#: src/Controller/SsoController.php:422
+#: src/Controller/SsoController.php:425
 msgid ""
 "No name provided or mapped. Available canonical attributes for this IdP: "
 "{keys}. Available friendly attributes for this IdP: {keys_2}."
 msgstr ""
 
-#: src/Controller/SsoController.php:464
+#: src/Controller/SsoController.php:469
 msgid "User \"{email}\" is inactive."
 msgstr ""
 
-#: src/Controller/SsoController.php:515
+#: src/Controller/SsoController.php:524
 msgid "Successfully logged in."
 msgstr ""
 
-#: src/Controller/SsoController.php:578
+#: src/Controller/SsoController.php:587
 msgid "Single logout service failed: {errors}. {error_last}"
 msgstr ""
 
-#: src/Controller/SsoController.php:586
+#: src/Controller/SsoController.php:595
 msgid "Single logout service failed: {errors}"
 msgstr ""
 
-#: src/Controller/SsoController.php:599
+#: src/Controller/SsoController.php:608
 msgid "Successfully logged out."
 msgstr ""
 
-#: src/Controller/SsoController.php:743 src/Controller/SsoController.php:755
-#: src/Controller/SsoController.php:806
+#: src/Controller/SsoController.php:752 src/Controller/SsoController.php:764
+#: src/Controller/SsoController.php:815
 msgid "The IdP \"{idp}\" has no available metadata."
 msgstr ""
 
-#: src/Controller/SsoController.php:816
+#: src/Controller/SsoController.php:825
 msgid "The IdP \"{idp}\" has no valid xml metadata."
 msgstr ""
 
-#: src/Controller/SsoController.php:910
+#: src/Controller/SsoController.php:919
 msgid "SSO service has an error in configuration: {exception}"
 msgstr ""
 
-#: src/Controller/SsoController.php:918
+#: src/Controller/SsoController.php:927
 msgid "SSO service is not available. Ask admin to config it."
 msgstr ""
 
-#: src/Controller/SsoController.php:922
+#: src/Controller/SsoController.php:931
 msgid "SSO service is unavailable."
 msgstr ""
 
-#: src/Controller/SsoController.php:927
+#: src/Controller/SsoController.php:936
 msgid "SSO service is unavailable. Ask admin to config it."
 msgstr ""
 
-#: src/Controller/SsoController.php:981
-msgid "The cerificate for the signature is incomplete."
+#: src/Controller/SsoController.php:991
+msgid "The certificate for the signature is incomplete."
 msgstr ""
 
-#: src/Controller/SsoController.php:996
-msgid "The cerificate for the encryption is incomplete."
+#: src/Controller/SsoController.php:1006
+msgid "The certificate for the encryption is incomplete."
 msgstr ""
 
 #: src/Site/BlockLayout/SsoLoginLinks.php:21

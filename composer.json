@@ -29,7 +29,8 @@
         "daniel-km/omeka-s-module-common": "*"
     },
     "require": {
-        "onelogin/php-saml": "^4.3"
+        "cweagans/composer-patches": "^1.7",
+        "onelogin/php-saml": "4.3.1"
     },
     "autoload": {
         "psr-4": {
@@ -43,6 +44,16 @@
     },
     "extra": {
         "installer-name": "SingleSignOn",
-        "configurable": true
+        "configurable": true,
+        "patches": {
+            "onelogin/php-saml": {
+                "Fix decryptNameId algorithm mismatch (issue #627)": "data/patches/fix-decrypt-nameid.patch"
+            }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "cweagans/composer-patches": true
+        }
     }
 }

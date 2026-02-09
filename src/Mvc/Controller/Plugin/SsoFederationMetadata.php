@@ -164,13 +164,13 @@ class SsoFederationMetadata extends AbstractPlugin
             foreach ($entityIds as $entityId) {
                 $entityId = trim((string) $entityId);
                 $baseXpath = sprintf('/EntitiesDescriptor/EntityDescriptor[@entityID="%s"]', $entityId);
-                $entityName = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/Extensions/UIInfo/mdui:DisplayName[1]')[0] ?? '')
+                $entityName = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/Extensions/UIInfo/DisplayName[1]')[0] ?? '')
                     ?: (string) ($xml->xpath($baseXpath . '/Organization/OrganizationName[1]')[0] ?? '');
                 $ssoUrl = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/SingleSignOnService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
                 $sloUrl = (string) ($xml->xpath($baseXpath . '/IDPSSODescriptor/SingleLogoutService[@Binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location')[0] ?? '');
-                $signX509Certificates = ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor[@use = "signing"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate') ?? [])
-                    ?: ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor/ds:KeyInfo/ds:X509Data/ds:X509Certificate') ?? []);
-                $signX509Certificates = $xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/ds:KeyInfo/ds:X509Data/ds:X509Certificate') ?? [];
+                $signX509Certificates = ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor[@use = "signing"]/KeyInfo/X509Data/X509Certificate') ?? [])
+                    ?: ($xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor/KeyInfo/X509Data/X509Certificate') ?? []);
+                $cryptX509Certificates = $xml->xpath($baseXpath . '/IDPSSODescriptor/KeyDescriptor[@use = "encryption"]/KeyInfo/X509Data/X509Certificate') ?? [];
                 $entityIdUrl = substr($entityId, 0, 4) !== 'http' ? 'http://' . $entityId : $entityId;
                 $entityShortId = parse_url($entityIdUrl, PHP_URL_HOST) ?: $entityId;
                 $idpHost = $ssoUrl ? parse_url($ssoUrl, PHP_URL_HOST) : null;

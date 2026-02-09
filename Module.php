@@ -403,7 +403,7 @@ class Module extends AbstractModule
             $plugins = $services->get('ControllerPluginManager');
             $messenger = $plugins->get('messenger');
             $messenger->addNotice(new PsrMessage(
-                'A federation is specified and a list of idps too. The idps defined manually overwrite the federation ones with the same name.' // @ŧranslate
+                'A federation is specified and a list of idps too. The idps defined manually overwrite the federation ones with the same name.' // @translate
             ));
             return false;
         }
@@ -447,7 +447,7 @@ class Module extends AbstractModule
         $idp['entity_name'] ??= null;
         $idp['entity_short_id'] ??= null;
 
-        // Only the first cerfificate for signing and crypting is stored.
+        // Only the first certificate for signing and crypting is stored.
         // So fill all of them when a url is set or not.
         // The idp store multiple certificates, but the form has only one.
         $idp['sign_x509_certificates'] = $this->checkX509Certificates(
@@ -595,17 +595,17 @@ class Module extends AbstractModule
         $signCertsBasePath = $settings->get('singlesignon_sp_sign_x509_path');
         $signX509cert = trim($settings->get('singlesignon_sp_sign_x509_certificate') ?: '');
         $signPrivateKey = trim($settings->get('singlesignon_sp_sign_x509_private_key') ?: '');
-        $signResult = $this->checkOrCreateCerfificate($signCertsBasePath, $signX509cert, $signPrivateKey, (bool) $createCertificateSign, 'sign');
+        $signResult = $this->checkOrCreateCertificate($signCertsBasePath, $signX509cert, $signPrivateKey, (bool) $createCertificateSign, 'sign');
 
         $cryptCertsBasePath = $settings->get('singlesignon_sp_crypt_x509_path');
         $cryptX509cert = trim($settings->get('singlesignon_sp_crypt_x509_certificate') ?: '');
         $cryptPrivateKey = trim($settings->get('singlesignon_sp_crypt_x509_private_key') ?: '');
-        $cryptResult = $this->checkOrCreateCerfificate($cryptCertsBasePath, $cryptX509cert, $cryptPrivateKey, (bool) $createCertificateCrypt, 'crypt');
+        $cryptResult = $this->checkOrCreateCertificate($cryptCertsBasePath, $cryptX509cert, $cryptPrivateKey, (bool) $createCertificateCrypt, 'crypt');
 
         return $signResult && $cryptResult;
     }
 
-    protected function checkOrCreateCerfificate(
+    protected function checkOrCreateCertificate(
         ?string $certsBasePath,
         ?string $x509cert,
         ?string $privateKey,
@@ -625,11 +625,11 @@ class Module extends AbstractModule
         if (!$x509cert && !$privateKey) {
             if ($certsBasePath) {
                 $x509certFilePath = $certsBasePath . '/certs/sp.crt';
-                $x509cert = file_exists($x509certFilePath) || !is_readable($x509certFilePath) || !filesize($x509certFilePath)
+                $x509cert = file_exists($x509certFilePath) && is_readable($x509certFilePath) && filesize($x509certFilePath)
                     ? file_get_contents($x509certFilePath)
                     : '';
                 $privateKeyPath = $certsBasePath . '/certs/sp.key';
-                $privateKey = file_exists($privateKeyPath) || !is_readable($privateKeyPath) || !filesize($privateKeyPath)
+                $privateKey = file_exists($privateKeyPath) && is_readable($privateKeyPath) && filesize($privateKeyPath)
                     ? file_get_contents($privateKeyPath)
                     : '';
                 if (!$x509cert || !$privateKey) {
@@ -668,13 +668,13 @@ class Module extends AbstractModule
         if ($createCertificate) {
             if ($certsBasePath || $x509cert || $privateKey) {
                 $message = new PsrMessage(
-                    'The certicate ({use}) cannot be created when fields "certificate path", "x509 certificate", or "x509 private key" are filled.', // @translate
+                    'The certificate ({use}) cannot be created when fields "certificate path", "x509 certificate", or "x509 private key" are filled.', // @translate
                     ['use' => $certificateUse]
                 );
                 $messenger->addError($message);
                 return false;
             }
-            $certificateData = $settings->get('singlesignon_sp_{$certificateUse}_x509_certificate_data') ?: [];
+            $certificateData = $settings->get("singlesignon_sp_{$certificateUse}_x509_certificate_data") ?: [];
             [$x509cert, $privateKey] = $this->createCertificate($certificateData);
             if ($x509cert && $privateKey) {
                 $message = new PsrMessage(
@@ -771,8 +771,8 @@ class Module extends AbstractModule
     protected function checkX509Certificates(array $x509certificates, ?string $entityUrl = null): array
     {
         $certificates = [];
-        foreach ($x509certificates ?? [] as $cerficate) {
-            $certificates[] = $this->checkX509Certificate($cerficate, $entityUrl);
+        foreach ($x509certificates ?? [] as $certificate) {
+            $certificates[] = $this->checkX509Certificate($certificate, $entityUrl);
         }
         return array_values(array_unique(array_filter($certificates)));
     }

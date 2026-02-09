@@ -327,7 +327,7 @@ class SsoController extends AbstractActionController
             ?? $samlAttributesCanonical[array_search('email', $this->attributesMapCanonical)][0]
             ?? $samlAttributesCanonical[array_search('email', $attributesMap)][0]
             ?? null;
-        if (!$email && strpos($nameId, '@')) {
+        if (!$email && strpos($nameId, '@') !== false) {
             $email = $nameId;
         }
 
@@ -458,6 +458,8 @@ class SsoController extends AbstractActionController
             $addUserGroups($user);
 
             // Static settings.
+            $userSettings = $this->userSettings();
+            $userSettings->setTargetId($user->getId());
             $staticSettings = $idp['user_settings'];
             foreach ($staticSettings as $key => $value) {
                 $userSettings->set($key, $value);
@@ -986,7 +988,7 @@ class SsoController extends AbstractActionController
             $spSignPrivateKey = strtr($spSignPrivateKey, ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n"]);
         } else {
             if ($spSignX509cert || $spSignPrivateKey) {
-                $this->logger()->err('The cerificate for the signature is incomplete.'); // @translate
+                $this->logger()->err('The certificate for the signature is incomplete.'); // @translate
             }
             $spSignX509cert = null;
             $spSignPrivateKey = null;
@@ -1000,8 +1002,8 @@ class SsoController extends AbstractActionController
             $spCryptX509cert = strtr($spCryptX509cert, ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n"]);
             $spCryptPrivateKey = strtr($spCryptPrivateKey, ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n"]);
         } else {
-            if ($spCryptX509cert && $spCryptPrivateKey) {
-                $this->logger()->err('The cerificate for the encryption is incomplete.'); // @translate
+            if ($spCryptX509cert || $spCryptPrivateKey) {
+                $this->logger()->err('The certificate for the encryption is incomplete.'); // @translate
             }
             $spCryptX509cert = null;
             $spCryptPrivateKey = null;

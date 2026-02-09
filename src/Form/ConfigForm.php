@@ -362,7 +362,7 @@ class ConfigForm extends Form
                 'name' => 'singlesignon_sp_crypt_create_certificate',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
-                    'label' => 'Create a, x509 certificate for the SP encryption (require the three previous fields be empty)', // @translate
+                    'label' => 'Create an x509 certificate for the SP encryption (requires the three previous fields be empty)', // @translate
                     'info' => 'The certificate is generated for a century with the default data of the server or the data below.', // @translate
                 ],
                 'attributes' => [
@@ -397,7 +397,7 @@ class ConfigForm extends Form
                 'type' => Element\Select::class,
                 'options' => [
                     'label' => 'Federation', // @translate
-                    'info' => 'The idps defined manually below will overwrite the federation ones with the same name. To add a federation, append it to the config.', // @ŧranslate
+                    'info' => 'The idps defined manually below will overwrite the federation ones with the same name. To add a federation, append it to the config.', // @translate
                     'value_options' => $this->getOption('federations') ?: [],
                     'empty_option' => '',
                 ],
@@ -429,7 +429,7 @@ class ConfigForm extends Form
                     'id' => 'singlesignon_idps',
                     'required' => false,
                     'class' => 'form-fieldset-collection',
-                    'data-label-index' => $this->translator->translate('Idp {index}'), // @ŧranslate
+                    'data-label-index' => $this->translator->translate('Idp {index}'), // @translate
                 ],
             ])
             ->add([

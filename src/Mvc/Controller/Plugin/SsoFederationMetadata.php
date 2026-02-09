@@ -40,8 +40,8 @@ class SsoFederationMetadata extends AbstractPlugin
             $logger = $this->getController()->logger();
         }
 
-        $isUrl = mb_substr($federationUrl, 0, 8) !== 'https://'
-            || mb_substr($federationUrl, 0, 7) !== 'http://';
+        $isUrl = mb_substr($federationUrl, 0, 8) === 'https://'
+            || mb_substr($federationUrl, 0, 7) === 'http://';
         if ($isUrl && !filter_var($federationUrl, FILTER_VALIDATE_URL)) {
             $message = new PsrMessage(
                 'The federation url "{url}" is not a valid url.', // @translate

@@ -1,28 +1,48 @@
 {
     "name": "daniel-km/omeka-s-module-single-sign-on",
-    "description": "Module for Omeka S that authenticates automatically on Omeka S via single sign-on (SSO) through SAML or Shibboleth and manage multiple identity providers automatically.",
-    "type": "library",
+    "type": "omeka-s-module",
+    "description": "Module for Omeka S: Authenticate automatically on Omeka S via single sign-on (SSO) through SAML or Shibboleth and manage multiple identity providers automatically.",
+    "keywords": [
+        "Omeka S",
+        "Omeka S module",
+        "login",
+        "authentication",
+        "SSO",
+        "single sign-on",
+        "SAML",
+        "Shibboleth"
+    ],
     "license": "CECILL-2.1",
+    "homepage": "https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn",
     "authors": [
         {
             "name": "Daniel Berthereau",
             "email": "Daniel.packagist@Berthereau.net"
         }
     ],
-    "homepage": "https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn",
     "support": {
         "issues": "https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/issues",
         "forum": "https://forum.omeka.org/"
     },
-    "keywords": [
-        "Omeka S",
-        "module",
-        "authentication",
-        "single sign-on",
-        "saml",
-        "shibboleth"
-    ],
+    "_require (not set until Omeka S merges PR #2412)": {
+        "omeka/omeka-s": "^4.1",
+        "daniel-km/omeka-s-module-common": "*"
+    },
     "require": {
         "onelogin/php-saml": "^4.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "SingleSignOn\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SingleSignOnTest\\": "tests/SingleSignOnTest/"
+        }
+    },
+    "extra": {
+        "installer-name": "SingleSignOn",
+        "configurable": true
     }
 }

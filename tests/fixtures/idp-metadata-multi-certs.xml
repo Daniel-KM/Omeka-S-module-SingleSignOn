@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+                     xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                     xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui"
+                     entityID="https://idp-multi.example.org/saml2">
+
+    <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+
+        <md:Extensions>
+            <mdui:UIInfo>
+                <mdui:DisplayName xml:lang="en">Multi-Cert IdP</mdui:DisplayName>
+            </mdui:UIInfo>
+        </md:Extensions>
+
+        <!-- Back-channel signing certificate (with tabs and spaces in base64) -->
+        <md:KeyDescriptor use="signing">
+            <ds:KeyInfo>
+                <ds:X509Data>
+                    <ds:X509Certificate>
+	 MIICpDCCAYwCCQDU+pQ4pHgSpDANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAls
+	 b2NhbGhvc3QwHhcNMjMwMTAxMDAwMDAwWhcNMzMwMTAxMDAwMDAwWjAUMRIwEAYD
+	 VQQDDAlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC7
+	 7a5R2RLAVQY9GEoHvPAEbJJMDM0TXKZPzSSVpHXLmz8OuIN8FmjFTUOoEaGbNBEP
+	 c0I2EVfBjXGBIQMiC2iSQmM3BUQQ9AKBQKN00RJCCsFpNI3L8l5eiF5MNTMDiIi7
+	 qk2VqpIBEf2UQgXbHrt+4M3BPxRzmp7shtDwEDljJRGH2shIMhWjYNQbPy9PdlJi
+	 kgFXJSP2KMa7JPJv5FOHzQ9L5W9TG0jJEhjW7BUGLGQ5Mj02w7j0O7MGEMPZJvAs
+	 i4FT93zmN2cMNmJZBEQLIT0R/Gry+C7BfDpksBiHN+NMmhh7mmEzpGNjbCD0Crgb
+	 lYYVGESB8MTGIU2BKk6hAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAKhJ3FEbW9MQ
+	 CAHU3GCwMAam/v3RD9V21GAdSNhC+U+AoLJRMR3Kz/FVZEv9d0SgZMZHR/RXWRI5
+	 AREUjm+olfE0HGz/aUL4uH0cPQ2MU5tMgCi8EJf2SZ8d9xQJqGYLFq0+nzr2ByB
+	 S8CJGP/sUaIHX9VDFjDABN28TRRRdEMAHJLjJdp/dMSAi2j0a5LpC8Jf9TUBbpph
+	 qJOlmR0sEuJnDAhlFVJmqG0G4FLacSkIW0RSGKV/mTbkRDVm4VfTHRaILVPu8rSg
+	 GInNHqx3XH0ypKPm05YVLKwO2E/M2K7Z99b7MVzEfjhlCGxBsOm1k4LWRr8Z6p+F
+	 ZZRB3p/aURk=
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </md:KeyDescriptor>
+
+        <!-- Front-channel signing certificate (different cert, also with whitespace) -->
+        <md:KeyDescriptor use="signing">
+            <ds:KeyInfo>
+                <ds:X509Data>
+                    <ds:X509Certificate>
+	 MIICpDCCAYwCCQDU+pQ4pHgSpDANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAls
+	 b2NhbGhvc3QwHhcNMjMwMTAxMDAwMDAwWhcNMzMwMTAxMDAwMDAwWjAUMRIwEAYD
+	 VQQDDAlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDR
+	 7a5R2RLAVQY9GEoHvPAEbJJMDM0TXKZPzSSVpHXLmz8OuIN8FmjFTUOoEaGbNBEP
+	 c0I2EVfBjXGBIQMiC2iSQmM3BUQQ9AKBQKN00RJCCsFpNI3L8l5eiF5MNTMDiIi7
+	 qk2VqpIBEf2UQgXbHrt+4M3BPxRzmp7shtDwEDljJRGH2shIMhWjYNQbPy9PdlJi
+	 kgFXJSP2KMa7JPJv5FOHzQ9L5W9TG0jJEhjW7BUGLGQ5Mj02w7j0O7MGEMPZJvAs
+	 i4FT93zmN2cMNmJZBEQLIT0R/Gry+C7BfDpksBiHN+NMmhh7mmEzpGNjbCD0Crgb
+	 lYYVGESB8MTGIU2BKk6hAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAKhJ3FEbW9MQ
+	 CAHU3GCwMAam/v3RD9V21GAdSNhC+U+AoLJRMR3Kz/FVZEv9d0SgZMZHR/RXWRI5
+	 AREUjm+olfE0HGz/aUL4uH0cPQ2MU5tMgCi8EJf2SZ8d9xQJqGYLFq0+nzr2ByB
+	 S8CJGP/sUaIHX9VDFjDABN28TRRRdEMAHJLjJdp/dMSAi2j0a5LpC8Jf9TUBbpph
+	 qJOlmR0sEuJnDAhlFVJmqG0G4FLacSkIW0RSGKV/mTbkRDVm4VfTHRaILVPu8rSg
+	 GInNHqx3XH0ypKPm05YVLKwO2E/M2K7Z99b7MVzEfjhlCGxBsOm1k4LWRr8Z6p+F
+	 ZZRB3p/bVSk=
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </md:KeyDescriptor>
+
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                                Location="https://idp-multi.example.org/saml2/slo"/>
+
+        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                                Location="https://idp-multi.example.org/saml2/sso"/>
+
+    </md:IDPSSODescriptor>
+
+</md:EntityDescriptor>

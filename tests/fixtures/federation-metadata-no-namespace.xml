@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EntitiesDescriptor Name="Test Federation No-NS">
+
+    <EntityDescriptor entityID="https://idp-nons1.example.org/saml2">
+        <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+
+            <KeyDescriptor use="signing">
+                <KeyInfo>
+                    <X509Data>
+                        <X509Certificate>MIICpDCCAYwCCQDU+pQ4pHgSpDANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAls
+b2NhbGhvc3QwHhcNMjMwMTAxMDAwMDAwWhcNMzMwMTAxMDAwMDAwWjAUMRIwEAYD
+VQQDDAlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC7
+7a5R2RLAVQY9GEoHvPAEbJJMDM0TXKZPzSSVpHXLmz8OuIN8FmjFTUOoEaGbNBEP
+c0I2EVfBjXGBIQMiC2iSQmM3BUQQ9AKBQKN00RJCCsFpNI3L8l5eiF5MNTMDiIi7
+qk2VqpIBEf2UQgXbHrt+4M3BPxRzmp7shtDwEDljJRGH2shIMhWjYNQbPy9PdlJi
+kgFXJSP2KMa7JPJv5FOHzQ9L5W9TG0jJEhjW7BUGLGQ5Mj02w7j0O7MGEMPZJvAs
+i4FT93zmN2cMNmJZBEQLIT0R/Gry+C7BfDpksBiHN+NMmhh7mmEzpGNjbCD0Crgb
+lYYVGESB8MTGIU2BKk6hAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAKhJ3FEbW9MQ
+CAHU3GCwMAam/v3RD9V21GAdSNhC+U+AoLJRMR3Kz/FVZEv9d0SgZMZHR/RXWRI5
+AREUjm+olfE0HGz/aUL4uH0cPQ2MU5tMgCi8EJf2SZ8d9xQJqGYLFq0+nzr2ByB
+S8CJGP/sUaIHX9VDFjDABN28TRRRdEMAHJLjJdp/dMSAi2j0a5LpC8Jf9TUBbpph
+qJOlmR0sEuJnDAhlFVJmqG0G4FLacSkIW0RSGKV/mTbkRDVm4VfTHRaILVPu8rSg
+GInNHqx3XH0ypKPm05YVLKwO2E/M2K7Z99b7MVzEfjhlCGxBsOm1k4LWRr8Z6p+F
+ZZRB3p/aURk=</X509Certificate>
+                    </X509Data>
+                </KeyInfo>
+            </KeyDescriptor>
+
+            <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                                 Location="https://idp-nons1.example.org/saml2/sso"/>
+
+        </IDPSSODescriptor>
+
+        <Organization>
+            <OrganizationName xml:lang="en">No-NS University One</OrganizationName>
+        </Organization>
+    </EntityDescriptor>
+
+    <EntityDescriptor entityID="https://idp-nons2.example.org/saml2">
+        <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+
+            <KeyDescriptor use="signing">
+                <KeyInfo>
+                    <X509Data>
+                        <X509Certificate>MIICpDCCAYwCCQDU+pQ4pHgSpDANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAls
+b2NhbGhvc3QwHhcNMjMwMTAxMDAwMDAwWhcNMzMwMTAxMDAwMDAwWjAUMRIwEAYD
+VQQDDAlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDR
+7a5R2RLAVQY9GEoHvPAEbJJMDM0TXKZPzSSVpHXLmz8OuIN8FmjFTUOoEaGbNBEP
+c0I2EVfBjXGBIQMiC2iSQmM3BUQQ9AKBQKN00RJCCsFpNI3L8l5eiF5MNTMDiIi7
+qk2VqpIBEf2UQgXbHrt+4M3BPxRzmp7shtDwEDljJRGH2shIMhWjYNQbPy9PdlJi
+kgFXJSP2KMa7JPJv5FOHzQ9L5W9TG0jJEhjW7BUGLGQ5Mj02w7j0O7MGEMPZJvAs
+i4FT93zmN2cMNmJZBEQLIT0R/Gry+C7BfDpksBiHN+NMmhh7mmEzpGNjbCD0Crgb
+lYYVGESB8MTGIU2BKk6hAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAKhJ3FEbW9MQ
+CAHU3GCwMAam/v3RD9V21GAdSNhC+U+AoLJRMR3Kz/FVZEv9d0SgZMZHR/RXWRI5
+AREUjm+olfE0HGz/aUL4uH0cPQ2MU5tMgCi8EJf2SZ8d9xQJqGYLFq0+nzr2ByB
+S8CJGP/sUaIHX9VDFjDABN28TRRRdEMAHJLjJdp/dMSAi2j0a5LpC8Jf9TUBbpph
+qJOlmR0sEuJnDAhlFVJmqG0G4FLacSkIW0RSGKV/mTbkRDVm4VfTHRaILVPu8rSg
+GInNHqx3XH0ypKPm05YVLKwO2E/M2K7Z99b7MVzEfjhlCGxBsOm1k4LWRr8Z6p+F
+ZZRB3p/bVSk=</X509Certificate>
+                    </X509Data>
+                </KeyInfo>
+            </KeyDescriptor>
+
+            <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                                 Location="https://idp-nons2.example.org/saml2/slo"/>
+
+            <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                                 Location="https://idp-nons2.example.org/saml2/sso"/>
+
+        </IDPSSODescriptor>
+    </EntityDescriptor>
+
+</EntitiesDescriptor>

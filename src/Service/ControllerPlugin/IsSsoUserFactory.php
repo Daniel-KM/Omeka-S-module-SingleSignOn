@@ -8,7 +8,7 @@ use SingleSignOn\Mvc\Controller\Plugin\IsSsoUser;
 
 class IsSsoUserFactory implements FactoryInterface
 {
-    public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
+    public function __invoke(ContainerInterface $services, $requestedName, ?array $options = null)
     {
         return new IsSsoUser(
             $services->get('Omeka\EntityManager')

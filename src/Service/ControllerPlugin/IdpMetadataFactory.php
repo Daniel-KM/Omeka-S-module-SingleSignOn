@@ -9,7 +9,7 @@ use SingleSignOn\Mvc\Controller\Plugin\IdpMetadata;
 
 class IdpMetadataFactory implements FactoryInterface
 {
-    public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
+    public function __invoke(ContainerInterface $services, $requestedName, ?array $options = null)
     {
         /** @var \Laminas\Http\Client $httpClient */
         if (!function_exists('gzdecode')) {

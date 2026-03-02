@@ -283,9 +283,16 @@ class Module extends AbstractModule
             $selector = in_array($loginView, $selectors) ? $loginView : 'link';
         }
 
+        $request = $this->getServiceLocator()->get('Request');
+        $redirectUrl = $request->getQuery('redirect_url')
+            ?: $request->getQuery('redirect');
+
         /** @var \Laminas\View\Renderer\PhpRenderer $view */
         $view = $event->getTarget();
-        echo $view->ssoLoginLinks(['selector' => $selector]);
+        echo $view->ssoLoginLinks([
+            'selector' => $selector,
+            'redirectUrl' => $redirectUrl,
+        ]);
     }
 
     public function viewUserDetails(Event $event): void

@@ -2,7 +2,7 @@
 
 namespace SingleSignOn\Service;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\Authentication\Adapter\Callback;
 use Laminas\Authentication\AuthenticationService;
 use Laminas\Authentication\Storage\NonPersistent;

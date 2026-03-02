@@ -2,7 +2,7 @@
 
 namespace SingleSignOn\Service\ControllerPlugin;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use SingleSignOn\Mvc\Controller\Plugin\IsSsoUser;
 

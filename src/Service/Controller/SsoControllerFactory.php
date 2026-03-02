@@ -2,7 +2,7 @@
 
 namespace SingleSignOn\Service\Controller;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use SingleSignOn\Controller\SsoController;
 use SingleSignOn\Http\HttpClientFix;

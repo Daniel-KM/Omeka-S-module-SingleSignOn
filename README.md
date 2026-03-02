@@ -50,7 +50,7 @@ The module includes a comprehensive test suite with unit and functional tests.
 Run them from the root of Omeka:
 
 ```sh
-vendor/bin/phpunit -c modules/Urify/phpunit.xml --testdox
+vendor/bin/phpunit -c modules/SingleSignOn/phpunit.xml --testdox
 ```
 
 

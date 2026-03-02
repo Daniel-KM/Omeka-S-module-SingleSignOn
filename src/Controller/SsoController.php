@@ -768,7 +768,7 @@ class SsoController extends AbstractActionController
             }
 
             /** @var \SimpleXMLElement $xml */
-            $xml = @simplexml_load_string($federationString);
+            $xml = @simplexml_load_string($federationString, null, LIBXML_NONET);
             if (!$xml) {
                 $this->messenger()->addError(new PsrMessage(
                     'The federation url {url} does not return valid xml metadata.', // @translate
@@ -819,7 +819,7 @@ class SsoController extends AbstractActionController
         }
 
         /** @var \SimpleXMLElement $idpXml */
-        $idpXml = @simplexml_load_string($idpString);
+        $idpXml = @simplexml_load_string($idpString, null, LIBXML_NONET);
         if (!$idpXml) {
             $this->messenger()->addError(new PsrMessage(
                 'The IdP "{idp}" has no valid xml metadata.', // @translate

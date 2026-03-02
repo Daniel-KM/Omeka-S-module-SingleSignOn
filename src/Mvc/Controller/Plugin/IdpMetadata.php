@@ -75,7 +75,7 @@ class IdpMetadata extends AbstractPlugin
         }
 
         /** @var \SimpleXMLElement $xml */
-        $xml = @simplexml_load_string($idpString);
+        $xml = @simplexml_load_string($idpString, null, LIBXML_NONET);
         if (!$xml) {
             $message = new PsrMessage(
                 'The IdP url {url} does not return valid xml metadata.', // @translate

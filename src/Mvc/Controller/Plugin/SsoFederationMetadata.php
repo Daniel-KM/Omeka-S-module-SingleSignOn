@@ -88,7 +88,7 @@ class SsoFederationMetadata extends AbstractPlugin
         }
 
         /** @var \SimpleXMLElement $xml */
-        $xml = @simplexml_load_string($federationString);
+        $xml = @simplexml_load_string($federationString, null, LIBXML_NONET);
         if (!$xml) {
             $message = new PsrMessage(
                 'The federation url {url} does not return valid xml metadata.', // @translate

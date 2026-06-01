@@ -520,7 +520,7 @@ class Module extends AbstractModule
         if ($entityUrl) {
             try {
                 $idpMeta = $idpMetadata($entityUrl, true);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $idpMeta = null;
                 $messenger->addWarning(new PsrMessage(
                     'The metadata for IdP "{url}" could not be retrieved: {error}', // @translate

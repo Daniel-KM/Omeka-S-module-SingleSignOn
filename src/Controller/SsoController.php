@@ -927,7 +927,7 @@ class SsoController extends AbstractActionController
                 'SSO service is not available. Ask admin to config it.' // @translate
             );
             throw new RuntimeException((string) $message);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger()->err('SSO service is unavailable.'); // @translate
             if (!$throw) {
                 return null;

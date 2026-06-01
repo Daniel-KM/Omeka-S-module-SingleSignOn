@@ -30,7 +30,7 @@ class HttpResponseFix extends Response
 
         ErrorHandler::start();
         $return = gzdecode($body);
-        $test   = ErrorHandler::stop();
+        $test = ErrorHandler::stop();
         if ($test) {
             throw new Exception\RuntimeException(
                 'Error occurred during gzip inflation',

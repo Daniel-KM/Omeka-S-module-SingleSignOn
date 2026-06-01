@@ -2,8 +2,8 @@
 
 namespace SingleSignOn\Service\ControllerPlugin;
 
-use Psr\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 use SingleSignOn\Http\HttpClientFix;
 use SingleSignOn\Mvc\Controller\Plugin\IdpMetadata;
 

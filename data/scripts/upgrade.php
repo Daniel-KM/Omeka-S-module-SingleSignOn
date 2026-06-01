@@ -329,7 +329,7 @@ if (version_compare($oldVersion, '3.4.18', '<')) {
     $message = new PsrMessage(
         'To upgrade the config, you must go to the {link}config form{link_end} and submit it manually.', // @translate
         [
-            'link' => sprintf('<a href="%s">', $url('admin/default', ['controller' => 'module', 'action' => 'configure'], ['query' => ['id' => 'SingleSignOn']])),
+            'link' => sprintf('<a href="%s">', htmlspecialchars($url('admin/default', ['controller' => 'module', 'action' => 'configure'], ['query' => ['id' => 'SingleSignOn']]))),
             'link_end' => '</a>',
         ]
     );
@@ -396,7 +396,7 @@ if (version_compare($oldVersion, '3.4.22', '<')) {
     $message = new PsrMessage(
         'A new option allows to improve the security measures. You should go to the {link}config form{link_end} to confirm them.', // @translate
         [
-            'link' => sprintf('<a href="%s">', $url('admin/default', ['controller' => 'module', 'action' => 'configure'], ['query' => ['id' => 'SingleSignOn']])),
+            'link' => sprintf('<a href="%s">', htmlspecialchars($url('admin/default', ['controller' => 'module', 'action' => 'configure'], ['query' => ['id' => 'SingleSignOn']]))),
             'link_end' => '</a>',
         ]
     );

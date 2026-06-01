@@ -16,8 +16,7 @@ class SsoFederationMetadataFactory implements FactoryInterface
             $httpClient = $services->get('Omeka\HttpClient');
         } else {
             $config = $services->get('Config');
-            $httpClientOptions = $config['http_client'] ?? [];
-            $httpClient = new HttpClientFix(null, $httpClientOptions);
+            $httpClient = HttpClientFix::fromConfig($config['http_client'] ?? []);
         }
 
         return new SsoFederationMetadata(

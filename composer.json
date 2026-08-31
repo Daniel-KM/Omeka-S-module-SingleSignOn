@@ -28,9 +28,12 @@
         "omeka/omeka-s": "^4.1",
         "daniel-km/omeka-s-module-common": "*"
     },
+    "_note (xmlseclibs)": "php-saml 4.3.2 caps xmlseclibs to ^3.1.5, but that constraint was published in May 2026, three months before xmlseclibs 4.0.0 (August 2026), so it is stale rather than a statement of incompatibility. The source of php-saml 4.3.2 is identical to 4.3.1, whose constraint (>=3.1.4) did allow 4.0.0. Version 4.0.0 hardens the SAML attack surface (DOCTYPE and entity-reference signature bypass, RSA-1.5 key transport denied, algorithm and key binding, SSRF on cert fetch), so it is aliased in until php-saml widens the constraint upstream.",
+    "_note (php-saml version)": "The exact version is required by the patch below: a context patch silently breaks composer install on an untested release.",
     "require": {
         "cweagans/composer-patches": "^1.7",
-        "onelogin/php-saml": "4.3.1"
+        "onelogin/php-saml": "4.3.2",
+        "robrichards/xmlseclibs": "4.0.0 as 3.1.5"
     },
     "autoload": {
         "psr-4": {

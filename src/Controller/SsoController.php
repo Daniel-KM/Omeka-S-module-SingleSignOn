@@ -15,6 +15,7 @@ use Omeka\Permissions\Acl;
 use OneLogin\Saml2\Auth as SamlAuth;
 use OneLogin\Saml2\Error as SamlError;
 use OneLogin\Saml2\Settings as SamlSettings;
+use RobRichards\XMLSecLibs\XMLSecurityKey;
 use SimpleXMLElement;
 
 class SsoController extends AbstractActionController
@@ -290,6 +291,8 @@ class SsoController extends AbstractActionController
         }
 
         $samlAuth = new SamlAuth($configSso);
+
+        $this->checkKeyTransportAlgorithm($this->params()->fromPost('SAMLResponse'), $idpEntityId);
 
         $samlAuth->processResponse();
         $errors = $samlAuth->getErrors();
@@ -574,6 +577,13 @@ class SsoController extends AbstractActionController
         $this->authentication->clearIdentity();
 
         $samlAuth = new SamlAuth($configSso);
+
+        $samlMessage = $this->params()->fromQuery('SAMLRequest')
+            ?: $this->params()->fromQuery('SAMLResponse')
+            ?: $this->params()->fromPost('SAMLRequest')
+            ?: $this->params()->fromPost('SAMLResponse');
+        $this->checkKeyTransportAlgorithm($samlMessage, $idpEntityId);
+
         $sloUrl = $samlAuth->processSLO();
 
         $sessionManager = Container::getDefaultManager();
@@ -607,6 +617,49 @@ class SsoController extends AbstractActionController
 
         $this->messenger()->addSuccess(new PsrMessage('Successfully logged out.')); // @translate
         return $this->redirect()->toUrl($redirectUrl);
+    }
+
+    /**
+     * Log a warning when the IdP encrypts the key with the obsolete RSA-1.5.
+     *
+     * The algorithm is vulnerable to the Bleichenbacher attack, so xmlseclibs
+     * denies it by default since version 4.0 and the message cannot be
+     * decrypted. The check is done on the raw message, because the algorithm
+     * belongs to the encrypted part, that is removed from the document returned
+     * by php-saml once decrypted.
+     */
+    protected function checkKeyTransportAlgorithm(?string $samlMessage, string $idpEntityId): void
+    {
+        if (!$samlMessage) {
+            return;
+        }
+
+        $xml = base64_decode($samlMessage, true);
+        if ($xml === false) {
+            return;
+        }
+
+        // Unlike the post binding, the redirect binding deflates the message.
+        if (strpos($xml, '<') === false) {
+            $xml = @gzinflate($xml);
+            if ($xml === false) {
+                return;
+            }
+        }
+
+        // Check the attribute and not the raw url, that may appear in a list of
+        // algorithms supported by the IdP.
+        $pattern = '~<[^>]*EncryptionMethod[^>]+Algorithm\s*=\s*["\']'
+            . preg_quote(XMLSecurityKey::RSA_1_5, '~') . '["\']~i';
+        if (!preg_match($pattern, $xml)) {
+            return;
+        }
+
+        $message = new PsrMessage(
+            'The IdP "{idp}" encrypts the message with the obsolete algorithm RSA-1.5, refused by default since xmlseclibs 4.0. Ask the IdP to use RSA-OAEP.', // @translate
+            ['idp' => $idpEntityId]
+        );
+        $this->logger()->warn($message->getMessage(), $message->getContext());
     }
 
     /**

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-09 00:00+0000\n"
+"POT-Creation-Date: 2026-09-07 10:24+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
@@ -17,12 +17,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.6\n"
 
-#: data/scripts/upgrade.php:39 Module.php:60
+#: data/scripts/upgrade.php:39 Module.php:81
 #, php-format
 msgid "The module %1$s should be upgraded to version %2$s or later."
 msgstr "Le module %1$s doit être mis à niveau à la version %2$s ou supérieure."
 
-#: Module.php:149
+#: data/scripts/upgrade.php:43
+msgid "Missing requirement. Unable to upgrade."
+msgstr "Pré-requis absent. Impossible de mettre à jour."
+
+#: Module.php:106
+#, php-format
+msgid "The module %1$s requires PHP %2$s or higher."
+msgstr "Le module %1$s nécessite php version %2$s ou supérieure."
+
+#: Module.php:195
 msgid ""
 "When the metadata url of an IdP is set, its form will be automatically "
 "filled and updated each day."
@@ -30,13 +39,13 @@ msgstr ""
 "Quand l’url des métadonnées de l’IdP est mise, le formulaire est "
 "automatiquement mis à jour chaque jour."
 
-#: Module.php:152
+#: Module.php:198
 msgid "Warning: some IdPs hide the name, so you may fill it yourself."
 msgstr ""
 "Attention : certains IdPs cachent le nom et vous devez donc le remplir vous-"
 "même dans ce cas."
 
-#: Module.php:154
+#: Module.php:200
 msgid "Furthermore, IdP keys still need to be mapped, at least for name."
 msgstr ""
 "En outre, les clés IdP doivent toujours être alignées, au moins pour le nom."
@@ -80,11 +89,11 @@ msgstr "Créez votre mot de passe via votre fournisseur d’identité."
 msgid "Update your password via your identity provider."
 msgstr "Mettez à jour votre mot de passe via votre fournisseur d’identité."
 
-#: data/scripts/upgrade.php:74
+#: data/scripts/upgrade.php:75
 msgid "It is now possible to manage multiple IdPs."
 msgstr "Il est désormais possible de gérer plusieurs IdP."
 
-#: data/scripts/upgrade.php:81
+#: data/scripts/upgrade.php:82
 msgid ""
 "It is now possible to config and update IdPs automatically with IdP metadata "
 "url."
@@ -92,13 +101,13 @@ msgstr ""
 "Il est désormais possible de configurer et de mettre à jour automatiquement "
 "les IdP avec l’url des métadonnées IdP."
 
-#: data/scripts/upgrade.php:88
+#: data/scripts/upgrade.php:89
 msgid "It is now possible to map IdP and Omeka roles and settings."
 msgstr ""
 "Il est désormais possible de faire correspondre les rôles et les paramètres "
 "de l’IdP et d’Omeka."
 
-#: data/scripts/upgrade.php:103
+#: data/scripts/upgrade.php:104
 msgid ""
 "It is now possible to set an IdP manually. Warning: the certificate of IdP "
 "set manually will not be updated automatically."
@@ -107,17 +116,17 @@ msgstr ""
 "certificat de l’IdP défini manuellement ne sera pas mis à jour "
 "automatiquement."
 
-#: data/scripts/upgrade.php:110
+#: data/scripts/upgrade.php:111
 msgid "It is now possible to force login via SSO, so to disallow local login."
 msgstr ""
 "Il est maintenant possible de forcer la connexion via SSO, afin d’interdire "
 "la connexion locale."
 
-#: data/scripts/upgrade.php:115
+#: data/scripts/upgrade.php:116
 msgid "It is now possible to define a default role."
 msgstr "Il est désormais possible de définir un rôle par défaut."
 
-#: data/scripts/upgrade.php:190
+#: data/scripts/upgrade.php:191
 msgid ""
 "The settings \"heading\" was removed from block Sso login links. New blocks "
 "\"Heading\" or \"Html\" were prepended to all blocks that had a filled "
@@ -128,7 +137,7 @@ msgstr ""
 "tous les blocs qui avaient un titre rempli. Vous pouvez vérifier les pages "
 "pour les styles : {json}"
 
-#: data/scripts/upgrade.php:200
+#: data/scripts/upgrade.php:201
 msgid ""
 "The setting \"template\" was moved to the new block layout settings "
 "available since Omeka S v4.1. You may check pages for styles: {json}"
@@ -136,7 +145,7 @@ msgstr ""
 "Le paramètre « template » a été déplacé dans les nouveaux paramètres de bloc "
 "depuis Omeka S v4.1. Vous pouvez vérifier les pages pour les styles : {json}"
 
-#: data/scripts/upgrade.php:207
+#: data/scripts/upgrade.php:208
 msgid ""
 "The template files for the block Sso login links should be moved from \"view/"
 "common/block-layout\" to \"view/common/block-template\" in your themes. You "
@@ -146,7 +155,7 @@ msgstr ""
 "déplacés de « view/common/block-layout » à « view/common/block-template » "
 "dans vos thèmes. Vous pouvez vérifier vos thèmes pour les pages : {json}"
 
-#: data/scripts/upgrade.php:215
+#: data/scripts/upgrade.php:216
 msgid ""
 "It is now possible to define a federation of idps like Renater instead of "
 "individual idps."
@@ -154,7 +163,7 @@ msgstr ""
 "Il est désormais possible de définir une fédération d’idps comme Renater au "
 "lieu d’idps individuels."
 
-#: data/scripts/upgrade.php:248
+#: data/scripts/upgrade.php:249
 msgid ""
 "It is now possible to define a specific entity id (default is the url of the "
 "site)."
@@ -162,17 +171,17 @@ msgstr ""
 "Il est désormais possible de définir une id d’entité. L’id d’entité par "
 "défaut est l’url du site."
 
-#: data/scripts/upgrade.php:253
+#: data/scripts/upgrade.php:254
 msgid "It is now possible to create the x509 certificate of the SP."
 msgstr "Il est désormais possible de créer le certificat x509 du SP."
 
-#: data/scripts/upgrade.php:258
+#: data/scripts/upgrade.php:259
 msgid "It is now possible to manage IdPs with a urn as entity id."
 msgstr ""
 "Il est désormais possible de gérer des IdPs qui utilisent une URN comme id "
 "d’entité."
 
-#: data/scripts/upgrade.php:263
+#: data/scripts/upgrade.php:264
 msgid ""
 "A new option allows to replace the host domain used by Omeka as internal SP "
 "server with the host name used in public."
@@ -180,18 +189,18 @@ msgstr ""
 "Une nouvelle option permet de remplacer le domaine hôte utilisé par Omeka en "
 "tant que serveur SP interne par le nom d’hôte utilisé en public."
 
-#: data/scripts/upgrade.php:268
+#: data/scripts/upgrade.php:269
 msgid "A new option allows to set the page to redirect after login."
 msgstr ""
 "Une nouvelle option permet de définir la page de redirection après connexion."
 
-#: data/scripts/upgrade.php:273
+#: data/scripts/upgrade.php:274
 msgid "A new option allows to set groups for new users (module Group)."
 msgstr ""
 "Une nouvelle option permet de définir les groupes pour les nouveaux "
 "utilisateurs (module Groupe)."
 
-#: data/scripts/upgrade.php:307
+#: data/scripts/upgrade.php:308
 msgid ""
 "A new option allows to store the certificate used to encrypt process, not "
 "only to sign in."
@@ -199,7 +208,7 @@ msgstr ""
 "Une nouvelle option permet de définir un certificat pour le chiffrement, pas "
 "seulement la signature."
 
-#: data/scripts/upgrade.php:324
+#: data/scripts/upgrade.php:325
 msgid ""
 "Multiple signing and encryption certificates are now managed. The "
 "compatibility with Shibboleth was improved. For Shibboleth, you may need to "
@@ -209,7 +218,7 @@ msgstr ""
 "La compatibilité avec Shibboleth a été améliorée. Pour Shibboleth, vous "
 "pouvez avoir besoin de définir un certificat de chiffrement pour le SP."
 
-#: data/scripts/upgrade.php:329
+#: data/scripts/upgrade.php:330
 msgid ""
 "To upgrade the config, you must go to the {link}config form{link_end} and "
 "submit it manually."
@@ -217,13 +226,13 @@ msgstr ""
 "Pour mettre à niveau la configuration, vous devez aller au {link}formulaire "
 "de config{link_end} et le soumettre manuellement."
 
-#: data/scripts/upgrade.php:341
+#: data/scripts/upgrade.php:342
 msgid "A new option allows to update settings from idp attributes on login."
 msgstr ""
 "Une nouvelle option permet de mettre à jour les options à partir des "
 "attributs idp lors de la connexion."
 
-#: data/scripts/upgrade.php:376
+#: data/scripts/upgrade.php:377
 msgid ""
 "A new option allows to config a specific idp and to use the federation "
 "certificates of it."
@@ -231,7 +240,7 @@ msgstr ""
 "Une nouvelle option permet d’utiliser les certificats de la fédération pour "
 "la configuration de l’idp."
 
-#: data/scripts/upgrade.php:396
+#: data/scripts/upgrade.php:397
 msgid ""
 "A new option allows to improve the security measures. You should go to the "
 "{link}config form{link_end} to confirm them."
@@ -239,7 +248,7 @@ msgstr ""
 "Une nouvelle option permet de renforcer les mesures de sécurité. Vous pouvez "
 "les confirmer dans la {link}configuration{link_end}."
 
-#: Module.php:252
+#: Module.php:298
 msgid ""
 "For security, the default role cannot be an admin one. The default role was "
 "set to {role}."
@@ -247,7 +256,7 @@ msgstr ""
 "Par sécurité, le rôle par défaut ne peut pas être un rôle administrateur. Le "
 "rôle par défaut a été mis à {role}."
 
-#: Module.php:262
+#: Module.php:308
 msgid ""
 "For security, when using automatic registration (JIT), it is recommended to "
 "set the default role to \"Guest\" and to update the role of the user "
@@ -260,7 +269,7 @@ msgstr ""
 "est de filtrer l’utilisateur par rôle en amont via la config de l’idp. JIT a "
 "été désactivé."
 
-#: Module.php:406
+#: Module.php:459
 msgid ""
 "A federation is specified and a list of idps too. The idps defined manually "
 "overwrite the federation ones with the same name."
@@ -268,17 +277,17 @@ msgstr ""
 "Une fédération est définie ainsi qu’une liste d’idps. Les idps définis "
 "manuellement outrepassent ceux de la fédération avec le même nom."
 
-#: Module.php:467
+#: Module.php:520
 msgid "An IdP does not have url and no id and is not valid."
 msgstr "Un IdP ne dispose pas d’url ni d’identifiant et n’est pas valide."
 
-#: Module.php:485
+#: Module.php:538
 msgid ""
 "The idp \"{url}\" was manually filled and is not checked neither updated."
 msgstr ""
 "L’IdP « {url} » a été rempli manuellement et n’est ni vérifié ni mis à jour."
 
-#: Module.php:506
+#: Module.php:559
 msgid ""
 "The option to use metadata from federation for IdP \"{url}\" is set, but "
 "there is no such data."
@@ -286,12 +295,12 @@ msgstr ""
 "L’option pour utiliser les métadonnées de la fédération pour l’IdP « {url} » "
 "est définie, mais les données n’existent pas."
 
-#: Module.php:517
+#: Module.php:570
 msgid "The metadata for IdP \"{url}\" could not be retrieved: {error}"
 msgstr ""
 "Les métadonnées de l’IdP « {url} » ne peuvent pas être récupérées : {error}"
 
-#: Module.php:544
+#: Module.php:597
 msgid ""
 "The metadata for IdP \"{url}\" could not be retrieved. Previous config was "
 "kept."
@@ -299,11 +308,11 @@ msgstr ""
 "Les métadonnées de l’IdP « {url} » ne peuvent pas être récupérées. La "
 "configuration précédente a été conservée."
 
-#: Module.php:558
+#: Module.php:611
 msgid "The idp \"{url}\" seems to be invalid and has no id."
 msgstr "L’IdP « {url} » semble incorrect et n’a pas d’identifiant."
 
-#: Module.php:637
+#: Module.php:690
 msgid ""
 "A path is set for the certificate ({use}), but it does not contain a "
 "directory \"certs\" with files \"sp.crt\" and \"sp.key\"."
@@ -311,16 +320,16 @@ msgstr ""
 "Un chemin est défini pour le certificat ({use}), mais il ne contient pas le "
 "dossier « certs » avec les fichiers « sp.crt » et « sp.key »."
 
-#: Module.php:647
+#: Module.php:700
 msgid "The SP public certificate is set, but not the private key ({use})."
 msgstr "Le certificat public du SP est défini, mais pas la clé privée ({use})."
 
-#: Module.php:653
+#: Module.php:706
 msgid "The SP private key is set, but not the public certificate ({use})."
 msgstr ""
 "La clé privée du SP est définie, mais pas le certificat public ({use})."
 
-#: Module.php:661
+#: Module.php:714
 msgid ""
 "You cannot set a path to the certificate ({use}) and provide them in fields "
 "at the same time."
@@ -328,7 +337,7 @@ msgstr ""
 "Vous ne pouvez pas indiquer le chemin du certificat ({use}) et l’indiquer "
 "dans les champs en même temps."
 
-#: Module.php:671
+#: Module.php:724
 msgid ""
 "The certificate ({use}) cannot be created when fields \"certificate path\", "
 "\"x509 certificate\", or \"x509 private key\" are filled."
@@ -336,35 +345,35 @@ msgstr ""
 "Le certificat ({use}) ne peut pas être créé quand les champs « chemin du "
 "certificat », « certificat x509 » ou « clé privée x509 » sont définis."
 
-#: Module.php:681
+#: Module.php:734
 msgid "The x509 certificate ({use}) was created successfully."
 msgstr "Le certificat x509 ({use}) a été créé correctement."
 
-#: Module.php:688
+#: Module.php:741
 msgid ""
 "An error occurred during creation of the x509 certificate ({use}): {msg}"
 msgstr ""
 "Une erreur est survenue lors de la création du certificat x509 ({use}) : "
 "{msg}"
 
-#: Module.php:712
+#: Module.php:765
 msgid "The SP public certificate ({use}) is not valid."
 msgstr "Le certificat public du SP ({use}) n’est pas valide."
 
-#: Module.php:721
+#: Module.php:774
 msgid "The SP private key ({use}) is not valid."
 msgstr "La clé privée du SP ({use}) n’est pas valide."
 
-#: Module.php:737
+#: Module.php:790
 msgid "Unable to encrypt message with SP public certificate ({use})."
 msgstr ""
 "Impossible de chiffrer le message avec le certificat public SP ({use})."
 
-#: Module.php:746
+#: Module.php:799
 msgid "Unable to decrypt message with SP private key ({use})."
 msgstr "Impossible de déchiffrer le message avec la clé privée du SP ({use})."
 
-#: Module.php:755
+#: Module.php:808
 msgid ""
 "An issue occurred during decryption with SP private key ({use}). It may not "
 "the good one."
@@ -372,22 +381,22 @@ msgstr ""
 "Un problème s’est produit lors du déchiffrement avec la clé privée SP "
 "({use}). Il se peut qu’elle ne soit pas la bonne."
 
-#: Module.php:763
+#: Module.php:816
 msgid "No issue found on SP public certificate and private key ({use})."
 msgstr ""
 "Aucun problème n’a été constaté pour le certificat public et la clé privée "
 "du SP ({use})."
 
-#: Module.php:803
+#: Module.php:856
 msgid "The IdP public certificate of \"{url}\" is not valid."
 msgstr "Le certificat public de l’IdP « {url} » est incorrect."
 
-#: Module.php:815
+#: Module.php:868
 msgid "Unable to encrypt message with IdP public certificate of \"{url}\"."
 msgstr ""
 "Impossible de chiffrer le message avec le certificat public IdP de « {url} »."
 
-#: Module.php:823
+#: Module.php:876
 msgid "No issue found on IdP public certificate of \"{url}\"."
 msgstr "Aucun problème n’a été détecté sur le certificat public de « {url} »."
 
@@ -406,7 +415,7 @@ msgid "The federation url {url} does not return any metadata."
 msgstr "L’url de la fédération {url} ne renvoie aucune métadonnée."
 
 #: src/Mvc/Controller/Plugin/SsoFederationMetadata.php:94
-#: src/Controller/SsoController.php:774
+#: src/Controller/SsoController.php:827
 msgid "The federation url {url} does not return valid xml metadata."
 msgstr ""
 "L’url de la fédération {url} ne renvoie pas de métadonnées xml valides."
@@ -969,32 +978,32 @@ msgstr "Déplacer cet idp vers le haut"
 msgid "Move this idp down"
 msgstr "Déplacer cet idp vers le bas"
 
-#: src/Controller/SsoController.php:194
+#: src/Controller/SsoController.php:195
 msgid "No IdP with this name: {idp}."
 msgstr "Aucun IdP avec ce nom : {idp}."
 
-#: src/Controller/SsoController.php:204 src/Controller/SsoController.php:288
+#: src/Controller/SsoController.php:205 src/Controller/SsoController.php:289
 msgid "Single sign-on is disabled."
 msgstr "Le service SSO est désactivé."
 
-#: src/Controller/SsoController.php:280 src/Controller/SsoController.php:561
-#: src/Controller/SsoController.php:740
+#: src/Controller/SsoController.php:281 src/Controller/SsoController.php:564
+#: src/Controller/SsoController.php:793
 msgid "No IdP with this name."
 msgstr "Aucun IdP avec ce nom."
 
-#: src/Controller/SsoController.php:300
+#: src/Controller/SsoController.php:303
 msgid "Single sign-on failed: {errors}. {error_last}"
 msgstr "Le service SSO a échoué : {errors}. {error_last}"
 
-#: src/Controller/SsoController.php:308
+#: src/Controller/SsoController.php:311
 msgid "Single sign-on failed: {errors}"
 msgstr "Le service SSO a échoué : {errors}"
 
-#: src/Controller/SsoController.php:335
+#: src/Controller/SsoController.php:338
 msgid "No email provided to log in or register."
 msgstr "Aucun courriel n’est fourni pour se connecter ou s’enregistrer."
 
-#: src/Controller/SsoController.php:338
+#: src/Controller/SsoController.php:341
 msgid ""
 "No email provided or mapped. Available canonical attributes for this IdP: "
 "{keys}. Available friendly attributes for this IdP: {keys_2}."
@@ -1002,11 +1011,11 @@ msgstr ""
 "Pas d’email fourni ou aligné. Attributs canoniques disponibles pour cet "
 "IdP : {keys}. Attributs simplifiés disponibles pour cet IdP : {keys_2}."
 
-#: src/Controller/SsoController.php:418
+#: src/Controller/SsoController.php:421
 msgid "Automatic registering is disabled."
 msgstr "L’inscription automatique est désactivée."
 
-#: src/Controller/SsoController.php:425
+#: src/Controller/SsoController.php:428
 msgid ""
 "No name provided or mapped. Available canonical attributes for this IdP: "
 "{keys}. Available friendly attributes for this IdP: {keys_2}."
@@ -1014,60 +1023,66 @@ msgstr ""
 "Pas de nom fourni ou aligné. Attributs canoniques disponibles pour cet IdP : "
 "{keys}. Attributs simplifiés disponibles pour cet IdP : {keys_2}."
 
-#: src/Controller/SsoController.php:469
+#: src/Controller/SsoController.php:472
 msgid "User \"{email}\" is inactive."
 msgstr "L’utilisateur « {email} » est inactif."
 
-#: src/Controller/SsoController.php:524
+#: src/Controller/SsoController.php:527
 msgid "Successfully logged in."
 msgstr "Connecté avec succès."
 
-#: src/Controller/SsoController.php:587
+#: src/Controller/SsoController.php:597
 msgid "Single logout service failed: {errors}. {error_last}"
 msgstr "Le service SLO de déconnexion a échoué : {errors}. {error_last}"
 
-#: src/Controller/SsoController.php:595
+#: src/Controller/SsoController.php:605
 msgid "Single logout service failed: {errors}"
 msgstr "Le service SLO de déconnexion a échoué : {errors}"
 
-#: src/Controller/SsoController.php:608
+#: src/Controller/SsoController.php:618
 msgid "Successfully logged out."
 msgstr "Déconnecté avec succès."
 
-#: src/Controller/SsoController.php:752 src/Controller/SsoController.php:764
-#: src/Controller/SsoController.php:815
+#: src/Controller/SsoController.php:659
+msgid ""
+"The IdP \"{idp}\" encrypts the message with the obsolete algorithm RSA-1.5, "
+"refused by default since xmlseclibs 4.0. Ask the IdP to use RSA-OAEP."
+msgstr ""
+
+#: src/Controller/SsoController.php:805 src/Controller/SsoController.php:817
+#: src/Controller/SsoController.php:868
 msgid "The IdP \"{idp}\" has no available metadata."
 msgstr "L’IdP « {idp} » n’a pas de métadonnées disponibles."
 
-#: src/Controller/SsoController.php:825
+#: src/Controller/SsoController.php:878
 msgid "The IdP \"{idp}\" has no valid xml metadata."
 msgstr "L’IdP « {idp} » n’a pas de métadonnées xml valides."
 
-#: src/Controller/SsoController.php:919
+#: src/Controller/SsoController.php:972
 msgid "SSO service has an error in configuration: {exception}"
 msgstr "Le service SSO a une erreur de configuration : {exception}"
 
-#: src/Controller/SsoController.php:927
+#: src/Controller/SsoController.php:980
 msgid "SSO service is not available. Ask admin to config it."
 msgstr ""
 "Le service SSO n’est pas disponible. Demander à votre administrateur de le "
 "configurer."
 
-#: src/Controller/SsoController.php:931
+#: src/Controller/SsoController.php:984
 msgid "SSO service is unavailable."
 msgstr "Le service SSO est indisponible."
 
-#: src/Controller/SsoController.php:936
+#: src/Controller/SsoController.php:989
 msgid "SSO service is unavailable. Ask admin to config it."
 msgstr ""
 "Le service SSO est indisponible. Demander à votre administrateur de le "
 "configurer."
 
-#: src/Controller/SsoController.php:991
+#: src/Controller/SsoController.php:1044
 msgid "The certificate for the signature is incomplete."
 msgstr "Le certificat pour la signature est incomplet."
 
-#: src/Controller/SsoController.php:1006
+#: src/Controller/SsoController.php:1059
 msgid "The certificate for the encryption is incomplete."
 msgstr "Le certificat pour le chiffrement est incomplet."
 

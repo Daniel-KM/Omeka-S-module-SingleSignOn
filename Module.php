@@ -74,10 +74,37 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $translator = $services->get('MvcTranslator');
 
+        $this->checkPhpVersion();
+
         if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.91')) {
             $message = new \Omeka\Stdlib\Message(
                 $translator->translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
                 'Common', '3.4.91'
+            );
+            throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+        }
+    }
+
+    protected function preUpgrade(?string $oldVersion, ?string $newVersion): void
+    {
+        $this->checkPhpVersion();
+    }
+
+    /**
+     * Check the php version required by the dependencies of the module.
+     *
+     * The library robrichards/xmlseclibs, used by php-saml to check the
+     * signatures, requires php 8.0 since version 4.0. Omeka >= 4.2 requires php
+     * 8.1 anyway, but the module still supports Omeka 4.1, that may run on php
+     * 7.4.
+     */
+    protected function checkPhpVersion(): void
+    {
+        if (PHP_VERSION_ID < 80000) {
+            $translator = $this->getServiceLocator()->get('MvcTranslator');
+            $message = new \Omeka\Stdlib\Message(
+                $translator->translate('The module %1$s requires PHP %2$s or higher.'), // @translate
+                'Single Sign-On', '8.0'
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }

@@ -411,7 +411,7 @@ and the [Université de Strasbourg] (UNISTRA). New features were implemented for
 [Firefox]: https://www.firefox.com
 [SAML Message Decoder]: https://addons.mozilla.org/fr/firefox/addon/saml-message-decoder-extension
 [SamlTest.id]: https://samltest.id
-[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/issues
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-SingleSignOn/-/work_items
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
